@@ -1,0 +1,9 @@
+{
+   "printWidth": 120,
+   "semi": true,
+   "singleAttributePerLine": true,
+   "singleQuote": true,
+   "tabWidth": 3,
+   "tailwindFunctions": ["clsx", "cva"],
+   "trailingComma": "all"
+}

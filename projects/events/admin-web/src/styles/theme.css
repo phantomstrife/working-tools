@@ -1,0 +1,142 @@
+@import 'tailwindcss';
+
+@theme {
+   --spacing-primary: 1rem;
+   --spacing-secondary: 1.5rem;
+
+   --color-neutral-50: #ffffff;
+   --color-neutral-100: #f5f5f5;
+   --color-neutral-200: #e5e5e5;
+   --color-neutral-300: #d4d4d4;
+   --color-neutral-400: #a1a1a1;
+   --color-neutral-500: #737373;
+   --color-neutral-600: #525252;
+   --color-neutral-700: #404040;
+   --color-neutral-800: #262626;
+   --color-neutral-900: #171717;
+   --color-neutral-950: #000000;
+
+   --color-success-50: #f0fdf4;
+   --color-success-100: #dcfce7;
+   --color-success-200: #b9f8cf;
+   --color-success-300: #7bf1a8;
+   --color-success-400: #05df72;
+   --color-success-500: #00c950;
+   --color-success-600: #00a63e;
+   --color-success-700: #008236;
+   --color-success-800: #016630;
+   --color-success-900: #0d542b;
+   --color-success-950: #032e15;
+
+   --color-warning-50: #fefce8;
+   --color-warning-100: #fef9c2;
+   --color-warning-200: #fff085;
+   --color-warning-300: #ffdf20;
+   --color-warning-400: #fdc700;
+   --color-warning-500: #f0b100;
+   --color-warning-600: #d08700;
+   --color-warning-700: #a65f00;
+   --color-warning-800: #894b00;
+   --color-warning-900: #733e0a;
+   --color-warning-950: #432004;
+
+   --color-error-50: #fef2f2;
+   --color-error-100: #ffe2e2;
+   --color-error-200: #ffc9c9;
+   --color-error-300: #ffa2a2;
+   --color-error-400: #ff6467;
+   --color-error-500: #fb2c36;
+   --color-error-600: #e7000b;
+   --color-error-700: #c10007;
+   --color-error-800: #9f0712;
+   --color-error-900: #82181a;
+   --color-error-950: #460809;
+
+   --color-info-50: #ecfeff;
+   --color-info-100: #cefafe;
+   --color-info-200: #a2f4fd;
+   --color-info-300: #53eafd;
+   --color-info-400: #00d3f3;
+   --color-info-500: #00b8db;
+   --color-info-600: #0092b8;
+   --color-info-700: #007595;
+   --color-info-800: #005f78;
+   --color-info-900: #104e64;
+   --color-info-950: #053345;
+
+   --color-question-50: #f5f3ff;
+   --color-question-100: #ede9fe;
+   --color-question-200: #ddd6ff;
+   --color-question-300: #c4b4ff;
+   --color-question-400: #a684ff;
+   --color-question-500: #8e51ff;
+   --color-question-600: #7f22fe;
+   --color-question-700: #7008e7;
+   --color-question-800: #5d0ec0;
+   --color-question-900: #4d179a;
+   --color-question-950: #2f0d68;
+
+   --color-primary-100: #e5ebff;
+   --color-primary-200: #b2c4ff;
+   --color-primary-300: #658aff;
+   --color-primary-400: #194fff;
+   --color-primary-500: #0036e5;
+   --color-primary-600: #002ab2;
+   --color-primary-700: #002393;
+   --color-primary-800: #001f84;
+   --color-primary-900: #001865;
+   --color-primary-950: #001147;
+
+   --color-secondary-100: #eaf6ff;
+   --color-secondary-200: #b7e1ff;
+   --color-secondary-300: #84ccff;
+   --color-secondary-400: #51b7ff;
+   --color-secondary-500: #1ea2ff;
+   --color-secondary-600: #0089ea;
+   --color-secondary-700: #0077cb;
+   --color-secondary-800: #0065ad;
+   --color-secondary-900: #00538e;
+   --color-secondary-950: #004170;
+
+   --color-social-facebook: #3b579d;
+   --color-social-google: #d72332;
+
+   --color-utility-400: #ced4da;
+   --color-utility-600: #d4d4d8;
+
+   --font-primary: var(--font-inter);
+   --font-secondary: Arial;
+
+   --text-8: 0.5rem;
+   --text-10: 0.625rem;
+   --text-11: 0.6875rem;
+   --text-12: 0.75rem;
+   --text-13: 0.8125rem;
+   --text-14: 0.875rem;
+   --text-15: 0.9375rem;
+   --text-16: 1rem;
+   --text-18: 1.125rem;
+   --text-20: 1.25rem;
+   --text-22: 1.375rem;
+   --text-24: 1.5rem;
+   --text-26: 1.625rem;
+   --text-28: 1.75rem;
+   --text-30: 1.875rem;
+   --text-32: 2rem;
+   --text-36: 2.25rem;
+   --text-40: 2.5rem;
+   --text-48: 3rem;
+   --text-50: 3.125rem;
+   --text-56: 3.5rem;
+   --text-60: 3.75rem;
+   --text-64: 4rem;
+   --text-70: 4.375rem;
+   --text-72: 4.5rem;
+
+   --radius-primary: 0.5rem;
+   --radius-secondary: 0.75rem;
+}
+
+body {
+   font-family: var(--font-primary), system-ui, sans-serif;
+}

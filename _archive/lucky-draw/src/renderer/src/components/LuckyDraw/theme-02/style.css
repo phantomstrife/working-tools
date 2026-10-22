@@ -1,0 +1,19 @@
+.info_wrapper {
+   grid-template-areas:
+      'winner'
+      'reel'
+      'prize';
+   grid-template-rows: 76fr 110fr 150fr;
+}
+
+.winner {
+   grid-area: winner;
+}
+
+.prize {
+   grid-area: prize;
+}
+
+.reel {
+   grid-area: reel;
+}
