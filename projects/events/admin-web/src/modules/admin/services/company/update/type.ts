@@ -1,10 +1,10 @@
-import { Database } from '@/adapters/supabase/type';
+import type { Database } from '@/adapters/supabase/type';
 
-type Company = Database['public']['Tables']['companies']['Row'];
+export type CompanyUpdate = Database['public']['Tables']['companies']['Update'];
 
-interface Request {
+export interface Request {
    id: string;
-   company: Partial<Omit<Company, 'id'>>;
+   company: Omit<CompanyUpdate, 'id'>;
 }
 
 export type Update = (request: Request) => Promise<void>;

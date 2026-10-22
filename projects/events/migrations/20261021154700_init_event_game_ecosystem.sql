@@ -234,6 +234,35 @@ USING (
   (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
 );
 
+-- Allow Admins and Super Admins to insert new companies
+CREATE POLICY "Companies: Admin Insert" 
+ON public.companies 
+FOR INSERT 
+TO authenticated 
+WITH CHECK (
+  public.get_my_role() IN ('SUPER_ADMIN', 'ADMIN')
+);
+
+-- Allow Admins to update their OWN company, Super Admins can update ALL
+CREATE POLICY "Companies: Admin Update" 
+ON public.companies 
+FOR UPDATE 
+TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
+);
+
+-- Allow Admins to delete their OWN company, Super Admins can delete ALL
+CREATE POLICY "Companies: Admin Delete" 
+ON public.companies 
+FOR DELETE 
+TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
+);
+
 -- EVENTS POLICIES
 CREATE POLICY "Events: Admin Access" ON public.events FOR ALL TO authenticated 
 USING (

@@ -1,6 +1,8 @@
 export const LayoutDashboard: Router_Layout = (propeties) => {
    const { children } = propeties;
 
+   return children;
+
    return (
       <div className="flex flex-col h-screen">
          <header className="bg-gray-800 text-white p-4">

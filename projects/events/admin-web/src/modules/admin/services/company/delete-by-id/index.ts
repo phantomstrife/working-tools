@@ -9,12 +9,11 @@ import type * as Types from './type';
 
 export const deleteById: Types.DeleteById = async (request) => {
    const supabase = await getServerClient();
-   const companies = await supabase.from('companies').delete().eq('id', request.id);
+   const result = await supabase.from('companies').delete().eq('id', request.id);
 
-   if (companies.error) {
-      throw new Error(companies.error.message);
+   if (result.error) {
+      throw new Error(result.error.message);
    }
 
-   revalidatePath(ROUTE.ADMIN.COMPANY.GET(request.id));
-   revalidatePath(ROUTE.ADMIN.COMPANY.GET_ALL);
+   revalidatePath(ROUTE.ADMIN.COMPANY.SEARCH);
 };

@@ -1,176 +1,636 @@
-import Link from 'next/link';
-import { Building2, MapPin, Briefcase, FileText, User, Mail, Phone, ChevronLeft, CalendarX2 } from 'lucide-react';
+'use client';
 
-import { getServerClient } from '@/adapters/supabase/server';
-import CompanyActions from '../CompanyActions';
+import {
+   AlertTriangle,
+   ArrowUpDown,
+   Building2,
+   ChevronLeft,
+   ChevronRight,
+   Copy,
+   Download,
+   Edit,
+   Loader2,
+   MoreHorizontal,
+   Plus,
+   Search,
+   Trash2,
+   Upload,
+   X,
+} from 'lucide-react';
+import { Toaster } from 'sonner';
 
-interface CompanyPageProps {
-   params: Promise<{
-      id: string;
-   }>;
-}
+import { useLogic } from './use-logic';
+import { useStyle } from './use-style';
 
-const getStatusStyles = (status: string | null) => {
-   switch (status) {
-      case 'ACTIVE':
-         return 'bg-green-50 text-green-700 border-green-200';
-      case 'SUSPENDED':
-         return 'bg-red-50 text-red-700 border-red-200';
-      case 'INACTIVE':
-      default:
-         return 'bg-gray-50 text-gray-700 border-gray-200';
-   }
-};
+import type { StatusFilter } from './use-logic';
 
-export async function PageAdminCompany({ params }: CompanyPageProps) {
-   const { id } = await params;
-   const supabase = await getServerClient();
+const PRESET_TABS: ReadonlyArray<{ label: string; value: StatusFilter }> = [
+   { label: 'All Companies', value: 'ALL' },
+   { label: 'Active', value: 'ACTIVE' },
+   { label: 'Inactive', value: 'INACTIVE' },
+   { label: 'Suspended', value: 'SUSPENDED' },
+];
 
-   const { data, error } = await supabase.from('companies').select('*').eq('id', id).single();
+const SKELETON_ROWS = [1, 2, 3, 4, 5];
 
-   if (error || !data) {
-      return (
-         <div className="flex flex-col items-center justify-center min-h-100 p-8 text-center">
-            <Building2 className="w-12 h-12 text-gray-300 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900">Company Not Found</h2>
-            <p className="text-gray-500 mt-2 mb-6">
-               The company you are looking for does not exist or an error occurred.
-            </p>
-            <Link
-               href="/companies"
-               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
-            >
-               Return to Companies
-            </Link>
-         </div>
-      );
-   }
+export const PageAdminCompanySearch: Router_Page = () => {
+   const { param, func } = useLogic();
+   const {
+      wrapper,
+      headerBlock,
+      presetTabs,
+      toolbarBlock,
+      bulkBar,
+      tableBlock,
+      emptyBlock,
+      paginationBlock,
+      modalBlock,
+      icon,
+   } = useStyle;
 
    return (
-      <div className="max-w-7xl mx-auto p-6 lg:p-8">
-         <Link
-            href="/companies"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6"
-         >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to Companies
-         </Link>
+      <div className={wrapper()}>
+         <Toaster position="top-right" />
 
-         <header className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
-            <div>
-               <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{data.name}</h1>
-                  <span
-                     className={`px-2.5 py-1 text-xs font-medium rounded-full border ${getStatusStyles(data.status)}`}
-                  >
-                     {data.status}
-                  </span>
-               </div>
-               <p className="text-sm text-gray-500 font-mono">ID: {data.id}</p>
+         <header className={headerBlock.wrapper()}>
+            <div className={headerBlock.titleGroup()}>
+               <h1 className={headerBlock.title()}>Companies</h1>
+               <span className={headerBlock.subtitle()}>
+                  Manage tenant organizations, primary contacts, and operational access status.
+               </span>
             </div>
 
-            {/* Injected the Client Component for CRUD interactions */}
-            <CompanyActions company={data} />
+            <div className={headerBlock.actions()}>
+               <input
+                  id={param.csvInputId}
+                  type="file"
+                  accept=".csv"
+                  className={headerBlock.hiddenInput()}
+                  onChange={func.handleImportCsvFile}
+               />
+               <button
+                  type="button"
+                  onClick={func.handleTriggerImportCsv}
+                  disabled={param.isPendingMutation}
+                  className={headerBlock.secondaryBtn({ disabled: param.isPendingMutation })}
+               >
+                  <Upload className={icon.sm()} />
+                  Import CSV
+               </button>
+               <button
+                  type="button"
+                  onClick={func.handleExportAllCsv}
+                  disabled={param.isLoading || param.items.length === 0}
+                  className={headerBlock.secondaryBtn({ disabled: param.isLoading || param.items.length === 0 })}
+               >
+                  <Download className={icon.sm()} />
+                  Export CSV
+               </button>
+               <button
+                  type="button"
+                  onClick={func.handleNavigateCreate}
+                  className={headerBlock.primaryBtn()}
+               >
+                  <Plus className={icon.sm()} />
+                  Create Company
+               </button>
+            </div>
          </header>
 
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <section className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                  <h2 className="text-lg font-semibold text-gray-900">Company Overview</h2>
-               </div>
-               <div className="p-6 space-y-4">
-                  <div className="flex items-start gap-3">
-                     <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
-                     <div>
-                        <p className="text-sm font-medium text-gray-500">Tax Code</p>
-                        <p className="text-base text-gray-900 mt-0.5">{data.tax_code || 'Not provided'}</p>
-                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                     <Briefcase className="w-5 h-5 text-gray-400 mt-0.5" />
-                     <div>
-                        <p className="text-sm font-medium text-gray-500">Industry</p>
-                        <p className="text-base text-gray-900 mt-0.5">{data.industry || 'Not provided'}</p>
-                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                     <div>
-                        <p className="text-sm font-medium text-gray-500">Address</p>
-                        <p className="text-base text-gray-900 mt-0.5">{data.address || 'Not provided'}</p>
-                     </div>
-                  </div>
-               </div>
-            </section>
+         <nav
+            className={presetTabs.wrapper()}
+            aria-label="Company status presets"
+         >
+            {PRESET_TABS.map((tab) => (
+               <button
+                  key={tab.value}
+                  type="button"
+                  onClick={() => func.handleStatusChange(tab.value)}
+                  className={presetTabs.tab({ active: param.statusFilter === tab.value })}
+               >
+                  {tab.label}
+               </button>
+            ))}
+         </nav>
 
-            <section className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                  <h2 className="text-lg font-semibold text-gray-900">Primary Contact</h2>
+         <section className={toolbarBlock.wrapper()}>
+            <div className={toolbarBlock.controlsRow()}>
+               <div className={toolbarBlock.searchBox()}>
+                  <Search className={toolbarBlock.searchIcon()} />
+                  <input
+                     type="search"
+                     value={param.searchInput}
+                     onChange={(e) => func.setSearchInput(e.target.value)}
+                     placeholder="Search by name, tax code, contact person, or email..."
+                     className={toolbarBlock.searchInput()}
+                  />
+                  {param.searchInput && (
+                     <button
+                        type="button"
+                        onClick={func.handleClearSearch}
+                        className={toolbarBlock.clearSearchBtn()}
+                        aria-label="Clear search"
+                     >
+                        <X className={icon.xs()} />
+                     </button>
+                  )}
                </div>
-               <div className="p-6 space-y-4">
-                  <div className="flex items-start gap-3">
-                     <User className="w-5 h-5 text-gray-400 mt-0.5" />
-                     <div>
-                        <p className="text-sm font-medium text-gray-500">Contact Person</p>
-                        <p className="text-base text-gray-900 mt-0.5">{data.contact_person || 'Not provided'}</p>
-                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                     <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
-                     <div>
-                        <p className="text-sm font-medium text-gray-500">Email Address</p>
-                        {data.contact_email ? (
-                           <a
-                              href={`mailto:${data.contact_email}`}
-                              className="text-base text-blue-600 hover:underline mt-0.5 block"
-                           >
-                              {data.contact_email}
-                           </a>
-                        ) : (
-                           <p className="text-base text-gray-900 mt-0.5">Not provided</p>
-                        )}
-                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                     <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
-                     <div>
-                        <p className="text-sm font-medium text-gray-500">Phone Number</p>
-                        {data.contact_phone ? (
-                           <a
-                              href={`tel:${data.contact_phone}`}
-                              className="text-base text-blue-600 hover:underline mt-0.5 block"
-                           >
-                              {data.contact_phone}
-                           </a>
-                        ) : (
-                           <p className="text-base text-gray-900 mt-0.5">Not provided</p>
-                        )}
-                     </div>
-                  </div>
-               </div>
-            </section>
-         </div>
 
-         <section>
-            <div className="flex items-center justify-between mb-4">
-               <h2 className="text-xl font-bold text-gray-900">Events Directory</h2>
+               <div className={toolbarBlock.filterGroup()}>
+                  <select
+                     value={param.statusFilter}
+                     onChange={(e) =>
+                        func.handleStatusChange(
+                           e.target.value === 'ACTIVE' ||
+                              e.target.value === 'INACTIVE' ||
+                              e.target.value === 'SUSPENDED'
+                              ? e.target.value
+                              : 'ALL',
+                        )
+                     }
+                     className={toolbarBlock.select()}
+                     aria-label="Filter by status"
+                  >
+                     <option value="ALL">Status: All</option>
+                     <option value="ACTIVE">Status: Active</option>
+                     <option value="INACTIVE">Status: Inactive</option>
+                     <option value="SUSPENDED">Status: Suspended</option>
+                  </select>
+
+                  <select
+                     value={param.sortBy}
+                     onChange={(e) => func.handleSortFieldChange(e.target.value)}
+                     className={toolbarBlock.select()}
+                     aria-label="Sort field"
+                  >
+                     <option value="created_at">Sort: Created Date</option>
+                     <option value="updated_at">Sort: Updated Date</option>
+                     <option value="name">Sort: Company Name</option>
+                     <option value="status">Sort: Status</option>
+                  </select>
+
+                  <button
+                     type="button"
+                     onClick={func.handleToggleSortOrder}
+                     className={toolbarBlock.sortOrderBtn()}
+                  >
+                     <ArrowUpDown className={icon.xs()} />
+                     {param.sortOrder === 'asc' ? 'ASC' : 'DESC'}
+                  </button>
+               </div>
             </div>
 
-            <div className="bg-white border-2 border-dashed border-gray-200 rounded-xl p-12 text-center flex flex-col items-center justify-center">
-               <div className="bg-blue-50 p-3 rounded-full mb-4">
-                  <CalendarX2 className="w-8 h-8 text-blue-600" />
-               </div>
-               <h3 className="text-lg font-semibold text-gray-900 mb-1">No Events Found</h3>
-               <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
-                  This company does not have any active or past events configured yet.
-               </p>
-               <Link href={`/companies/${data.id}/events/new`}>
-                  <button className="inline-flex items-center px-4 py-2 bg-gray-100 border border-transparent rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors">
-                     Create First Event
+            {param.hasActiveFilters && (
+               <div className={toolbarBlock.chipsRow()}>
+                  {param.urlQuery && (
+                     <span className={toolbarBlock.chip()}>
+                        Search: &ldquo;{param.urlQuery}&rdquo;
+                        <button
+                           type="button"
+                           onClick={func.handleClearSearch}
+                           className={toolbarBlock.chipRemoveBtn()}
+                           aria-label="Remove search filter"
+                        >
+                           <X className={icon.xs()} />
+                        </button>
+                     </span>
+                  )}
+
+                  {param.statusFilter !== 'ALL' && (
+                     <span className={toolbarBlock.chip()}>
+                        Status: {param.statusFilter}
+                        <button
+                           type="button"
+                           onClick={() => func.handleStatusChange('ALL')}
+                           className={toolbarBlock.chipRemoveBtn()}
+                           aria-label="Remove status filter"
+                        >
+                           <X className={icon.xs()} />
+                        </button>
+                     </span>
+                  )}
+
+                  <button
+                     type="button"
+                     onClick={func.handleClearAllFilters}
+                     className={toolbarBlock.clearAllBtn()}
+                  >
+                     Clear all
                   </button>
-               </Link>
+               </div>
+            )}
+         </section>
+
+         {param.selectedIds.length > 0 && (
+            <div className={bulkBar.wrapper()}>
+               <div className={bulkBar.leftGroup()}>
+                  <span className={bulkBar.countText()}>{param.selectedIds.length} selected</span>
+                  <button
+                     type="button"
+                     onClick={func.clearSelection}
+                     className={bulkBar.clearBtn()}
+                  >
+                     Clear selection
+                  </button>
+               </div>
+
+               <div className={bulkBar.actions()}>
+                  <button
+                     type="button"
+                     onClick={() => func.handleBulkStatusChange('ACTIVE')}
+                     disabled={param.isPendingMutation}
+                     className={bulkBar.actionBtn()}
+                  >
+                     Set Active
+                  </button>
+                  <button
+                     type="button"
+                     onClick={() => func.handleBulkStatusChange('INACTIVE')}
+                     disabled={param.isPendingMutation}
+                     className={bulkBar.actionBtn()}
+                  >
+                     Set Inactive
+                  </button>
+                  <button
+                     type="button"
+                     onClick={() => func.handleBulkStatusChange('SUSPENDED')}
+                     disabled={param.isPendingMutation}
+                     className={bulkBar.actionBtn()}
+                  >
+                     Set Suspended
+                  </button>
+                  <button
+                     type="button"
+                     onClick={func.handleBulkExportCsv}
+                     className={bulkBar.actionBtn()}
+                  >
+                     <Download className={icon.xs()} />
+                     Export Selected
+                  </button>
+                  <button
+                     type="button"
+                     onClick={func.handleOpenBulkDelete}
+                     disabled={param.isPendingMutation}
+                     className={bulkBar.dangerBtn()}
+                  >
+                     <Trash2 className={icon.xs()} />
+                     Delete Selected
+                  </button>
+               </div>
+            </div>
+         )}
+
+         <section className={tableBlock.container()}>
+            <div className={tableBlock.scrollWrapper()}>
+               <table className={tableBlock.table()}>
+                  <thead className={tableBlock.thead()}>
+                     <tr>
+                        <th className={tableBlock.thCheckbox()}>
+                           <input
+                              type="checkbox"
+                              checked={param.isAllSelected}
+                              onChange={func.handleToggleSelectAll}
+                              className={tableBlock.checkbox()}
+                              aria-label="Select all companies on current page"
+                           />
+                        </th>
+                        <th className={tableBlock.th()}>Company</th>
+                        <th className={tableBlock.th()}>Tax Code</th>
+                        <th className={tableBlock.th()}>Industry</th>
+                        <th className={tableBlock.th()}>Primary Contact</th>
+                        <th className={tableBlock.th()}>Status</th>
+                        <th className={tableBlock.th()}>Created</th>
+                        <th className={tableBlock.thAction()}>Actions</th>
+                     </tr>
+                  </thead>
+
+                  <tbody className={tableBlock.tbody()}>
+                     {param.isLoading &&
+                        SKELETON_ROWS.map((rowKey) => (
+                           <tr
+                              key={rowKey}
+                              className={tableBlock.tr()}
+                           >
+                              <td className={tableBlock.tdCheckbox()}>
+                                 <div className={tableBlock.skeletonRow()} />
+                              </td>
+                              <td className={tableBlock.td()}>
+                                 <div className={tableBlock.skeletonRow()} />
+                              </td>
+                              <td className={tableBlock.td()}>
+                                 <div className={tableBlock.skeletonRow()} />
+                              </td>
+                              <td className={tableBlock.td()}>
+                                 <div className={tableBlock.skeletonRow()} />
+                              </td>
+                              <td className={tableBlock.td()}>
+                                 <div className={tableBlock.skeletonRow()} />
+                              </td>
+                              <td className={tableBlock.td()}>
+                                 <div className={tableBlock.skeletonRow()} />
+                              </td>
+                              <td className={tableBlock.td()}>
+                                 <div className={tableBlock.skeletonRow()} />
+                              </td>
+                              <td className={tableBlock.tdAction()}>
+                                 <div className={tableBlock.skeletonRow()} />
+                              </td>
+                           </tr>
+                        ))}
+
+                     {!param.isLoading &&
+                        param.items.map((company) => {
+                           const isSelected = param.selectedIds.includes(company.id);
+                           const isMenuOpen = param.openMenuId === company.id;
+
+                           return (
+                              <tr
+                                 key={company.id}
+                                 className={tableBlock.tr({ selected: isSelected })}
+                              >
+                                 <td className={tableBlock.tdCheckbox()}>
+                                    <input
+                                       type="checkbox"
+                                       checked={isSelected}
+                                       onChange={() => func.handleToggleSelectRow(company.id)}
+                                       className={tableBlock.checkbox()}
+                                       aria-label={`Select ${company.name}`}
+                                    />
+                                 </td>
+
+                                 <td className={tableBlock.td()}>
+                                    <div className={tableBlock.companyCell()}>
+                                       <button
+                                          type="button"
+                                          onClick={() => func.handleNavigateEdit(company.id)}
+                                          className={tableBlock.companyNameBtn()}
+                                       >
+                                          {company.name}
+                                       </button>
+                                       <span className={tableBlock.companyMeta()}>
+                                          {company.address || 'No headquarters address'}
+                                       </span>
+                                    </div>
+                                 </td>
+
+                                 <td className={tableBlock.td()}>{company.tax_code || '—'}</td>
+
+                                 <td className={tableBlock.td()}>{company.industry || '—'}</td>
+
+                                 <td className={tableBlock.td()}>
+                                    <div className={tableBlock.contactCell()}>
+                                       <span className={tableBlock.contactName()}>
+                                          {company.contact_person || '—'}
+                                       </span>
+                                       <span className={tableBlock.contactSub()}>
+                                          {company.contact_email || company.contact_phone || '—'}
+                                       </span>
+                                    </div>
+                                 </td>
+
+                                 <td className={tableBlock.td()}>
+                                    <span
+                                       className={tableBlock.statusBadge({
+                                          status: company.status ?? 'INACTIVE',
+                                       })}
+                                    >
+                                       {company.status ?? 'INACTIVE'}
+                                    </span>
+                                 </td>
+
+                                 <td className={tableBlock.td()}>{func.formatDate(company.created_at)}</td>
+
+                                 <td className={tableBlock.tdAction()}>
+                                    <button
+                                       type="button"
+                                       onClick={() => func.handleToggleRowMenu(company.id)}
+                                       className={tableBlock.menuTrigger()}
+                                       aria-label={`Open actions for ${company.name}`}
+                                    >
+                                       <MoreHorizontal className={icon.sm()} />
+                                    </button>
+
+                                    {isMenuOpen && (
+                                       <div
+                                          className={tableBlock.menuDropdown()}
+                                          onMouseLeave={func.handleCloseRowMenu}
+                                       >
+                                          <button
+                                             type="button"
+                                             onClick={() => func.handleNavigateEdit(company.id)}
+                                             className={tableBlock.menuItem()}
+                                          >
+                                             <Edit className={icon.xs()} />
+                                             Edit
+                                          </button>
+                                          <button
+                                             type="button"
+                                             onClick={() => func.handleDuplicateRow(company)}
+                                             className={tableBlock.menuItem()}
+                                          >
+                                             <Copy className={icon.xs()} />
+                                             Duplicate
+                                          </button>
+                                          <button
+                                             type="button"
+                                             onClick={() => func.handlePromptDelete(company)}
+                                             className={tableBlock.menuItem({ danger: true })}
+                                          >
+                                             <Trash2 className={icon.xs()} />
+                                             Delete
+                                          </button>
+                                       </div>
+                                    )}
+                                 </td>
+                              </tr>
+                           );
+                        })}
+                  </tbody>
+               </table>
+            </div>
+
+            {!param.isLoading && param.items.length === 0 && (
+               <div className={emptyBlock.wrapper()}>
+                  <div className={emptyBlock.iconBox()}>
+                     <Building2 className={icon.lg()} />
+                  </div>
+                  {param.hasActiveFilters ? (
+                     <>
+                        <h2 className={emptyBlock.title()}>No companies match your active filters</h2>
+                        <p className={emptyBlock.description()}>
+                           Try adjusting your search keywords or clearing the active status filter.
+                        </p>
+                        <button
+                           type="button"
+                           onClick={func.handleClearAllFilters}
+                           className={headerBlock.secondaryBtn()}
+                        >
+                           Clear Filters
+                        </button>
+                     </>
+                  ) : (
+                     <>
+                        <h2 className={emptyBlock.title()}>No companies created yet</h2>
+                        <p className={emptyBlock.description()}>
+                           Create your first tenant company to start configuring events, games, and administrator
+                           accounts.
+                        </p>
+                        <button
+                           type="button"
+                           onClick={func.handleNavigateCreate}
+                           className={headerBlock.primaryBtn()}
+                        >
+                           <Plus className={icon.sm()} />
+                           Create First Company
+                        </button>
+                     </>
+                  )}
+               </div>
+            )}
+
+            <div className={paginationBlock.wrapper()}>
+               <span className={paginationBlock.summary()}>
+                  Showing {param.rangeStart}–{param.rangeEnd} of {param.total}
+               </span>
+
+               <div className={paginationBlock.controls()}>
+                  <select
+                     value={String(param.limit)}
+                     onChange={(e) => func.handleLimitChange(e.target.value)}
+                     className={paginationBlock.limitSelect()}
+                     aria-label="Rows per page"
+                  >
+                     <option value="10">10 / page</option>
+                     <option value="20">20 / page</option>
+                     <option value="50">50 / page</option>
+                  </select>
+
+                  <div className={paginationBlock.navGroup()}>
+                     <button
+                        type="button"
+                        onClick={() => func.handlePageChange(param.page - 1)}
+                        disabled={param.page <= 1}
+                        className={paginationBlock.pageBtn({ disabled: param.page <= 1 })}
+                        aria-label="Previous page"
+                     >
+                        <ChevronLeft className={icon.sm()} />
+                     </button>
+
+                     <span className={paginationBlock.pageIndicator()}>
+                        Page {param.page} of {param.totalPages}
+                     </span>
+
+                     <button
+                        type="button"
+                        onClick={() => func.handlePageChange(param.page + 1)}
+                        disabled={param.page >= param.totalPages}
+                        className={paginationBlock.pageBtn({ disabled: param.page >= param.totalPages })}
+                        aria-label="Next page"
+                     >
+                        <ChevronRight className={icon.sm()} />
+                     </button>
+                  </div>
+               </div>
             </div>
          </section>
+
+         {param.deleteTarget && (
+            <div className={modalBlock.backdrop()}>
+               <div
+                  className={modalBlock.dialog()}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="delete-company-title"
+               >
+                  <div className={modalBlock.header()}>
+                     <div className={modalBlock.dangerIconBox()}>
+                        <AlertTriangle className={icon.md()} />
+                     </div>
+                     <div className={modalBlock.titleGroup()}>
+                        <h2
+                           id="delete-company-title"
+                           className={modalBlock.title()}
+                        >
+                           Delete &ldquo;{param.deleteTarget.name}&rdquo;?
+                        </h2>
+                        <p className={modalBlock.description()}>
+                           Are you sure you want to permanently delete{' '}
+                           <span className={modalBlock.highlight()}>{param.deleteTarget.name}</span>? All linked events
+                           and records may be affected. This action cannot be undone.
+                        </p>
+                     </div>
+                  </div>
+
+                  <div className={modalBlock.footer()}>
+                     <button
+                        type="button"
+                        onClick={func.handleCancelDelete}
+                        className={modalBlock.cancelBtn()}
+                     >
+                        Cancel
+                     </button>
+                     <button
+                        type="button"
+                        onClick={func.handleConfirmDelete}
+                        disabled={param.isPendingMutation}
+                        className={modalBlock.confirmDeleteBtn({ disabled: param.isPendingMutation })}
+                     >
+                        {param.isPendingMutation && <Loader2 className={icon.spin()} />}
+                        Delete Company
+                     </button>
+                  </div>
+               </div>
+            </div>
+         )}
+
+         {param.isBulkDeleteOpen && (
+            <div className={modalBlock.backdrop()}>
+               <div
+                  className={modalBlock.dialog()}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="bulk-delete-company-title"
+               >
+                  <div className={modalBlock.header()}>
+                     <div className={modalBlock.dangerIconBox()}>
+                        <AlertTriangle className={icon.md()} />
+                     </div>
+                     <div className={modalBlock.titleGroup()}>
+                        <h2
+                           id="bulk-delete-company-title"
+                           className={modalBlock.title()}
+                        >
+                           Delete {param.selectedIds.length} selected companies?
+                        </h2>
+                        <p className={modalBlock.description()}>
+                           Are you sure you want to permanently delete{' '}
+                           <span className={modalBlock.highlight()}>{param.selectedIds.length} companies</span>? This
+                           action cannot be undone.
+                        </p>
+                     </div>
+                  </div>
+
+                  <div className={modalBlock.footer()}>
+                     <button
+                        type="button"
+                        onClick={func.handleCancelBulkDelete}
+                        className={modalBlock.cancelBtn()}
+                     >
+                        Cancel
+                     </button>
+                     <button
+                        type="button"
+                        onClick={func.handleConfirmBulkDelete}
+                        disabled={param.isPendingMutation}
+                        className={modalBlock.confirmDeleteBtn({ disabled: param.isPendingMutation })}
+                     >
+                        {param.isPendingMutation && <Loader2 className={icon.spin()} />}
+                        Delete Selected
+                     </button>
+                  </div>
+               </div>
+            </div>
+         )}
       </div>
    );
-}
+};

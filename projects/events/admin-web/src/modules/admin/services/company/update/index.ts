@@ -9,14 +9,12 @@ import type * as Types from './type';
 
 export const update: Types.Update = async (request) => {
    const supabase = await getServerClient();
-   const companies = await supabase.from('companies').update(request.company).eq('id', request.id);
+   const result = await supabase.from('companies').update(request.company).eq('id', request.id);
 
-   console.log(companies);
-
-   if (companies.error) {
-      throw new Error(companies.error.message);
+   if (result.error) {
+      throw new Error(result.error.message);
    }
 
-   revalidatePath(ROUTE.ADMIN.COMPANY.GET(request.id));
-   revalidatePath(ROUTE.ADMIN.COMPANY.GET_ALL);
+   revalidatePath(ROUTE.ADMIN.COMPANY.UPDATE(request.id));
+   revalidatePath(ROUTE.ADMIN.COMPANY.SEARCH);
 };
