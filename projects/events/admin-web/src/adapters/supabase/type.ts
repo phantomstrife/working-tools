@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type Get_Browser_Client = () => SupabaseClient<Database>;
 export type Get_Server_Client = () => Promise<SupabaseClient<Database>>;
+export type Get_Admin_Client = () => SupabaseClient<Database>;
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 

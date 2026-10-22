@@ -184,21 +184,41 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = ''
 AS $$
 BEGIN
-    INSERT INTO public.accounts (id, email, password_hash, full_name, role)
+    INSERT INTO public.accounts (id, email, password_hash, full_name, username, phone, role, company_id, created_by, is_active)
     VALUES (
-        new.id, 
-        new.email, 
-        new.encrypted_password, 
-        COALESCE(new.raw_user_meta_data->>'full_name', 'System Admin'),
-        'SUPER_ADMIN'
+        new.id,
+        new.email,
+        new.encrypted_password,
+        COALESCE(NULLIF(new.raw_user_meta_data->>'full_name', ''), 'System Admin'),
+        NULLIF(new.raw_user_meta_data->>'username', ''),
+        NULLIF(new.raw_user_meta_data->>'phone', ''),
+        COALESCE(NULLIF(new.raw_app_meta_data->>'role', '')::public.account_role, 'SUPER_ADMIN'),
+        NULLIF(new.raw_app_meta_data->>'company_id', '')::uuid,
+        NULLIF(new.raw_app_meta_data->>'created_by', '')::uuid,
+        COALESCE(NULLIF(new.raw_app_meta_data->>'is_active', '')::boolean, true)
     );
     RETURN new;
 END;
 $$;
 
+-- Keep email / password hash in public.accounts in sync when they change in auth.users
+CREATE OR REPLACE FUNCTION public.handle_user_updated()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = ''
+AS $$
+BEGIN
+    UPDATE public.accounts
+    SET email = new.email,
+        password_hash = new.encrypted_password
+    WHERE id = new.id;
+    RETURN new;
+END;
+$$;
 
 --- 4. Triggers ---
 CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+CREATE TRIGGER on_auth_user_updated AFTER UPDATE OF email, encrypted_password ON auth.users FOR EACH ROW EXECUTE PROCEDURE public.handle_user_updated();
 
 CREATE TRIGGER set_timestamp_companies BEFORE UPDATE ON companies FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE TRIGGER set_timestamp_accounts BEFORE UPDATE ON accounts FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -206,7 +226,6 @@ CREATE TRIGGER set_timestamp_events BEFORE UPDATE ON events FOR EACH ROW EXECUTE
 CREATE TRIGGER set_timestamp_games BEFORE UPDATE ON games FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE TRIGGER set_timestamp_ld_prizes BEFORE UPDATE ON lucky_draw_prizes FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE TRIGGER set_timestamp_ld_attendants BEFORE UPDATE ON lucky_draw_attendants FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
 
 --- 5. Row Level Security Policies ---
 ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
@@ -222,6 +241,48 @@ ALTER TABLE public.lucky_draw_winners ENABLE ROW LEVEL SECURITY;
 -- ACCOUNTS POLICIES
 CREATE POLICY "Accounts: View Own Profile" ON public.accounts FOR SELECT TO authenticated USING (auth.uid() = id);
 CREATE POLICY "Accounts: Admin View" ON public.accounts FOR SELECT TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
+);
+
+-- Allow Super Admins to insert any account, and Admins to insert FIELD_STAFF / GUARD accounts in their own company
+CREATE POLICY "Accounts: Admin Insert" 
+ON public.accounts 
+FOR INSERT 
+TO authenticated 
+WITH CHECK (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (
+    public.get_my_role() = 'ADMIN' AND 
+    company_id = public.get_my_company_id() AND 
+    role IN ('FIELD_STAFF', 'GUARD')
+  )
+);
+
+-- Allow Super Admins to update all accounts, and Admins to update accounts within their own company
+CREATE POLICY "Accounts: Admin Update" 
+ON public.accounts 
+FOR UPDATE 
+TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
+)
+WITH CHECK (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (
+    public.get_my_role() = 'ADMIN' AND 
+    company_id = public.get_my_company_id() AND 
+    role IN ('ADMIN', 'FIELD_STAFF', 'GUARD')
+  )
+);
+
+-- Allow Super Admins to delete any account, and Admins to delete accounts within their own company
+CREATE POLICY "Accounts: Admin Delete" 
+ON public.accounts 
+FOR DELETE 
+TO authenticated 
 USING (
   public.get_my_role() = 'SUPER_ADMIN' OR 
   (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
