@@ -1,4 +1,19 @@
---- Enums ---
+-- 1. Grant usage of the public schema to the Supabase API roles
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+-- 2. Grant all privileges on all existing tables in the public schema
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+
+-- 3. Grant all privileges on any existing sequences or routines
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL PRIVILEGES ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+-- 4. Ensure any future tables we create automatically get these permissions
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+
+--- 1. Enums ---
 CREATE TYPE account_role AS ENUM ('SUPER_ADMIN', 'ADMIN', 'FIELD_STAFF', 'GUARD');
 CREATE TYPE company_status AS ENUM ('ACTIVE', 'INACTIVE', 'SUSPENDED');
 CREATE TYPE event_status AS ENUM ('DRAFT', 'UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED');
@@ -8,48 +23,7 @@ CREATE TYPE log_action_type AS ENUM ('AUTH_LOGIN', 'ACCOUNT_CREATE', 'EMAIL_BATC
 CREATE TYPE email_status_type AS ENUM ('NOT_SENT', 'SENDING', 'SENT', 'FAILED');
 CREATE TYPE check_in_method_type AS ENUM ('QR_SCAN', 'MANUAL_SEARCH');
 
-
-
---- Functions ---
-CREATE OR REPLACE FUNCTION trigger_set_timestamp()
-RETURNS TRIGGER 
-AS $$
-BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION public.get_my_role()
-RETURNS text
-LANGUAGE sql
-SECURITY DEFINER SET search_path = ''
-STABLE
-AS $$
-  SELECT role::text FROM public.accounts WHERE id = auth.uid();
-$$;
-
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER SET search_path = ''
-AS $$
-BEGIN
-    INSERT INTO public.accounts (id, email, password_hash, full_name, role)
-    VALUES (
-        new.id, 
-        new.email, 
-        new.encrypted_password, 
-        COALESCE(new.raw_user_meta_data->>'full_name', 'System Admin'),
-        'SUPER_ADMIN'
-    );
-    RETURN new;
-END;
-$$;
-
-
-
---- Tables ---
+--- 2. Tables ---
 CREATE TABLE companies (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
@@ -176,8 +150,54 @@ CREATE TABLE lucky_draw_winners (
 );
 
 
+--- 3. Functions ---
+CREATE OR REPLACE FUNCTION trigger_set_timestamp()
+RETURNS TRIGGER 
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
---- Triggers ---
+CREATE OR REPLACE FUNCTION public.get_my_role()
+RETURNS text
+LANGUAGE sql
+SECURITY DEFINER SET search_path = ''
+STABLE
+AS $$
+  SELECT role::text FROM public.accounts WHERE id = auth.uid();
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_my_company_id()
+RETURNS uuid
+LANGUAGE sql
+SECURITY DEFINER SET search_path = ''
+STABLE
+AS $$
+  SELECT company_id FROM public.accounts WHERE id = auth.uid();
+$$;
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = ''
+AS $$
+BEGIN
+    INSERT INTO public.accounts (id, email, password_hash, full_name, role)
+    VALUES (
+        new.id, 
+        new.email, 
+        new.encrypted_password, 
+        COALESCE(new.raw_user_meta_data->>'full_name', 'System Admin'),
+        'SUPER_ADMIN'
+    );
+    RETURN new;
+END;
+$$;
+
+
+--- 4. Triggers ---
 CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 CREATE TRIGGER set_timestamp_companies BEFORE UPDATE ON companies FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -188,21 +208,89 @@ CREATE TRIGGER set_timestamp_ld_prizes BEFORE UPDATE ON lucky_draw_prizes FOR EA
 CREATE TRIGGER set_timestamp_ld_attendants BEFORE UPDATE ON lucky_draw_attendants FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 
-
---- Row Level Security Policies ---
-ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
+--- 5. Row Level Security Policies ---
 ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.games ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.game_accounts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lucky_draw_prizes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lucky_draw_attendants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lucky_draw_winners ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Admins can view all accounts" 
-ON public.accounts 
-FOR SELECT 
-TO authenticated 
+-- ACCOUNTS POLICIES
+CREATE POLICY "Accounts: View Own Profile" ON public.accounts FOR SELECT TO authenticated USING (auth.uid() = id);
+CREATE POLICY "Accounts: Admin View" ON public.accounts FOR SELECT TO authenticated 
 USING (
-  public.get_my_role() IN ('SUPER_ADMIN', 'ADMIN')
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
 );
 
-CREATE POLICY "Authenticated users can view companies" 
-ON public.companies 
-FOR SELECT 
-TO authenticated 
-USING (true); 
+-- COMPANIES POLICIES
+CREATE POLICY "Companies: Admin View" ON public.companies FOR SELECT TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
+);
+
+-- EVENTS POLICIES
+CREATE POLICY "Events: Admin Access" ON public.events FOR ALL TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
+);
+CREATE POLICY "Events: Staff View" ON public.events FOR SELECT TO authenticated 
+USING (
+  EXISTS (
+    SELECT 1 FROM public.game_accounts 
+    WHERE game_accounts.event_id = events.id AND game_accounts.account_id = auth.uid()
+  )
+);
+
+-- GAMES POLICIES
+CREATE POLICY "Games: Admin Access" ON public.games FOR ALL TO authenticated 
+USING (
+  (public.get_my_role() = 'SUPER_ADMIN') OR 
+  (public.get_my_role() = 'ADMIN' AND is_dev_only = false AND EXISTS (
+      SELECT 1 FROM public.events 
+      WHERE events.id = games.event_id AND events.company_id = public.get_my_company_id()
+  ))
+);
+CREATE POLICY "Games: Staff View" ON public.games FOR SELECT TO authenticated 
+USING (
+  EXISTS (
+    SELECT 1 FROM public.game_accounts 
+    WHERE game_accounts.game_id = games.id AND game_accounts.account_id = auth.uid()
+  )
+);
+
+-- GAME_ACCOUNTS (Assignments) POLICIES
+CREATE POLICY "Game_Accounts: Admin Access" ON public.game_accounts FOR ALL TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND EXISTS (
+      SELECT 1 FROM public.events 
+      WHERE events.id = game_accounts.event_id AND events.company_id = public.get_my_company_id()
+  ))
+);
+
+-- LUCKY DRAW POLICIES
+CREATE POLICY "LuckyDraw: Admin Manage Prizes" ON public.lucky_draw_prizes FOR ALL TO authenticated 
+USING (public.get_my_role() IN ('SUPER_ADMIN', 'ADMIN'));
+CREATE POLICY "LuckyDraw: Staff View Prizes" ON public.lucky_draw_prizes FOR SELECT TO authenticated USING (true);
+CREATE POLICY "LuckyDraw: Staff Update Prizes" ON public.lucky_draw_prizes FOR UPDATE TO authenticated USING (public.get_my_role() = 'FIELD_STAFF');
+
+CREATE POLICY "LuckyDraw: Manage Attendants" ON public.lucky_draw_attendants FOR ALL TO authenticated USING (true);
+CREATE POLICY "LuckyDraw: Manage Winners" ON public.lucky_draw_winners FOR ALL TO authenticated USING (true);
+
+-- LOGS (Audit Trail) POLICIES
+CREATE POLICY "Logs: Insert Only" ON public.logs FOR INSERT TO authenticated WITH CHECK (auth.uid() = account_id);
+CREATE POLICY "Logs: Admin View" ON public.logs FOR SELECT TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND EXISTS (
+      SELECT 1 FROM public.accounts 
+      WHERE accounts.id = logs.account_id AND accounts.company_id = public.get_my_company_id()
+  ))
+);

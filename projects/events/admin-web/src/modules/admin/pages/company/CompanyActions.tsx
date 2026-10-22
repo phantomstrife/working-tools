@@ -1,74 +1,75 @@
 'use client';
 
-import { useState } from 'react';
-import { Edit, Trash2, PlusCircle, X, AlertTriangle, Loader2 } from 'lucide-react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Edit, Trash2, PlusCircle, X, AlertTriangle, Loader2 } from 'lucide-react';
 
-export default function CompanyActions({ company }: { company: any }) {
+import { update } from '@/modules/admin/services/company/update';
+import { deleteById } from '@/modules/admin/services/company/delete-by-id';
+
+import type { Database } from '@/adapters/supabase/type';
+
+interface Properties {
+   company: Database['public']['Tables']['companies']['Row'];
+}
+
+export default function CompanyActions({ company }: Properties) {
    const router = useRouter();
+
    const [isEditOpen, setIsEditOpen] = useState(false);
    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-   const [isLoading, setIsLoading] = useState(false);
+   const [isPendingUpdate, startUpdateTransition] = useTransition();
+   const [isPendingDelete, startDeleteTransition] = useTransition();
    const [error, setError] = useState('');
 
    const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      setIsLoading(true);
       setError('');
 
-      const formData = new FormData(e.currentTarget);
-      const payload = Object.fromEntries(formData.entries());
-
       try {
-         const res = await fetch(`/api/company/${company.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-         });
+         startUpdateTransition(async () => {
+            const formData = new FormData(e.currentTarget);
 
-         const data = await res.json();
-         console.log(data);
+            await update({
+               id: company.id,
+               company: {
+                  name: formData.get('name') as string,
+                  tax_code: formData.get('tax_code') as string,
+                  industry: formData.get('industry') as string,
+                  address: formData.get('address') as string,
+                  contact_person: formData.get('contact_person') as string,
+                  contact_email: formData.get('contact_email') as string,
+                  contact_phone: formData.get('contact_phone') as string,
+                  status: formData.get('status') as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | null,
+                  updated_at: new Date().toISOString(),
+               },
+            });
 
-         if (!res.ok || data.error) {
-            setError(data.error || 'Failed to update company');
-         } else {
             setIsEditOpen(false);
-            router.refresh(); // Tells Next.js to cleanly refetch the page data
-         }
-      } catch (err: any) {
-         setError(err.message || 'An unexpected error occurred');
-      } finally {
-         setIsLoading(false);
+         });
+      } catch (error) {
+         setError(error instanceof Error ? error.message : 'An unexpected error occurred.');
       }
    };
 
-   const handleDelete = async () => {
-      setIsLoading(true);
+   const handleDelete = () => {
       setError('');
 
       try {
-         const res = await fetch(`/api/company/${company.id}`, {
-            method: 'DELETE',
+         startDeleteTransition(async () => {
+            await deleteById({
+               id: company.id,
+            });
          });
-
-         const data = await res.json();
-
-         if (!res.ok || data.error) {
-            setError(data.error || 'Failed to delete company');
-            setIsLoading(false);
-         } else {
-            router.push('/companies');
-            router.refresh();
-         }
-      } catch (err: any) {
-         setError(err.message || 'An unexpected error occurred');
-         setIsLoading(false);
+      } catch (error) {
+         setError(error instanceof Error ? error.message : 'An unexpected error occurred.');
       }
    };
 
    return (
       <>
+         {/* Action Buttons */}
          <div className="flex items-center gap-3">
             <button
                onClick={() => setIsEditOpen(true)}
@@ -90,6 +91,7 @@ export default function CompanyActions({ company }: { company: any }) {
             </button>
          </div>
 
+         {/* Edit Modal */}
          {isEditOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
                <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -103,6 +105,7 @@ export default function CompanyActions({ company }: { company: any }) {
                      </button>
                   </div>
 
+                  {/* Changed to standard onSubmit */}
                   <form
                      onSubmit={handleUpdate}
                      className="p-6"
@@ -123,7 +126,7 @@ export default function CompanyActions({ company }: { company: any }) {
                            <label className="block text-sm font-medium text-gray-700 mb-1">Tax Code</label>
                            <input
                               name="tax_code"
-                              defaultValue={company.tax_code}
+                              defaultValue={company.tax_code ?? ''}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                            />
                         </div>
@@ -131,7 +134,7 @@ export default function CompanyActions({ company }: { company: any }) {
                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                            <select
                               name="status"
-                              defaultValue={company.status}
+                              defaultValue={company.status ?? 'SUSPENDED'}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
                            >
                               <option value="ACTIVE">ACTIVE</option>
@@ -143,7 +146,7 @@ export default function CompanyActions({ company }: { company: any }) {
                            <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
                            <input
                               name="industry"
-                              defaultValue={company.industry}
+                              defaultValue={company.industry ?? ''}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                            />
                         </div>
@@ -151,7 +154,7 @@ export default function CompanyActions({ company }: { company: any }) {
                            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                            <input
                               name="address"
-                              defaultValue={company.address}
+                              defaultValue={company.address ?? ''}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                            />
                         </div>
@@ -162,7 +165,7 @@ export default function CompanyActions({ company }: { company: any }) {
                            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
                            <input
                               name="contact_person"
-                              defaultValue={company.contact_person}
+                              defaultValue={company.contact_person ?? ''}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                            />
                         </div>
@@ -170,7 +173,7 @@ export default function CompanyActions({ company }: { company: any }) {
                            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
                            <input
                               name="contact_phone"
-                              defaultValue={company.contact_phone}
+                              defaultValue={company.contact_phone ?? ''}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                            />
                         </div>
@@ -179,7 +182,7 @@ export default function CompanyActions({ company }: { company: any }) {
                            <input
                               type="email"
                               name="contact_email"
-                              defaultValue={company.contact_email}
+                              defaultValue={company.contact_email ?? ''}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                            />
                         </div>
@@ -195,10 +198,10 @@ export default function CompanyActions({ company }: { company: any }) {
                         </button>
                         <button
                            type="submit"
-                           disabled={isLoading}
+                           disabled={isPendingUpdate}
                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                           {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                           {isPendingUpdate && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                            Save Changes
                         </button>
                      </div>
@@ -207,6 +210,7 @@ export default function CompanyActions({ company }: { company: any }) {
             </div>
          )}
 
+         {/* Delete Confirmation Modal */}
          {isDeleteOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
                <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -232,10 +236,10 @@ export default function CompanyActions({ company }: { company: any }) {
                         </button>
                         <button
                            onClick={handleDelete}
-                           disabled={isLoading}
+                           disabled={isPendingDelete}
                            className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors w-full disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                           {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                           {isPendingDelete && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                            Yes, Delete
                         </button>
                      </div>

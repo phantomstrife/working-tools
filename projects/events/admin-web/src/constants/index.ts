@@ -1,12 +1,12 @@
 export const ROUTE_BASE = {
-   MAIN: '/',
-   AUTHORIZE: '/',
+   MAIN: '',
+   AUTHORIZE: '',
    ADMIN: '/admin',
 };
 
 export const ROUTE = {
    MAIN: {
-      HOME: ROUTE_BASE.MAIN,
+      HOME: `${ROUTE_BASE.MAIN}/`,
    },
    AUTHORIZE: {
       LOGIN: `${ROUTE_BASE.AUTHORIZE}/login`,
@@ -15,12 +15,9 @@ export const ROUTE = {
    ADMIN: {
       DASHBOARD: `${ROUTE_BASE.ADMIN}/dashboard`,
       COMPANY: {
-         DASHBOARD: (id: string) => `${ROUTE_BASE.ADMIN}/company/${id}`,
+         SEARCH: `${ROUTE_BASE.ADMIN}/company/search`,
+         CREATE: `${ROUTE_BASE.ADMIN}/company/create`,
+         UPDATE: (id: string) => `${ROUTE_BASE.ADMIN}/company/update/${id}`,
       },
    },
-};
-
-export const ROLE = {
-   SUPER_ADMIN: 'super_admin',
-   ADMIN: 'admin',
 };

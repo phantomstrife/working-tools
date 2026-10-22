@@ -1,53 +1,16 @@
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { LogOutIcon, MailIcon, LockIcon } from 'lucide-react';
 
-import { ROLE, ROUTE } from '@/constants';
-import { AuthService } from '@/services/authorize';
-
+import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
 export const PageAuthorizeLogin: Router_Page = () => {
-   const router = useRouter();
-
-   const [email, setEmail] = useState('');
-   const [password, setPassword] = useState('');
-   const [loading, setLoading] = useState(false);
-   const [error, setError] = useState('');
-
-   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
-      e.preventDefault();
-
-      setLoading(true);
-      setError('');
-
-      try {
-         const { role, companyId } = await AuthService.loginWithRoleCheck({
-            email,
-            password,
-         });
-
-         if (role === ROLE.SUPER_ADMIN) {
-            router.push(ROUTE.MAIN.HOME);
-         } else if (role === ROLE.ADMIN) {
-            if (!companyId) {
-               throw new Error('Admin account is not linked to a company.');
-            }
-
-            router.push(ROUTE.ADMIN.COMPANY.DASHBOARD(companyId));
-         }
-      } catch (error: unknown) {
-         setError(error instanceof Error ? error.message : 'An unexpected error occurred.');
-         setLoading(false);
-      }
-   }
-
+   const { param, func } = useLogic();
    const { wrapper, topBlock, errorBlock, formBlock, toolBlock } = useStyle;
 
    return (
       <form
          className={wrapper()}
-         onSubmit={handleLogin}
+         onSubmit={func.handleLogin}
       >
          <div className={topBlock.wrapper()}>
             <div className={topBlock.icon()}>
@@ -66,10 +29,10 @@ export const PageAuthorizeLogin: Router_Page = () => {
                   type="email"
                   id="email"
                   className={formBlock.input.field()}
-                  value={email}
+                  value={param.email}
                   placeholder="Email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
+                  onChange={(e) => func.setEmail(e.target.value)}
+                  disabled={param.loading}
                />
             </div>
             <div className={formBlock.input.wrapper()}>
@@ -78,28 +41,28 @@ export const PageAuthorizeLogin: Router_Page = () => {
                   type="password"
                   id="password"
                   className={formBlock.input.field()}
-                  value={password}
+                  value={param.password}
                   placeholder="Password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
+                  onChange={(e) => func.setPassword(e.target.value)}
+                  disabled={param.loading}
                />
             </div>
          </div>
-         {error && (
+         {param.error && (
             <p
                className={errorBlock.wrapper()}
                role="alert"
             >
-               {error}
+               {param.error}
             </p>
          )}
          <div className={toolBlock.wrapper()}>
             <button
                type="submit"
-               className={toolBlock.button({ loading })}
-               disabled={loading}
+               className={toolBlock.button({ loading: param.loading })}
+               disabled={param.loading}
             >
-               {loading ? 'Signing in...' : 'Sign in'}
+               {param.loading ? 'Signing in...' : 'Sign in'}
             </button>
          </div>
       </form>

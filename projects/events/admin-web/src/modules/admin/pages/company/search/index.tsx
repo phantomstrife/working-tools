@@ -1,7 +1,8 @@
-import { createClient } from '@/lib/supabase-server';
 import Link from 'next/link';
 import { Building2, MapPin, Briefcase, FileText, User, Mail, Phone, ChevronLeft, CalendarX2 } from 'lucide-react';
-import CompanyActions from './CompanyActions'; // <-- Import new Client Component
+
+import { getServerClient } from '@/adapters/supabase/server';
+import CompanyActions from '../CompanyActions';
 
 interface CompanyPageProps {
    params: Promise<{
@@ -9,7 +10,7 @@ interface CompanyPageProps {
    }>;
 }
 
-const getStatusStyles = (status: string) => {
+const getStatusStyles = (status: string | null) => {
    switch (status) {
       case 'ACTIVE':
          return 'bg-green-50 text-green-700 border-green-200';
@@ -23,7 +24,7 @@ const getStatusStyles = (status: string) => {
 
 export async function PageAdminCompany({ params }: CompanyPageProps) {
    const { id } = await params;
-   const supabase = await createClient();
+   const supabase = await getServerClient();
 
    const { data, error } = await supabase.from('companies').select('*').eq('id', id).single();
 
