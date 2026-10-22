@@ -60,10 +60,13 @@ src/
 │   └── admin/
 │       ├── layout.tsx                  # export { LayoutDashboard as default } from '@/modules/admin/layout';
 │       └── company/
-│           ├── page.tsx                # export { PageAdminCompanySearch as default } from '@/modules/admin/pages/company/search';
-│           ├── new/page.tsx            # export { PageAdminCompanyUpsert as default } from '@/modules/admin/pages/company/upsert';
-│           └── [id]/page.tsx           # export { PageAdminCompanyUpsert as default } from '@/modules/admin/pages/company/upsert';
+│           ├── search/page.tsx         # export { PageAdminCompanySearch as default } from '@/modules/admin/pages/company/search';
+│           ├── create/page.tsx         # export { PageAdminCompanyUpsert as default } from '@/modules/admin/pages/company/upsert';
+│           └── update/[id]/page.tsx    # export { PageAdminCompanyUpsert as default } from '@/modules/admin/pages/company/upsert';
 ├── assets/images/                      # Static assets (.webp, etc.)
+├── components/                         # Shared, reusable UI building blocks organized by surface
+│   ├── search/                         # Surface 1 shared components (page-header, preset-tabs, toolbar, bulk-bar, data-table, confirm-modal)
+│   └── upsert/                         # Surface 2 shared components (sticky-bar, section-card, form-field, audit-footer, skeleton)
 ├── constants/index.ts                  # ROUTE_BASE and ROUTE definitions (NO hardcoded URLs elsewhere)
 ├── modules/
 │   ├── authorize/
