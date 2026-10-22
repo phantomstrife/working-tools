@@ -431,12 +431,22 @@ USING (
 
 -- LUCKY DRAW POLICIES
 CREATE POLICY "LuckyDraw: Admin Manage Prizes" ON public.lucky_draw_prizes FOR ALL TO authenticated 
-USING (public.get_my_role() IN ('SUPER_ADMIN', 'ADMIN'));
-CREATE POLICY "LuckyDraw: Staff View Prizes" ON public.lucky_draw_prizes FOR SELECT TO authenticated USING (true);
-CREATE POLICY "LuckyDraw: Staff Update Prizes" ON public.lucky_draw_prizes FOR UPDATE TO authenticated USING (public.get_my_role() = 'FIELD_STAFF');
+USING (public.get_my_role() IN ('SUPER_ADMIN', 'ADMIN'))
+WITH CHECK (public.get_my_role() IN ('SUPER_ADMIN', 'ADMIN'));
 
-CREATE POLICY "LuckyDraw: Manage Attendants" ON public.lucky_draw_attendants FOR ALL TO authenticated USING (true);
-CREATE POLICY "LuckyDraw: Manage Winners" ON public.lucky_draw_winners FOR ALL TO authenticated USING (true);
+CREATE POLICY "LuckyDraw: Staff View Prizes" ON public.lucky_draw_prizes FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "LuckyDraw: Staff Update Prizes" ON public.lucky_draw_prizes FOR UPDATE TO authenticated 
+USING (public.get_my_role() = 'FIELD_STAFF')
+WITH CHECK (public.get_my_role() = 'FIELD_STAFF');
+
+CREATE POLICY "LuckyDraw: Manage Attendants" ON public.lucky_draw_attendants FOR ALL TO authenticated 
+USING (true)
+WITH CHECK (true);
+
+CREATE POLICY "LuckyDraw: Manage Winners" ON public.lucky_draw_winners FOR ALL TO authenticated 
+USING (true)
+WITH CHECK (true);
 
 -- LOGS (Audit Trail) POLICIES
 CREATE POLICY "Logs: Insert Only" ON public.logs FOR INSERT TO authenticated WITH CHECK (auth.uid() = account_id);

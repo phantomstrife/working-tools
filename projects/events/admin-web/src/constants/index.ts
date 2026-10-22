@@ -34,5 +34,20 @@ export const ROUTE = {
          CREATE: `${ROUTE_BASE.ADMIN}/game/create`,
          UPDATE: (id: string) => `${ROUTE_BASE.ADMIN}/game/update/${id}`,
       },
+      LUCKY_DRAW: {
+         PRIZE: {
+            SEARCH: `${ROUTE_BASE.ADMIN}/lucky-draw/prize/search`,
+            CREATE: `${ROUTE_BASE.ADMIN}/lucky-draw/prize/create`,
+            UPDATE: (id: string) => `${ROUTE_BASE.ADMIN}/lucky-draw/prize/update/${id}`,
+         },
+         ATTENDANT: {
+            SEARCH: `${ROUTE_BASE.ADMIN}/lucky-draw/attendant/search`,
+            CREATE: `${ROUTE_BASE.ADMIN}/lucky-draw/attendant/create`,
+            UPDATE: (id: string) => `${ROUTE_BASE.ADMIN}/lucky-draw/attendant/update/${id}`,
+         },
+         WINNER: {
+            SEARCH: `${ROUTE_BASE.ADMIN}/lucky-draw/winner/search`,
+         },
+      },
    },
 };
