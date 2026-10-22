@@ -178,6 +178,42 @@ AS $$
   SELECT company_id FROM public.accounts WHERE id = auth.uid();
 $$;
 
+CREATE OR REPLACE FUNCTION public.is_assigned_to_event(p_event_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER SET search_path = ''
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.game_accounts
+    WHERE event_id = p_event_id AND account_id = auth.uid()
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_assigned_to_game(p_game_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER SET search_path = ''
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.game_accounts
+    WHERE game_id = p_game_id AND account_id = auth.uid()
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_my_company_event(p_event_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER SET search_path = ''
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.events
+    WHERE id = p_event_id AND company_id = public.get_my_company_id()
+  );
+$$;
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -289,80 +325,108 @@ USING (
 );
 
 -- COMPANIES POLICIES
+-- Allow Super Admins to view all companies, and Admins to view their linked company (for joins/context)
 CREATE POLICY "Companies: Admin View" ON public.companies FOR SELECT TO authenticated 
 USING (
   public.get_my_role() = 'SUPER_ADMIN' OR 
   (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
 );
 
--- Allow Admins and Super Admins to insert new companies
-CREATE POLICY "Companies: Admin Insert" 
+-- Only Super Admins can insert new companies
+CREATE POLICY "Companies: Super Admin Insert" 
 ON public.companies 
 FOR INSERT 
 TO authenticated 
 WITH CHECK (
-  public.get_my_role() IN ('SUPER_ADMIN', 'ADMIN')
+  public.get_my_role() = 'SUPER_ADMIN'
 );
 
--- Allow Admins to update their OWN company, Super Admins can update ALL
-CREATE POLICY "Companies: Admin Update" 
+-- Only Super Admins can update companies
+CREATE POLICY "Companies: Super Admin Update" 
 ON public.companies 
 FOR UPDATE 
 TO authenticated 
 USING (
-  public.get_my_role() = 'SUPER_ADMIN' OR 
-  (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
+  public.get_my_role() = 'SUPER_ADMIN'
+)
+WITH CHECK (
+  public.get_my_role() = 'SUPER_ADMIN'
 );
 
--- Allow Admins to delete their OWN company, Super Admins can delete ALL
-CREATE POLICY "Companies: Admin Delete" 
+-- Only Super Admins can delete companies
+CREATE POLICY "Companies: Super Admin Delete" 
 ON public.companies 
 FOR DELETE 
 TO authenticated 
 USING (
-  public.get_my_role() = 'SUPER_ADMIN' OR 
-  (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
+  public.get_my_role() = 'SUPER_ADMIN'
 );
 
 -- EVENTS POLICIES
-CREATE POLICY "Events: Admin Access" ON public.events FOR ALL TO authenticated 
+CREATE POLICY "Events: Admin Select" 
+ON public.events 
+FOR SELECT 
+TO authenticated 
 USING (
   public.get_my_role() = 'SUPER_ADMIN' OR 
   (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
 );
-CREATE POLICY "Events: Staff View" ON public.events FOR SELECT TO authenticated 
+
+CREATE POLICY "Events: Staff View" 
+ON public.events 
+FOR SELECT 
+TO authenticated 
 USING (
-  EXISTS (
-    SELECT 1 FROM public.game_accounts 
-    WHERE game_accounts.event_id = events.id AND game_accounts.account_id = auth.uid()
-  )
+  public.is_assigned_to_event(id)
+);
+
+CREATE POLICY "Events: Admin Insert" 
+ON public.events 
+FOR INSERT 
+TO authenticated 
+WITH CHECK (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
+);
+
+CREATE POLICY "Events: Admin Update" 
+ON public.events 
+FOR UPDATE 
+TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
+)
+WITH CHECK (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
+);
+
+CREATE POLICY "Events: Admin Delete" 
+ON public.events 
+FOR DELETE 
+TO authenticated 
+USING (
+  public.get_my_role() = 'SUPER_ADMIN' OR 
+  (public.get_my_role() = 'ADMIN' AND company_id = public.get_my_company_id())
 );
 
 -- GAMES POLICIES
 CREATE POLICY "Games: Admin Access" ON public.games FOR ALL TO authenticated 
 USING (
   (public.get_my_role() = 'SUPER_ADMIN') OR 
-  (public.get_my_role() = 'ADMIN' AND is_dev_only = false AND EXISTS (
-      SELECT 1 FROM public.events 
-      WHERE events.id = games.event_id AND events.company_id = public.get_my_company_id()
-  ))
+  (public.get_my_role() = 'ADMIN' AND is_dev_only = false AND public.is_my_company_event(event_id))
 );
 CREATE POLICY "Games: Staff View" ON public.games FOR SELECT TO authenticated 
 USING (
-  EXISTS (
-    SELECT 1 FROM public.game_accounts 
-    WHERE game_accounts.game_id = games.id AND game_accounts.account_id = auth.uid()
-  )
+  public.is_assigned_to_game(id)
 );
 
 -- GAME_ACCOUNTS (Assignments) POLICIES
 CREATE POLICY "Game_Accounts: Admin Access" ON public.game_accounts FOR ALL TO authenticated 
 USING (
   public.get_my_role() = 'SUPER_ADMIN' OR 
-  (public.get_my_role() = 'ADMIN' AND EXISTS (
-      SELECT 1 FROM public.events 
-      WHERE events.id = game_accounts.event_id AND events.company_id = public.get_my_company_id()
-  ))
+  (public.get_my_role() = 'ADMIN' AND public.is_my_company_event(event_id))
 );
 
 -- LUCKY DRAW POLICIES

@@ -24,5 +24,10 @@ export const ROUTE = {
          CREATE: `${ROUTE_BASE.ADMIN}/account/create`,
          UPDATE: (id: string) => `${ROUTE_BASE.ADMIN}/account/update/${id}`,
       },
+      EVENT: {
+         SEARCH: `${ROUTE_BASE.ADMIN}/event/search`,
+         CREATE: `${ROUTE_BASE.ADMIN}/event/create`,
+         UPDATE: (id: string) => `${ROUTE_BASE.ADMIN}/event/update/${id}`,
+      },
    },
 };

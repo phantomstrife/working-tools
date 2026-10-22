@@ -26,7 +26,7 @@ export function useLogic() {
 
          switch (accountRole) {
             case 'SUPER_ADMIN': {
-               router.push(ROUTE.MAIN.HOME);
+               router.push(ROUTE.ADMIN.COMPANY.SEARCH);
                break;
             }
 
@@ -35,7 +35,7 @@ export function useLogic() {
                   throw new Error('Admin account is not linked to a company.');
                }
 
-               router.push(ROUTE.ADMIN.COMPANY.UPDATE(companyId));
+               router.push(ROUTE.ADMIN.EVENT.SEARCH);
                break;
             }
          }

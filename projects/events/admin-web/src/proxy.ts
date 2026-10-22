@@ -58,14 +58,36 @@ export async function proxy(request: NextRequest) {
       return redirectRes;
    }
 
-   if (data.user && !isDashboardRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = ROUTE_BASE.ADMIN;
+   if (data.user) {
+      const account = await supabase
+         .from('accounts')
+         .select('role')
+         .eq('id', data.user.id)
+         .single();
 
-      const redirectRes = NextResponse.redirect(url);
-      supabaseResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c.name, c.value));
+      const role = account.data?.role;
+      const defaultAdminLanding =
+         role === 'SUPER_ADMIN' ? ROUTE.ADMIN.COMPANY.SEARCH : ROUTE.ADMIN.EVENT.SEARCH;
 
-      return redirectRes;
+      if (!isDashboardRoute || currentPath === ROUTE_BASE.ADMIN) {
+         const url = request.nextUrl.clone();
+         url.pathname = defaultAdminLanding;
+
+         const redirectRes = NextResponse.redirect(url);
+         supabaseResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c.name, c.value));
+
+         return redirectRes;
+      }
+
+      if (role !== 'SUPER_ADMIN' && currentPath.startsWith(`${ROUTE_BASE.ADMIN}/company`)) {
+         const url = request.nextUrl.clone();
+         url.pathname = ROUTE.ADMIN.EVENT.SEARCH;
+
+         const redirectRes = NextResponse.redirect(url);
+         supabaseResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c.name, c.value));
+
+         return redirectRes;
+      }
    }
 
    return supabaseResponse;

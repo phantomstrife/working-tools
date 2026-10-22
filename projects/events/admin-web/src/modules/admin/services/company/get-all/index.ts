@@ -6,6 +6,21 @@ import type * as Types from './type';
 
 export const getAll: Types.GetAll = async (request = {}) => {
    const supabase = await getServerClient();
+   const authResult = await supabase.auth.getUser();
+
+   if (!authResult.data.user) {
+      throw new Error('You must be signed in to view companies.');
+   }
+
+   const callerProfile = await supabase
+      .from('accounts')
+      .select('role')
+      .eq('id', authResult.data.user.id)
+      .single();
+
+   if (callerProfile.data?.role !== 'SUPER_ADMIN') {
+      throw new Error('Access Denied: Only SUPER_ADMIN can access company directory.');
+   }
 
    const page = Math.max(1, request.page ?? 1);
    const limit = Math.max(1, request.limit ?? 20);
@@ -40,4 +55,3 @@ export const getAll: Types.GetAll = async (request = {}) => {
       limit,
    };
 };
-
