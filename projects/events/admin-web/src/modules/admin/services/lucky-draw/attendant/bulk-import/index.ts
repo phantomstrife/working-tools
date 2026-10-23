@@ -72,19 +72,27 @@ export const bulkImport: Types.BulkImport = async (request) => {
       };
    });
 
-   const result = await supabase
-      .from('lucky_draw_attendants')
-      .upsert(payloads, { onConflict: 'game_id,ticket_code' })
-      .select('id');
+   const UPSERT_BATCH_SIZE = 500;
+   let importedCount = 0;
 
-   if (result.error) {
-      throw new Error(result.error.message);
+   for (let i = 0; i < payloads.length; i += UPSERT_BATCH_SIZE) {
+      const batch = payloads.slice(i, i + UPSERT_BATCH_SIZE);
+      const result = await supabase
+         .from('lucky_draw_attendants')
+         .upsert(batch, { onConflict: 'game_id,ticket_code' })
+         .select('id');
+
+      if (result.error) {
+         throw new Error(result.error.message);
+      }
+
+      importedCount += result.data?.length ?? batch.length;
    }
 
    revalidatePath(ROUTE.ADMIN.LUCKY_DRAW.ATTENDANT.SEARCH);
 
    return {
-      importedCount: result.data?.length ?? payloads.length,
+      importedCount,
    };
 };
 

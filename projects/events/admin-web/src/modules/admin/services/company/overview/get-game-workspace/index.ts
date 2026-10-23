@@ -6,7 +6,7 @@ import type * as Types from './type';
 
 export const getGameWorkspace: Types.GetGameWorkspace = async (request) => {
    if (!request.gameId?.trim()) {
-      return { attendants: [], staff: [] };
+      return { prizes: [], attendants: [], staff: [] };
    }
 
    const supabase = await getServerClient();
@@ -47,21 +47,53 @@ export const getGameWorkspace: Types.GetGameWorkspace = async (request) => {
       }
    }
 
-   const [attendantsResult, staffResult] = await Promise.all([
+   const FETCH_BATCH_SIZE = 1000;
+
+   async function fetchAllAttendants(gameId: string): Promise<Types.AttendantRow[]> {
+      const allRows: Types.AttendantRow[] = [];
+      let offset = 0;
+
+      while (true) {
+         const batchResult = await supabase
+            .from('lucky_draw_attendants')
+            .select('*')
+            .eq('game_id', gameId)
+            .order('created_at', { ascending: false })
+            .range(offset, offset + FETCH_BATCH_SIZE - 1);
+
+         if (batchResult.error) {
+            throw new Error(batchResult.error.message);
+         }
+
+         const rows = batchResult.data ?? [];
+         allRows.push(...rows);
+
+         if (rows.length < FETCH_BATCH_SIZE) {
+            break;
+         }
+
+         offset += FETCH_BATCH_SIZE;
+      }
+
+      return allRows;
+   }
+
+   const [prizesResult, attendants, staffResult] = await Promise.all([
       supabase
-         .from('lucky_draw_attendants')
+         .from('lucky_draw_prizes')
          .select('*')
          .eq('game_id', request.gameId)
-         .order('created_at', { ascending: false }),
+         .order('tier_order', { ascending: true }),
+      fetchAllAttendants(request.gameId),
       supabase
          .from('game_accounts')
-         .select('id, assigned_at, accounts!inner(id, full_name, email, phone, role, is_active)')
+         .select('id, assigned_at, accounts!inner(id, full_name, email, username, phone, role, is_active)')
          .eq('game_id', request.gameId)
          .order('assigned_at', { ascending: false }),
    ]);
 
-   if (attendantsResult.error) {
-      throw new Error(attendantsResult.error.message);
+   if (prizesResult.error) {
+      throw new Error(prizesResult.error.message);
    }
 
    if (staffResult.error) {
@@ -74,14 +106,15 @@ export const getGameWorkspace: Types.GetGameWorkspace = async (request) => {
       id: row.accounts.id,
       full_name: row.accounts.full_name,
       email: row.accounts.email,
+      username: row.accounts.username,
       phone: row.accounts.phone,
       role: row.accounts.role,
       is_active: row.accounts.is_active,
    }));
 
    return {
-      attendants: attendantsResult.data ?? [],
+      prizes: prizesResult.data ?? [],
+      attendants,
       staff,
    };
 };
-

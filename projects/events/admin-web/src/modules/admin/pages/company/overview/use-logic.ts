@@ -10,6 +10,7 @@ import type { GameRow } from '@/modules/admin/services/company/overview/get-even
 import type {
    AssignedStaffMember,
    AttendantRow,
+   PrizeRow,
 } from '@/modules/admin/services/company/overview/get-game-workspace/type';
 import type {
    CallerAccount,
@@ -32,6 +33,7 @@ export function useLogic() {
    const [companies, setCompanies] = useState<CompanyOption[]>([]);
    const [events, setEvents] = useState<EventRow[]>([]);
    const [games, setGames] = useState<GameRow[]>([]);
+   const [prizes, setPrizes] = useState<PrizeRow[]>([]);
    const [attendants, setAttendants] = useState<AttendantRow[]>([]);
    const [staff, setStaff] = useState<AssignedStaffMember[]>([]);
 
@@ -66,6 +68,18 @@ export function useLogic() {
          toast.error(error instanceof Error ? error.message : 'Failed to load company overview.');
       }
    }, [urlCompanyId]);
+
+   const refreshWorkspaceData = useCallback(async () => {
+      if (!selectedGameId) return;
+      try {
+         const response = await getGameWorkspace({ gameId: selectedGameId });
+         setPrizes(response.prizes);
+         setAttendants(response.attendants);
+         setStaff(response.staff);
+      } catch (error: unknown) {
+         toast.error(error instanceof Error ? error.message : 'Failed to refresh game workspace.');
+      }
+   }, [selectedGameId]);
 
    useEffect(() => {
       let active = true;
@@ -127,6 +141,7 @@ export function useLogic() {
       getGameWorkspace({ gameId: selectedGameId })
          .then((response) => {
             if (!active) return;
+            setPrizes(response.prizes);
             setAttendants(response.attendants);
             setStaff(response.staff);
          })
@@ -148,6 +163,7 @@ export function useLogic() {
    function handleSwitchCompany(nextCompanyId: string) {
       setIsLoadingInitial(true);
       setGames([]);
+      setPrizes([]);
       setAttendants([]);
       setStaff([]);
       updateUrl({
@@ -159,6 +175,7 @@ export function useLogic() {
 
    function handleSelectEvent(nextEventId: string) {
       setGames([]);
+      setPrizes([]);
       setAttendants([]);
       setStaff([]);
       if (nextEventId) {
@@ -171,6 +188,7 @@ export function useLogic() {
    }
 
    function handleSelectGame(nextGameId: string) {
+      setPrizes([]);
       setAttendants([]);
       setStaff([]);
       if (nextGameId) {
@@ -193,6 +211,7 @@ export function useLogic() {
          selectedEventId,
          selectedGameId,
          selectedGame,
+         prizes,
          attendants,
          staff,
          isLoadingInitial,
@@ -204,7 +223,7 @@ export function useLogic() {
          handleSelectEvent,
          handleSelectGame,
          refreshCompanyData,
+         refreshWorkspaceData,
       },
    };
 }
-

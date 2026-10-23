@@ -16,6 +16,34 @@ export const useStyle = {
    countPill: tv({
       base: 'inline-flex items-center px-2 py-0.5 rounded-primary text-11 font-semibold bg-neutral-100 text-neutral-700 border border-neutral-300',
    }),
+   actionsGroup: tv({
+      base: 'flex flex-wrap items-center gap-1.5',
+   }),
+   hiddenInput: tv({
+      base: 'hidden',
+   }),
+   secondaryBtn: tv({
+      base: [
+         'inline-flex items-center gap-x-1.5 px-2.5 py-1.5 text-12 font-semibold text-neutral-800',
+         'bg-neutral-50 border border-utility-400 rounded-primary hover:bg-neutral-100 transition-colors cursor-pointer',
+      ],
+      variants: {
+         disabled: {
+            true: 'opacity-50 pointer-events-none cursor-not-allowed',
+         },
+      },
+   }),
+   primaryBtn: tv({
+      base: [
+         'inline-flex items-center gap-x-1.5 px-3 py-1.5 text-12 font-semibold text-neutral-50',
+         'bg-neutral-900 rounded-primary hover:bg-neutral-950 transition-colors cursor-pointer',
+      ],
+      variants: {
+         disabled: {
+            true: 'opacity-50 pointer-events-none cursor-not-allowed',
+         },
+      },
+   }),
    toolbar: tv({
       base: 'flex items-center gap-2 px-secondary py-3 bg-neutral-100/60 border-b border-neutral-200',
    }),
@@ -46,6 +74,9 @@ export const useStyle = {
    th: tv({
       base: 'px-primary py-2.5 text-11 font-semibold uppercase tracking-wider text-neutral-600 whitespace-nowrap',
    }),
+   thRight: tv({
+      base: 'px-primary py-2.5 text-11 font-semibold uppercase tracking-wider text-neutral-600 whitespace-nowrap text-right',
+   }),
    tbody: tv({
       base: 'divide-y divide-neutral-200',
    }),
@@ -54,6 +85,9 @@ export const useStyle = {
    }),
    td: tv({
       base: 'px-primary py-3 text-13 text-neutral-700 align-middle whitespace-nowrap',
+   }),
+   tdRight: tv({
+      base: 'px-primary py-3 text-13 text-neutral-700 align-middle whitespace-nowrap text-right',
    }),
    nameText: tv({
       base: 'font-semibold text-neutral-950',
@@ -78,6 +112,20 @@ export const useStyle = {
          },
       },
    }),
+   rowActions: tv({
+      base: 'inline-flex items-center justify-end gap-x-1',
+   }),
+   actionIconBtn: tv({
+      base: [
+         'p-1.5 rounded-primary text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/70',
+         'transition-colors cursor-pointer',
+      ],
+      variants: {
+         danger: {
+            true: 'text-error-600 hover:text-error-700 hover:bg-error-50',
+         },
+      },
+   }),
    emptyState: tv({
       base: 'py-12 px-primary text-center text-13 text-neutral-500',
    }),
@@ -87,5 +135,62 @@ export const useStyle = {
    iconSm: tv({
       base: 'w-3.5 h-3.5',
    }),
+   iconMd: tv({
+      base: 'w-4 h-4',
+   }),
+   checkboxRow: tv({
+      base: 'col-span-1 sm:col-span-2 flex items-center gap-x-3 p-3 bg-neutral-100/70 border border-utility-400 rounded-primary',
+   }),
+   checkboxInput: tv({
+      base: 'w-4 h-4 rounded-primary border-utility-400 accent-neutral-900 cursor-pointer',
+   }),
+   checkboxLabel: tv({
+      base: 'text-13 font-medium text-neutral-900 cursor-pointer',
+   }),
+   modal: {
+      backdrop: tv({
+         base: [
+            'fixed inset-0 z-50 flex items-center justify-center p-primary',
+            'bg-neutral-950/50 backdrop-blur-xs',
+         ],
+      }),
+      panel: tv({
+         base: [
+            'w-full max-w-xl max-h-[90vh] overflow-y-auto',
+            'bg-neutral-50 border border-utility-400 rounded-secondary shadow-xl flex flex-col',
+         ],
+      }),
+      header: tv({
+         base: 'flex items-center justify-between px-secondary py-primary border-b border-utility-400 sticky top-0 bg-neutral-50 z-10',
+      }),
+      headerTitle: tv({
+         base: 'text-18 font-semibold text-neutral-950',
+      }),
+      closeBtn: tv({
+         base: 'p-1.5 text-neutral-500 hover:text-neutral-900 rounded-primary hover:bg-neutral-100 transition-colors cursor-pointer',
+      }),
+      body: tv({
+         base: 'p-secondary grid grid-cols-1 sm:grid-cols-2 gap-primary',
+      }),
+      footer: tv({
+         base: 'flex items-center justify-end gap-x-2 px-secondary py-primary border-t border-utility-400 bg-neutral-100/50',
+      }),
+      cancelBtn: tv({
+         base: [
+            'px-primary py-2 text-13 font-medium text-neutral-700',
+            'bg-neutral-50 border border-utility-400 rounded-primary hover:bg-neutral-100 transition-colors cursor-pointer',
+         ],
+      }),
+      saveBtn: tv({
+         base: [
+            'px-primary py-2 text-13 font-medium text-neutral-50',
+            'bg-neutral-900 rounded-primary hover:bg-neutral-950 transition-colors cursor-pointer',
+         ],
+         variants: {
+            disabled: {
+               true: 'opacity-50 pointer-events-none cursor-not-allowed',
+            },
+         },
+      }),
+   },
 };
-

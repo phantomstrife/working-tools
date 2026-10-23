@@ -76,9 +76,12 @@ export const PageAdminCompanyOverview: Router_Page = () => {
                {param.selectedGame && param.selectedGame.game_type === 'LUCKY_DRAW' ? (
                   <LuckyDrawWorkspace
                      game={param.selectedGame}
+                     companyId={param.company.id}
+                     prizes={param.prizes}
                      attendants={param.attendants}
                      staff={param.staff}
                      isLoading={param.isLoadingWorkspace}
+                     onRefresh={func.refreshWorkspaceData}
                   />
                ) : (
                   <div className={emptyStateBox()}>
@@ -93,7 +96,7 @@ export const PageAdminCompanyOverview: Router_Page = () => {
                      <p className={emptyDescription()}>
                         {!param.selectedEventId
                            ? 'Choose one of your company events above to browse its interactive games.'
-                           : 'Choose a Lucky Draw game from the right dropdown above to view and filter attendants, assigned staff, and export winner reports.'}
+                           : 'Choose a Lucky Draw game from the right dropdown above to manage prizes, attendants, and assigned staff.'}
                      </p>
                   </div>
                )}
@@ -102,4 +105,3 @@ export const PageAdminCompanyOverview: Router_Page = () => {
       </div>
    );
 };
-

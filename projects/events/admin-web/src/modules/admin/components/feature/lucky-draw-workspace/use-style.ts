@@ -2,7 +2,7 @@ import { tv } from 'tailwind-variants';
 
 export const useStyle = {
    wrapper: tv({
-      base: 'flex flex-col gap-y-primary',
+      base: 'flex flex-col gap-y-secondary',
    }),
    workspaceBar: tv({
       base: [
@@ -27,6 +27,6 @@ export const useStyle = {
       base: 'text-12 text-neutral-500',
    }),
    grid: tv({
-      base: 'grid grid-cols-1 gap-6 items-start',
+      base: 'grid grid-cols-1 lg:grid-cols-2 gap-6 items-start',
    }),
 };
