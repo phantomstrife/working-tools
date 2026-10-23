@@ -1,10 +1,11 @@
-import { useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Papa from 'papaparse';
 import { toast } from 'sonner';
 
+import { getPaginatedAttendants } from '@/modules/admin/services/company/overview/get-game-workspace';
 import { bulkImport } from '@/modules/admin/services/lucky-draw/attendant/bulk-import';
 import { create } from '@/modules/admin/services/lucky-draw/attendant/create';
 import { deleteById } from '@/modules/admin/services/lucky-draw/attendant/delete-by-id';
@@ -13,17 +14,12 @@ import { update } from '@/modules/admin/services/lucky-draw/attendant/update';
 import { getAll as getAllWinners } from '@/modules/admin/services/lucky-draw/winner/get-all';
 import { logExport } from '@/modules/admin/services/lucky-draw/winner/log-export';
 
-import type { AttendantRow } from '@/modules/admin/services/company/overview/get-game-workspace/type';
+import type {
+   AttendantFilterOption,
+   AttendantRow,
+} from '@/modules/admin/services/company/overview/get-game-workspace/type';
 
-export type AttendantFilterOption =
-   | 'ALL'
-   | 'CHECKED_IN'
-   | 'NOT_CHECKED_IN'
-   | 'WINNER'
-   | 'NOT_WINNER'
-   | 'EMAIL_SENT'
-   | 'EMAIL_NOT_SENT'
-   | 'EMAIL_FAILED';
+export type { AttendantFilterOption };
 
 export const attendantQuickSchema = z.object({
    full_name: z.string().trim().min(2, 'Full name must be at least 2 characters.'),
@@ -41,21 +37,24 @@ export type AttendantQuickFormValues = z.infer<typeof attendantQuickSchema>;
 
 export type AttendantsPanelProps = {
    gameId: string;
-   attendants: AttendantRow[];
-   isLoading: boolean;
-   onRefresh: () => Promise<void>;
 };
 
 const CSV_INPUT_ID = 'overview-attendant-csv-upload-input';
 const PAGE_SIZE_OPTIONS: ReadonlyArray<number> = [10, 20, 50, 100];
 
 export function useLogic(props: AttendantsPanelProps) {
-   const { gameId, attendants, isLoading, onRefresh } = props;
+   const { gameId } = props;
 
    const [searchQuery, setSearchQuery] = useState('');
+   const [debouncedSearch, setDebouncedSearch] = useState('');
    const [filterValue, setFilterValue] = useState<AttendantFilterOption>('ALL');
-   const [page, setPage] = useState(1);
-   const [limit, setLimit] = useState(20);
+
+   const [currentPage, setCurrentPage] = useState(1);
+   const [pageSize, setPageSize] = useState(20);
+   const [attendants, setAttendants] = useState<AttendantRow[]>([]);
+   const [totalCount, setTotalCount] = useState(0);
+   const [totalPages, setTotalPages] = useState(1);
+   const [isLoading, setIsLoading] = useState(true);
 
    const [isModalOpen, setIsModalOpen] = useState(false);
    const [editingAttendant, setEditingAttendant] = useState<AttendantRow | null>(null);
@@ -86,61 +85,83 @@ export function useLogic(props: AttendantsPanelProps) {
       formState: { errors, isDirty },
    } = form;
 
-   const filteredAttendants = useMemo(() => {
-      const normalizedSearch = searchQuery.trim().toLowerCase();
+   useEffect(() => {
+      const timer = setTimeout(() => {
+         if (searchQuery !== debouncedSearch) {
+            setIsLoading(true);
+            setDebouncedSearch(searchQuery);
+            setCurrentPage(1);
+         }
+      }, 300);
 
-      return attendants.filter((item) => {
-         if (normalizedSearch) {
-            const matchesName = item.full_name.toLowerCase().includes(normalizedSearch);
-            const matchesPhone = (item.phone ?? '').toLowerCase().includes(normalizedSearch);
-            const matchesEmail = (item.email ?? '').toLowerCase().includes(normalizedSearch);
-            const matchesTicket = item.ticket_code.toLowerCase().includes(normalizedSearch);
+      return () => clearTimeout(timer);
+   }, [searchQuery, debouncedSearch]);
 
-            if (!matchesName && !matchesPhone && !matchesEmail && !matchesTicket) {
-               return false;
+   const refreshAttendants = useCallback(async () => {
+      if (!gameId) return;
+      setIsLoading(true);
+      try {
+         const response = await getPaginatedAttendants(gameId, currentPage, pageSize, {
+            search: debouncedSearch,
+            filter: filterValue,
+         });
+         setAttendants(response.attendants);
+         setTotalCount(response.totalCount);
+         setTotalPages(response.totalPages);
+         if (currentPage > response.totalPages) {
+            setCurrentPage(response.totalPages);
+         }
+      } catch (error: unknown) {
+         toast.error(error instanceof Error ? error.message : 'Failed to load attendants.');
+      } finally {
+         setIsLoading(false);
+      }
+   }, [gameId, currentPage, pageSize, debouncedSearch, filterValue]);
+
+   useEffect(() => {
+      if (!gameId) return;
+
+      let active = true;
+      getPaginatedAttendants(gameId, currentPage, pageSize, {
+         search: debouncedSearch,
+         filter: filterValue,
+      })
+         .then((response) => {
+            if (!active) return;
+            setAttendants(response.attendants);
+            setTotalCount(response.totalCount);
+            setTotalPages(response.totalPages);
+            if (currentPage > response.totalPages) {
+               setCurrentPage(response.totalPages);
             }
-         }
+         })
+         .catch((error: unknown) => {
+            if (!active) return;
+            toast.error(error instanceof Error ? error.message : 'Failed to load attendants.');
+         })
+         .finally(() => {
+            if (active) {
+               setIsLoading(false);
+            }
+         });
 
-         switch (filterValue) {
-            case 'CHECKED_IN':
-               return Boolean(item.is_checked_in);
-            case 'NOT_CHECKED_IN':
-               return !item.is_checked_in;
-            case 'WINNER':
-               return Boolean(item.has_won);
-            case 'NOT_WINNER':
-               return !item.has_won;
-            case 'EMAIL_SENT':
-               return item.email_status === 'SENT';
-            case 'EMAIL_NOT_SENT':
-               return (item.email_status ?? 'NOT_SENT') === 'NOT_SENT';
-            case 'EMAIL_FAILED':
-               return item.email_status === 'FAILED';
-            default:
-               return true;
-         }
-      });
-   }, [attendants, searchQuery, filterValue]);
+      return () => {
+         active = false;
+      };
+   }, [gameId, currentPage, pageSize, debouncedSearch, filterValue]);
 
-   const totalPages = Math.max(1, Math.ceil(filteredAttendants.length / limit));
-   const currentPage = Math.min(page, totalPages);
-
-   const paginatedAttendants = useMemo(() => {
-      const start = (currentPage - 1) * limit;
-      return filteredAttendants.slice(start, start + limit);
-   }, [filteredAttendants, currentPage, limit]);
-
-   const rangeStart = filteredAttendants.length === 0 ? 0 : (currentPage - 1) * limit + 1;
-   const rangeEnd = Math.min(filteredAttendants.length, currentPage * limit);
+   const rangeStart = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+   const rangeEnd = Math.min(totalCount, currentPage * pageSize);
 
    function handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
       setSearchQuery(event.target.value);
-      setPage(1);
    }
 
    function handleClearSearch() {
+      setIsLoading(true);
       setSearchQuery('');
-      setPage(1);
+      setDebouncedSearch('');
+      setCurrentPage(1);
    }
 
    function handleFilterChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -155,26 +176,29 @@ export function useLogic(props: AttendantsPanelProps) {
          val === 'EMAIL_NOT_SENT' ||
          val === 'EMAIL_FAILED'
       ) {
+         setIsLoading(true);
          setFilterValue(val);
-         setPage(1);
+         setCurrentPage(1);
       }
    }
 
    function handlePageChange(nextPage: number) {
-      if (nextPage < 1 || nextPage > totalPages) return;
-      setPage(nextPage);
+      if (nextPage < 1 || nextPage > totalPages || nextPage === currentPage) return;
+      setIsLoading(true);
+      setCurrentPage(nextPage);
    }
 
    function handleLimitChange(event: React.ChangeEvent<HTMLSelectElement>) {
       const parsed = Number(event.target.value);
-      if (PAGE_SIZE_OPTIONS.includes(parsed)) {
-         setLimit(parsed);
-         setPage(1);
+      if (PAGE_SIZE_OPTIONS.includes(parsed) && parsed !== pageSize) {
+         setIsLoading(true);
+         setPageSize(parsed);
+         setCurrentPage(1);
       }
    }
 
    function handleOpenCreateModal() {
-      const nextTicket = `TKT-${String(attendants.length + 1).padStart(4, '0')}`;
+      const nextTicket = `TKT-${String(totalCount + 1).padStart(4, '0')}`;
       setEditingAttendant(null);
       reset({
          full_name: '',
@@ -251,7 +275,7 @@ export function useLogic(props: AttendantsPanelProps) {
             }
             setIsModalOpen(false);
             setEditingAttendant(null);
-            await onRefresh();
+            await refreshAttendants();
          } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Failed to save attendant.';
             form.setError('root', { message });
@@ -276,7 +300,7 @@ export function useLogic(props: AttendantsPanelProps) {
             await deleteById({ id: target.id });
             toast.success(`Deleted attendant "${target.full_name}".`);
             setDeleteTarget(null);
-            await onRefresh();
+            await refreshAttendants();
          } catch (error: unknown) {
             toast.error(error instanceof Error ? error.message : 'Failed to delete attendant.');
          }
@@ -284,12 +308,12 @@ export function useLogic(props: AttendantsPanelProps) {
    }
 
    function handleSendBatchEmails() {
-      const targetIds = filteredAttendants
+      const targetIds = attendants
          .filter((item) => Boolean(item.email && item.email.trim()))
          .map((item) => item.id);
 
       if (targetIds.length === 0) {
-         toast.error('No attendants with an email address in the current view.');
+         toast.error('No attendants with an email address on the current page.');
          return;
       }
 
@@ -303,7 +327,7 @@ export function useLogic(props: AttendantsPanelProps) {
             } else {
                toast.success(`Dispatched QR tickets to ${res.sentCount} attendants.`);
             }
-            await onRefresh();
+            await refreshAttendants();
          } catch (error: unknown) {
             toast.error(error instanceof Error ? error.message : 'Failed to send batch emails.');
          }
@@ -361,7 +385,7 @@ export function useLogic(props: AttendantsPanelProps) {
 
                   const response = await bulkImport({ rows: mappedRows });
                   toast.success(`Imported ${response.importedCount} attendants from CSV.`);
-                  await onRefresh();
+                  await refreshAttendants();
                } catch (error: unknown) {
                   toast.error(error instanceof Error ? error.message : 'Failed during attendant CSV import.');
                } finally {
@@ -428,17 +452,19 @@ export function useLogic(props: AttendantsPanelProps) {
       });
    }
 
+   const hasActiveFilters = Boolean(debouncedSearch.trim() || filterValue !== 'ALL');
+
    return {
       param: {
          isLoading,
          isPending,
          searchQuery,
          filterValue,
-         totalCount: attendants.length,
-         filteredAttendants,
-         paginatedAttendants,
-         page: currentPage,
-         limit,
+         hasActiveFilters,
+         attendants,
+         totalCount,
+         currentPage,
+         pageSize,
          pageSizeOptions: PAGE_SIZE_OPTIONS,
          totalPages,
          rangeStart,

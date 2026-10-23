@@ -1,6 +1,5 @@
 declare global {
    interface Layout {
-      params: Promise<{ locale: Locale }>;
       children: ReactNode;
    }
 

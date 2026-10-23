@@ -4,11 +4,7 @@ import { getServerClient } from '@/adapters/supabase/server';
 
 import type * as Types from './type';
 
-export const getGameWorkspace: Types.GetGameWorkspace = async (request) => {
-   if (!request.gameId?.trim()) {
-      return { prizes: [], attendants: [], staff: [] };
-   }
-
+async function verifyGameAccess(gameId: string) {
    const supabase = await getServerClient();
    const authResult = await supabase.auth.getUser();
 
@@ -31,7 +27,7 @@ export const getGameWorkspace: Types.GetGameWorkspace = async (request) => {
    const gameResult = await supabase
       .from('games')
       .select('id, is_dev_only, events!inner(company_id)')
-      .eq('id', request.gameId)
+      .eq('id', gameId)
       .single();
 
    if (gameResult.error || !gameResult.data) {
@@ -47,44 +43,22 @@ export const getGameWorkspace: Types.GetGameWorkspace = async (request) => {
       }
    }
 
-   const FETCH_BATCH_SIZE = 1000;
+   return supabase;
+}
 
-   async function fetchAllAttendants(gameId: string): Promise<Types.AttendantRow[]> {
-      const allRows: Types.AttendantRow[] = [];
-      let offset = 0;
-
-      while (true) {
-         const batchResult = await supabase
-            .from('lucky_draw_attendants')
-            .select('*')
-            .eq('game_id', gameId)
-            .order('created_at', { ascending: false })
-            .range(offset, offset + FETCH_BATCH_SIZE - 1);
-
-         if (batchResult.error) {
-            throw new Error(batchResult.error.message);
-         }
-
-         const rows = batchResult.data ?? [];
-         allRows.push(...rows);
-
-         if (rows.length < FETCH_BATCH_SIZE) {
-            break;
-         }
-
-         offset += FETCH_BATCH_SIZE;
-      }
-
-      return allRows;
+export const getGameWorkspace: Types.GetGameWorkspace = async (request) => {
+   if (!request.gameId?.trim()) {
+      return { prizes: [], staff: [] };
    }
 
-   const [prizesResult, attendants, staffResult] = await Promise.all([
+   const supabase = await verifyGameAccess(request.gameId);
+
+   const [prizesResult, staffResult] = await Promise.all([
       supabase
          .from('lucky_draw_prizes')
          .select('*')
          .eq('game_id', request.gameId)
          .order('tier_order', { ascending: true }),
-      fetchAllAttendants(request.gameId),
       supabase
          .from('game_accounts')
          .select('id, assigned_at, accounts!inner(id, full_name, email, username, phone, role, is_active)')
@@ -114,7 +88,81 @@ export const getGameWorkspace: Types.GetGameWorkspace = async (request) => {
 
    return {
       prizes: prizesResult.data ?? [],
-      attendants,
       staff,
+   };
+};
+
+export const getPaginatedAttendants: Types.GetPaginatedAttendants = async (
+   gameId,
+   page,
+   pageSize,
+   options,
+) => {
+   if (!gameId?.trim()) {
+      return {
+         attendants: [],
+         totalCount: 0,
+         totalPages: 1,
+      };
+   }
+
+   const supabase = await verifyGameAccess(gameId);
+
+   const safePage = Math.max(1, page);
+   const safePageSize = Math.max(1, pageSize);
+   const from = (safePage - 1) * safePageSize;
+   const to = from + safePageSize - 1;
+
+   let query = supabase
+      .from('lucky_draw_attendants')
+      .select('*', { count: 'exact' })
+      .eq('game_id', gameId);
+
+   const trimmedSearch = options?.search?.trim();
+   if (trimmedSearch) {
+      query = query.or(
+         `full_name.ilike.%${trimmedSearch}%,phone.ilike.%${trimmedSearch}%,email.ilike.%${trimmedSearch}%,ticket_code.ilike.%${trimmedSearch}%`,
+      );
+   }
+
+   switch (options?.filter) {
+      case 'CHECKED_IN':
+         query = query.eq('is_checked_in', true);
+         break;
+      case 'NOT_CHECKED_IN':
+         query = query.eq('is_checked_in', false);
+         break;
+      case 'WINNER':
+         query = query.eq('has_won', true);
+         break;
+      case 'NOT_WINNER':
+         query = query.eq('has_won', false);
+         break;
+      case 'EMAIL_SENT':
+         query = query.eq('email_status', 'SENT');
+         break;
+      case 'EMAIL_NOT_SENT':
+         query = query.eq('email_status', 'NOT_SENT');
+         break;
+      case 'EMAIL_FAILED':
+         query = query.eq('email_status', 'FAILED');
+         break;
+      default:
+         break;
+   }
+
+   const result = await query.order('created_at', { ascending: false }).range(from, to);
+
+   if (result.error) {
+      throw new Error(result.error.message);
+   }
+
+   const totalCount = result.count ?? 0;
+   const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
+
+   return {
+      attendants: result.data ?? [],
+      totalCount,
+      totalPages,
    };
 };

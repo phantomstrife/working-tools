@@ -78,7 +78,6 @@ export const PageAdminCompanyOverview: Router_Page = () => {
                      game={param.selectedGame}
                      companyId={param.company.id}
                      prizes={param.prizes}
-                     attendants={param.attendants}
                      staff={param.staff}
                      isLoading={param.isLoadingWorkspace}
                      onRefresh={func.refreshWorkspaceData}

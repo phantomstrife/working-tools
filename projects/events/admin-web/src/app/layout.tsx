@@ -9,14 +9,9 @@ const inter = Inter({
    variable: '--font-inter',
 });
 
-const Layout: Router_Layout = async ({ params, children }) => {
-   const { locale } = await params;
-
+const Layout: Router_Layout = async ({ children }) => {
    return (
-      <html
-         lang={locale}
-         className={inter.variable}
-      >
+      <html className={inter.variable}>
          <body className="min-h-full flex flex-col">{children}</body>
       </html>
    );

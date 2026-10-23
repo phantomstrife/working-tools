@@ -25,10 +25,8 @@ export const LuckyDrawWorkspace = (props: LuckyDrawWorkspaceProps) => {
          </div>
 
          <AttendantsPanel
+            key={param.game.id}
             gameId={param.game.id}
-            attendants={param.attendants}
-            isLoading={param.isLoading}
-            onRefresh={func.onRefresh}
          />
 
          <PrizesPanel

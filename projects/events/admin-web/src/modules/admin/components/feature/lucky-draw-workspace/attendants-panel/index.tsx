@@ -62,9 +62,7 @@ export const AttendantsPanel = (props: AttendantsPanelProps) => {
             <div className={header()}>
                <div className={titleGroup()}>
                   <h3 className={title()}>Attendant Management</h3>
-                  <span className={countPill()}>
-                     {param.filteredAttendants.length} / {param.totalCount}
-                  </span>
+                  <span className={countPill()}>{param.totalCount}</span>
                </div>
 
                <div className={actionsGroup()}>
@@ -88,10 +86,10 @@ export const AttendantsPanel = (props: AttendantsPanelProps) => {
 
                   <button
                      type="button"
-                     disabled={isActionDisabled || param.filteredAttendants.length === 0}
+                     disabled={isActionDisabled || param.attendants.length === 0}
                      onClick={func.handleSendBatchEmails}
                      className={secondaryBtn({
-                        disabled: isActionDisabled || param.filteredAttendants.length === 0,
+                        disabled: isActionDisabled || param.attendants.length === 0,
                      })}
                   >
                      <Mail className={iconSm()} />
@@ -195,19 +193,19 @@ export const AttendantsPanel = (props: AttendantsPanelProps) => {
                               ))}
                            </tr>
                         ))
-                     ) : param.filteredAttendants.length === 0 ? (
+                     ) : param.attendants.length === 0 ? (
                         <tr>
                            <td
                               colSpan={7}
                               className={emptyState()}
                            >
-                              {param.totalCount === 0
+                              {!param.hasActiveFilters
                                  ? 'No attendants registered for this Lucky Draw game yet. Click "Create" or "Import CSV" to add guests.'
                                  : 'No attendants match your search or filter criteria.'}
                            </td>
                         </tr>
                      ) : (
-                        param.paginatedAttendants.map((item) => (
+                        param.attendants.map((item) => (
                            <tr
                               key={item.id}
                               className={tr()}
@@ -269,15 +267,12 @@ export const AttendantsPanel = (props: AttendantsPanelProps) => {
 
             <div className={pagination.wrapper()}>
                <span className={pagination.summary()}>
-                  Showing {param.rangeStart}–{param.rangeEnd} of {param.filteredAttendants.length}
-                  {param.filteredAttendants.length !== param.totalCount
-                     ? ` (filtered from ${param.totalCount} total)`
-                     : ''}
+                  Showing {param.rangeStart}–{param.rangeEnd} of {param.totalCount}
                </span>
 
                <div className={pagination.controls()}>
                   <select
-                     value={String(param.limit)}
+                     value={String(param.pageSize)}
                      onChange={func.handleLimitChange}
                      className={pagination.limitSelect()}
                      aria-label="Rows per page"
@@ -295,23 +290,27 @@ export const AttendantsPanel = (props: AttendantsPanelProps) => {
                   <div className={pagination.navGroup()}>
                      <button
                         type="button"
-                        onClick={() => func.handlePageChange(param.page - 1)}
-                        disabled={param.page <= 1}
-                        className={pagination.pageBtn({ disabled: param.page <= 1 })}
+                        onClick={() => func.handlePageChange(param.currentPage - 1)}
+                        disabled={param.isLoading || param.currentPage <= 1}
+                        className={pagination.pageBtn({
+                           disabled: param.isLoading || param.currentPage <= 1,
+                        })}
                         aria-label="Previous page"
                      >
                         <ChevronLeft className={iconMd()} />
                      </button>
 
                      <span className={pagination.pageIndicator()}>
-                        Page {param.page} of {param.totalPages}
+                        Page {param.currentPage} of {param.totalPages}
                      </span>
 
                      <button
                         type="button"
-                        onClick={() => func.handlePageChange(param.page + 1)}
-                        disabled={param.page >= param.totalPages}
-                        className={pagination.pageBtn({ disabled: param.page >= param.totalPages })}
+                        onClick={() => func.handlePageChange(param.currentPage + 1)}
+                        disabled={param.isLoading || param.currentPage >= param.totalPages}
+                        className={pagination.pageBtn({
+                           disabled: param.isLoading || param.currentPage >= param.totalPages,
+                        })}
                         aria-label="Next page"
                      >
                         <ChevronRight className={iconMd()} />
