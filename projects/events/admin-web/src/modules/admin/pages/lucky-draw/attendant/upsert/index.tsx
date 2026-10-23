@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 
 import {
@@ -15,17 +16,9 @@ import {
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
-export const PageAdminLuckyDrawAttendantUpsert: Router_Page = () => {
+const PageAdminLuckyDrawAttendantUpsertContent = () => {
    const { param, func } = useLogic();
-   const {
-      wrapper,
-      checkboxRow,
-      checkboxInput,
-      checkboxContent,
-      checkboxTitle,
-      checkboxHint,
-      codeTextarea,
-   } = useStyle;
+   const { wrapper, checkboxRow, checkboxInput, checkboxContent, checkboxTitle, checkboxHint, codeTextarea } = useStyle;
 
    if (param.isLoadingInitial) {
       return <UpsertSkeleton cardCount={3} />;
@@ -300,3 +293,8 @@ export const PageAdminLuckyDrawAttendantUpsert: Router_Page = () => {
    );
 };
 
+export const PageAdminLuckyDrawAttendantUpsert: Router_Page = () => (
+   <Suspense fallback={<UpsertSkeleton cardCount={3} />}>
+      <PageAdminLuckyDrawAttendantUpsertContent />
+   </Suspense>
+);

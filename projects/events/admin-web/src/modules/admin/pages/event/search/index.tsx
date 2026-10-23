@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Calendar } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -52,7 +53,7 @@ const SORT_FIELD_OPTIONS: ReadonlyArray<ToolbarSelectOption> = [
    { label: 'Sort: Status', value: 'status' },
 ];
 
-export const PageAdminEventSearch: Router_Page = () => {
+const PageAdminEventSearchContent = () => {
    const { param, func } = useLogic();
    const { wrapper, cell, iconLg } = useStyle;
 
@@ -305,3 +306,8 @@ export const PageAdminEventSearch: Router_Page = () => {
    );
 };
 
+export const PageAdminEventSearch: Router_Page = () => (
+   <Suspense fallback={null}>
+      <PageAdminEventSearchContent />
+   </Suspense>
+);

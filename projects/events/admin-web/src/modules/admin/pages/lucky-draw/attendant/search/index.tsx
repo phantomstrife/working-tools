@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Users } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -49,7 +50,7 @@ const SORT_FIELD_OPTIONS: ReadonlyArray<ToolbarSelectOption> = [
    { label: 'Sort: Check-In Time', value: 'checked_in_at' },
 ];
 
-export const PageAdminLuckyDrawAttendantSearch: Router_Page = () => {
+const PageAdminLuckyDrawAttendantSearchContent = () => {
    const { param, func } = useLogic();
    const { wrapper, cell, iconLg } = useStyle;
 
@@ -69,9 +70,7 @@ export const PageAdminLuckyDrawAttendantSearch: Router_Page = () => {
          options: EMAIL_FILTER_OPTIONS,
          onChange: (value) =>
             func.handleEmailFilterChange(
-               value === 'NOT_SENT' || value === 'SENDING' || value === 'SENT' || value === 'FAILED'
-                  ? value
-                  : 'ALL',
+               value === 'NOT_SENT' || value === 'SENDING' || value === 'SENT' || value === 'FAILED' ? value : 'ALL',
             ),
       },
    ];
@@ -158,7 +157,10 @@ export const PageAdminLuckyDrawAttendantSearch: Router_Page = () => {
          renderCell: (row) => (
             <div className={cell.ticketGroup()}>
                <span className={cell.ticketBadge()}>{row.ticket_code}</span>
-               <span className={cell.qrPayload()} title={row.qr_code_payload}>
+               <span
+                  className={cell.qrPayload()}
+                  title={row.qr_code_payload}
+               >
                   {row.qr_code_payload}
                </span>
             </div>
@@ -317,3 +319,8 @@ export const PageAdminLuckyDrawAttendantSearch: Router_Page = () => {
    );
 };
 
+export const PageAdminLuckyDrawAttendantSearch: Router_Page = () => (
+   <Suspense fallback={null}>
+      <PageAdminLuckyDrawAttendantSearchContent />
+   </Suspense>
+);

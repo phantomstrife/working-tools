@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Download, Trophy } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -8,17 +9,11 @@ import { SearchToolbar } from '@/components/search';
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
-import type {
-   ToolbarActiveChip,
-   ToolbarFilterSelect,
-   ToolbarSelectOption,
-} from '@/components/search';
+import type { ToolbarActiveChip, ToolbarFilterSelect, ToolbarSelectOption } from '@/components/search';
 
-const SORT_FIELD_OPTIONS: ReadonlyArray<ToolbarSelectOption> = [
-   { label: 'Sort: Drawn Time', value: 'won_at' },
-];
+const SORT_FIELD_OPTIONS: ReadonlyArray<ToolbarSelectOption> = [{ label: 'Sort: Drawn Time', value: 'won_at' }];
 
-export const PageAdminLuckyDrawWinnerSearch: Router_Page = () => {
+const PageAdminLuckyDrawWinnerSearchContent = () => {
    const { param, func } = useLogic();
    const {
       wrapper,
@@ -126,6 +121,7 @@ export const PageAdminLuckyDrawWinnerSearch: Router_Page = () => {
                   Post-event audit & winner reporting joining drawn prizes, winning attendees, and stage operators.
                </p>
             </div>
+
             <button
                type="button"
                disabled={isExportDisabled}
@@ -243,17 +239,13 @@ export const PageAdminLuckyDrawWinnerSearch: Router_Page = () => {
                                     <span className={cell.tierBadge()}>
                                        Tier #{row.lucky_draw_prizes?.tier_order ?? 1}
                                     </span>
-                                    <span className={cell.prizeName()}>
-                                       {row.lucky_draw_prizes?.name || '—'}
-                                    </span>
+                                    <span className={cell.prizeName()}>{row.lucky_draw_prizes?.name || '—'}</span>
                                  </div>
                               </td>
                               <td className={td()}>
                                  <div className={cell.gameGroup()}>
                                     <span className={cell.gameName()}>{row.games?.name || '—'}</span>
-                                    <span className={cell.eventName()}>
-                                       {row.games?.events?.name || '—'}
-                                    </span>
+                                    <span className={cell.eventName()}>{row.games?.events?.name || '—'}</span>
                                  </div>
                               </td>
                               <td className={td()}>
@@ -284,6 +276,7 @@ export const PageAdminLuckyDrawWinnerSearch: Router_Page = () => {
                         <option value={50}>50 / page</option>
                         <option value={100}>100 / page</option>
                      </select>
+
                      <div className={pageBtnGroup()}>
                         <button
                            type="button"
@@ -310,3 +303,8 @@ export const PageAdminLuckyDrawWinnerSearch: Router_Page = () => {
    );
 };
 
+export const PageAdminLuckyDrawWinnerSearch: Router_Page = () => (
+   <Suspense fallback={null}>
+      <PageAdminLuckyDrawWinnerSearchContent />
+   </Suspense>
+);

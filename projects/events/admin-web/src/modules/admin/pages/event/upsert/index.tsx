@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 
 import {
@@ -15,7 +16,7 @@ import {
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
-export const PageAdminEventUpsert: Router_Page = () => {
+const PageAdminEventUpsertContent = () => {
    const { param, func } = useLogic();
    const { wrapper, slugRow, slugBtn, codeTextarea } = useStyle;
 
@@ -265,3 +266,8 @@ export const PageAdminEventUpsert: Router_Page = () => {
    );
 };
 
+export const PageAdminEventUpsert: Router_Page = () => (
+   <Suspense fallback={<UpsertSkeleton cardCount={3} />}>
+      <PageAdminEventUpsertContent />
+   </Suspense>
+);

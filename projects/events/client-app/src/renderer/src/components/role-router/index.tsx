@@ -20,7 +20,6 @@ export const RoleRouter = () => {
       topLeftBar,
       staffNameText,
       roleBadge,
-      hudToggleBtn,
       signOutTopBtn,
    } = useStyle;
 
@@ -82,14 +81,6 @@ export const RoleRouter = () => {
                   {param.staff.full_name}
                </span>
                <span className={roleBadge()}>{param.staff.role}</span>
-               <button
-                  type="button"
-                  onClick={func.handleToggleHud}
-                  title="Hide HUD controls for stage projection (Press H to restore)"
-                  className={hudToggleBtn()}
-               >
-                  Clean Stage (H)
-               </button>
                <button
                   type="button"
                   onClick={func.handleSignOut}

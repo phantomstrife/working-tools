@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Gamepad2 } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -54,7 +55,7 @@ const SORT_FIELD_OPTIONS: ReadonlyArray<ToolbarSelectOption> = [
    { label: 'Sort: Status', value: 'status' },
 ];
 
-export const PageAdminGameSearch: Router_Page = () => {
+const PageAdminGameSearchContent = () => {
    const { param, func } = useLogic();
    const { wrapper, cell, iconLg } = useStyle;
 
@@ -74,9 +75,7 @@ export const PageAdminGameSearch: Router_Page = () => {
          options: STATUS_FILTER_OPTIONS,
          onChange: (value) =>
             func.handleStatusChange(
-               value === 'PENDING' || value === 'READY' || value === 'LIVE' || value === 'FINISHED'
-                  ? value
-                  : 'ALL',
+               value === 'PENDING' || value === 'READY' || value === 'LIVE' || value === 'FINISHED' ? value : 'ALL',
             ),
       },
       {
@@ -313,3 +312,8 @@ export const PageAdminGameSearch: Router_Page = () => {
    );
 };
 
+export const PageAdminGameSearch: Router_Page = () => (
+   <Suspense fallback={null}>
+      <PageAdminGameSearchContent />
+   </Suspense>
+);

@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Gift } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -45,7 +46,7 @@ const SORT_FIELD_OPTIONS: ReadonlyArray<ToolbarSelectOption> = [
    { label: 'Sort: Created Date', value: 'created_at' },
 ];
 
-export const PageAdminLuckyDrawPrizeSearch: Router_Page = () => {
+const PageAdminLuckyDrawPrizeSearchContent = () => {
    const { param, func } = useLogic();
    const { wrapper, cell, iconLg } = useStyle;
 
@@ -63,8 +64,7 @@ export const PageAdminLuckyDrawPrizeSearch: Router_Page = () => {
          ariaLabel: 'Filter by stock status',
          value: param.stockFilter,
          options: STOCK_FILTER_OPTIONS,
-         onChange: (value) =>
-            func.handleStockChange(value === 'IN_STOCK' || value === 'DEPLETED' ? value : 'ALL'),
+         onChange: (value) => func.handleStockChange(value === 'IN_STOCK' || value === 'DEPLETED' ? value : 'ALL'),
       },
    ];
 
@@ -116,7 +116,11 @@ export const PageAdminLuckyDrawPrizeSearch: Router_Page = () => {
                <div className={cell.thumb()}>
                   {prizeItem.image_url ? (
                      // eslint-disable-next-line @next/next/no-img-element
-                     <img src={prizeItem.image_url} alt={prizeItem.name} className={cell.thumbImg()} />
+                     <img
+                        src={prizeItem.image_url}
+                        alt={prizeItem.name}
+                        className={cell.thumbImg()}
+                     />
                   ) : (
                      <Gift className={iconLg()} />
                   )}
@@ -154,8 +158,7 @@ export const PageAdminLuckyDrawPrizeSearch: Router_Page = () => {
                   : prizeItem.remaining_quantity <= Math.ceil(prizeItem.total_quantity * 0.25)
                     ? 'LOW_STOCK'
                     : 'IN_STOCK';
-            const stateLabel =
-               state === 'DEPLETED' ? 'Depleted' : state === 'LOW_STOCK' ? 'Low Stock' : 'In Stock';
+            const stateLabel = state === 'DEPLETED' ? 'Depleted' : state === 'LOW_STOCK' ? 'Low Stock' : 'In Stock';
 
             return (
                <div className={cell.quantityWrapper()}>
@@ -244,8 +247,7 @@ export const PageAdminLuckyDrawPrizeSearch: Router_Page = () => {
                filteredTitle: 'No prizes match your active filters',
                filteredDescription: 'Try adjusting your search keywords or clearing active game and stock filters.',
                emptyTitle: 'No Lucky Draw prizes configured yet',
-               emptyDescription:
-                  'Create prize tiers with quantities and images for your Lucky Draw games.',
+               emptyDescription: 'Create prize tiers with quantities and images for your Lucky Draw games.',
                createLabel: 'Create First Prize',
                onClearFilters: func.handleClearAllFilters,
                onCreateFirst: func.handleNavigateCreate,
@@ -286,3 +288,8 @@ export const PageAdminLuckyDrawPrizeSearch: Router_Page = () => {
    );
 };
 
+export const PageAdminLuckyDrawPrizeSearch: Router_Page = () => (
+   <Suspense fallback={null}>
+      <PageAdminLuckyDrawPrizeSearchContent />
+   </Suspense>
+);

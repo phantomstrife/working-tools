@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Building2, Gamepad2 } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -10,7 +11,7 @@ import { LuckyDrawWorkspace } from '@/modules/admin/components/feature/lucky-dra
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
-export const PageAdminCompanyOverview: Router_Page = () => {
+const PageAdminCompanyOverviewContent = () => {
    const { param, func } = useLogic();
    const {
       wrapper,
@@ -104,3 +105,9 @@ export const PageAdminCompanyOverview: Router_Page = () => {
       </div>
    );
 };
+
+export const PageAdminCompanyOverview: Router_Page = () => (
+   <Suspense fallback={null}>
+      <PageAdminCompanyOverviewContent />
+   </Suspense>
+);

@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 
 import {
@@ -15,7 +16,7 @@ import {
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
-export const PageAdminLuckyDrawPrizeUpsert: Router_Page = () => {
+const PageAdminLuckyDrawPrizeUpsertContent = () => {
    const { param, func } = useLogic();
    const { wrapper, previewBox, previewThumb, previewImg, previewMeta, previewTitle, previewHint } = useStyle;
 
@@ -93,7 +94,7 @@ export const PageAdminLuckyDrawPrizeUpsert: Router_Page = () => {
                <input
                   id="name"
                   type="text"
-                  placeholder="e.g., Grand Prize — MacBook Pro 16"
+                  placeholder='e.g., Grand Prize — MacBook Pro 16"'
                   className={formControlStyle.input({ hasError: Boolean(param.errors.name) })}
                   {...func.register('name')}
                />
@@ -127,7 +128,9 @@ export const PageAdminLuckyDrawPrizeUpsert: Router_Page = () => {
                   </div>
                   <div className={previewMeta()}>
                      <span className={previewTitle()}>Stage Artwork Preview</span>
-                     <span className={previewHint()}>Rendered on the live Lucky Draw screen when this tier is active.</span>
+                     <span className={previewHint()}>
+                        Rendered on the live Lucky Draw screen when this tier is active.
+                     </span>
                   </div>
                </div>
             )}
@@ -209,3 +212,8 @@ export const PageAdminLuckyDrawPrizeUpsert: Router_Page = () => {
    );
 };
 
+export const PageAdminLuckyDrawPrizeUpsert: Router_Page = () => (
+   <Suspense fallback={<UpsertSkeleton cardCount={2} />}>
+      <PageAdminLuckyDrawPrizeUpsertContent />
+   </Suspense>
+);

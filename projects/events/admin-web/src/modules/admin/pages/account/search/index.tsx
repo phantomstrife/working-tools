@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Users } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -54,7 +55,7 @@ const SORT_FIELD_OPTIONS: ReadonlyArray<ToolbarSelectOption> = [
    { label: 'Sort: Role', value: 'role' },
 ];
 
-export const PageAdminAccountSearch: Router_Page = () => {
+const PageAdminAccountSearchContent = () => {
    const { param, func } = useLogic();
    const { wrapper, cell, iconLg } = useStyle;
 
@@ -162,9 +163,7 @@ export const PageAdminAccountSearch: Router_Page = () => {
       {
          key: 'role',
          header: 'Role',
-         renderCell: (account) => (
-            <span className={cell.roleBadge({ role: account.role })}>{account.role}</span>
-         ),
+         renderCell: (account) => <span className={cell.roleBadge({ role: account.role })}>{account.role}</span>,
       },
       {
          key: 'company',
@@ -176,11 +175,7 @@ export const PageAdminAccountSearch: Router_Page = () => {
          header: 'Status',
          renderCell: (account) => {
             const isActive = account.is_active !== false;
-            return (
-               <span className={cell.statusBadge({ active: isActive })}>
-                  {isActive ? 'ACTIVE' : 'INACTIVE'}
-               </span>
-            );
+            return <span className={cell.statusBadge({ active: isActive })}>{isActive ? 'ACTIVE' : 'INACTIVE'}</span>;
          },
       },
       {
@@ -302,3 +297,8 @@ export const PageAdminAccountSearch: Router_Page = () => {
    );
 };
 
+export const PageAdminAccountSearch: Router_Page = () => (
+   <Suspense fallback={null}>
+      <PageAdminAccountSearchContent />
+   </Suspense>
+);

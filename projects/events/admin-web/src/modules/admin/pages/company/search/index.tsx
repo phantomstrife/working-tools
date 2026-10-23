@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Building2 } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -47,7 +48,7 @@ const SORT_FIELD_OPTIONS: ReadonlyArray<ToolbarSelectOption> = [
    { label: 'Sort: Status', value: 'status' },
 ];
 
-export const PageAdminCompanySearch: Router_Page = () => {
+const PageAdminCompanySearchContent = () => {
    const { param, func } = useLogic();
    const { wrapper, cell, iconLg } = useStyle;
 
@@ -262,3 +263,9 @@ export const PageAdminCompanySearch: Router_Page = () => {
       </div>
    );
 };
+
+export const PageAdminCompanySearch: Router_Page = () => (
+   <Suspense fallback={null}>
+      <PageAdminCompanySearchContent />
+   </Suspense>
+);
