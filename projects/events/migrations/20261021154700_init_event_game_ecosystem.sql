@@ -341,16 +341,18 @@ WITH CHECK (
   public.get_my_role() = 'SUPER_ADMIN'
 );
 
--- Only Super Admins can update companies
-CREATE POLICY "Companies: Super Admin Update" 
+-- Allow Super Admins to update all companies, and Admins to update their own company
+CREATE POLICY "Companies: Admin Update" 
 ON public.companies 
 FOR UPDATE 
 TO authenticated 
 USING (
-  public.get_my_role() = 'SUPER_ADMIN'
+  public.get_my_role() = 'SUPER_ADMIN' OR
+  (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
 )
 WITH CHECK (
-  public.get_my_role() = 'SUPER_ADMIN'
+  public.get_my_role() = 'SUPER_ADMIN' OR
+  (public.get_my_role() = 'ADMIN' AND id = public.get_my_company_id())
 );
 
 -- Only Super Admins can delete companies

@@ -67,7 +67,7 @@ export async function proxy(request: NextRequest) {
 
       const role = account.data?.role;
       const defaultAdminLanding =
-         role === 'SUPER_ADMIN' ? ROUTE.ADMIN.COMPANY.SEARCH : ROUTE.ADMIN.EVENT.SEARCH;
+         role === 'SUPER_ADMIN' ? ROUTE.ADMIN.COMPANY.SEARCH : ROUTE.ADMIN.COMPANY.OVERVIEW;
 
       if (!isDashboardRoute || currentPath === ROUTE_BASE.ADMIN) {
          const url = request.nextUrl.clone();
@@ -79,9 +79,13 @@ export async function proxy(request: NextRequest) {
          return redirectRes;
       }
 
-      if (role !== 'SUPER_ADMIN' && currentPath.startsWith(`${ROUTE_BASE.ADMIN}/company`)) {
+      if (
+         role !== 'SUPER_ADMIN' &&
+         currentPath.startsWith(`${ROUTE_BASE.ADMIN}/company`) &&
+         !currentPath.startsWith(ROUTE.ADMIN.COMPANY.OVERVIEW)
+      ) {
          const url = request.nextUrl.clone();
-         url.pathname = ROUTE.ADMIN.EVENT.SEARCH;
+         url.pathname = ROUTE.ADMIN.COMPANY.OVERVIEW;
 
          const redirectRes = NextResponse.redirect(url);
          supabaseResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c.name, c.value));

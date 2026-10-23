@@ -15,6 +15,7 @@ export const ROUTE = {
    ADMIN: {
       DASHBOARD: `${ROUTE_BASE.ADMIN}/dashboard`,
       COMPANY: {
+         OVERVIEW: `${ROUTE_BASE.ADMIN}/company/overview`,
          SEARCH: `${ROUTE_BASE.ADMIN}/company/search`,
          CREATE: `${ROUTE_BASE.ADMIN}/company/create`,
          UPDATE: (id: string) => `${ROUTE_BASE.ADMIN}/company/update/${id}`,

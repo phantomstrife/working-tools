@@ -35,7 +35,7 @@ export function useLogic() {
                   throw new Error('Admin account is not linked to a company.');
                }
 
-               router.push(ROUTE.ADMIN.EVENT.SEARCH);
+               router.push(ROUTE.ADMIN.COMPANY.OVERVIEW);
                break;
             }
          }
