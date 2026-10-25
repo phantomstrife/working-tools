@@ -1,0 +1,29 @@
+.root_wrapper {
+   grid-template-areas:
+      'sidebar fixed_header'
+      'sidebar main_content';
+   grid-template-rows: 4rem 1fr;
+   grid-template-columns: 18rem 1fr;
+}
+
+.sidebar_wrapper {
+   grid-area: sidebar;
+}
+
+.fixed_header_wrapper {
+   grid-area: fixed_header;
+}
+
+.main_content_wrapper {
+   grid-area: main_content;
+}
+
+@media (max-width: 1024px) {
+   .root_wrapper {
+      grid-template-areas:
+         'fixed_header'
+         'main_content';
+      grid-template-rows: 4rem 1fr;
+      grid-template-columns: 1fr;
+   }
+}

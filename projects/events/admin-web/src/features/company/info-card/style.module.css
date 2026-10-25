@@ -1,0 +1,28 @@
+.header_info_wrapper {
+   grid-template-areas:
+      'logo status .'
+      'logo name name'
+      'logo industry tax';
+   grid-template-rows: auto auto;
+   grid-template-columns: auto auto auto;
+}
+
+.header_logo_wrapper {
+   grid-area: logo;
+}
+
+.header_info_name {
+   grid-area: name;
+}
+
+.header_info_status {
+   grid-area: status;
+}
+
+.header_info_industry {
+   grid-area: industry;
+}
+
+.header_info_tax {
+   grid-area: tax;
+}

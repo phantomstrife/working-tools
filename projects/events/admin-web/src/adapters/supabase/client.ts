@@ -5,7 +5,7 @@ import { SUPABASE } from './constants';
 import type * as Types from './type';
 
 const getBrowserClient: Types.Get_Browser_Client = () => {
-   return createBrowserClient<Types.Database>(SUPABASE.URL, SUPABASE.ANON_KEY);
+   return createBrowserClient<Database>(SUPABASE.URL, SUPABASE.ANON_KEY);
 };
 
 export const supabaseBrowser = getBrowserClient();

@@ -1,13 +1,13 @@
-import { createServerClient } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-import { ROUTE, ROUTE_BASE } from '@/constants';
+import { getServerClient } from '@admin-web/adapters/supabase/server';
+import { ROUTE, IS_ROUTE } from '@admin-web/routes/constants';
 
 export const config = {
    matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
 
-export async function proxy(request: NextRequest) {
+export async function proxy(request: Proxy_Request) {
    const currentPath = request.nextUrl.pathname;
 
    if (
@@ -20,81 +20,52 @@ export async function proxy(request: NextRequest) {
       return NextResponse.next();
    }
 
-   let supabaseResponse = NextResponse.next({
+   const response = NextResponse.next({
       request,
    });
 
-   const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-         cookies: {
-            getAll() {
-               return request.cookies.getAll();
-            },
-            setAll(cookiesToSet) {
-               cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-               supabaseResponse = NextResponse.next({
-                  request,
-               });
-               cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
-            },
-         },
-      },
-   );
+   const supabase = await getServerClient(response);
+   const auth = await supabase.auth.getUser();
 
-   const { data } = await supabase.auth.getUser();
+   const user = auth.data.user;
+   const role = user ? (user.app_metadata.role as Role) : null;
 
-   const isMainRoute = currentPath === ROUTE.MAIN.HOME;
-   const isDashboardRoute = currentPath.startsWith(ROUTE_BASE.ADMIN);
+   let redirectUrl: string | null = null;
 
-   if (!data.user && (isMainRoute || isDashboardRoute)) {
+   if (!user && !IS_ROUTE.AUTHORIZE(currentPath)) {
+      redirectUrl = ROUTE.AUTHORIZE.LOGIN;
+   }
+
+   if (user && role) {
+      switch (role) {
+         case 'SUPER_ADMIN': {
+            if (!IS_ROUTE.SUPER_ADMIN(currentPath)) {
+               redirectUrl = ROUTE.SUPER_ADMIN.HOME;
+            }
+            break;
+         }
+
+         case 'ADMIN': {
+            // Todo: Get companyId from user metadata
+            if (!IS_ROUTE.ADMIN(currentPath)) {
+               redirectUrl = ROUTE.ADMIN.HOME('');
+            }
+            break;
+         }
+      }
+   }
+
+   if (redirectUrl) {
       const url = request.nextUrl.clone();
-      url.pathname = ROUTE.AUTHORIZE.LOGIN;
+      url.pathname = redirectUrl;
 
-      const redirectRes = NextResponse.redirect(url);
-      supabaseResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c.name, c.value));
+      const redirect = NextResponse.redirect(url);
+      response.cookies.getAll().forEach((c) => redirect.cookies.set(c.name, c.value));
 
-      return redirectRes;
+      return redirect;
    }
 
-   if (data.user) {
-      const account = await supabase
-         .from('accounts')
-         .select('role')
-         .eq('id', data.user.id)
-         .single();
-
-      const role = account.data?.role;
-      const defaultAdminLanding =
-         role === 'SUPER_ADMIN' ? ROUTE.ADMIN.COMPANY.SEARCH : ROUTE.ADMIN.COMPANY.OVERVIEW;
-
-      if (!isDashboardRoute || currentPath === ROUTE_BASE.ADMIN) {
-         const url = request.nextUrl.clone();
-         url.pathname = defaultAdminLanding;
-
-         const redirectRes = NextResponse.redirect(url);
-         supabaseResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c.name, c.value));
-
-         return redirectRes;
-      }
-
-      if (
-         role !== 'SUPER_ADMIN' &&
-         currentPath.startsWith(`${ROUTE_BASE.ADMIN}/company`) &&
-         !currentPath.startsWith(ROUTE.ADMIN.COMPANY.OVERVIEW)
-      ) {
-         const url = request.nextUrl.clone();
-         url.pathname = ROUTE.ADMIN.COMPANY.OVERVIEW;
-
-         const redirectRes = NextResponse.redirect(url);
-         supabaseResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c.name, c.value));
-
-         return redirectRes;
-      }
-   }
-
-   return supabaseResponse;
+   return response;
 }
 
 export default proxy;

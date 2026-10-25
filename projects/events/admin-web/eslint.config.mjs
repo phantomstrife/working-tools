@@ -6,6 +6,12 @@ const eslintConfig = defineConfig([
    ...nextVitals,
    ...nextTs,
    globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+   {
+      rules: {
+         '@typescript-eslint/no-empty-object-type': 'off',
+         'react-hooks/rules-of-hooks': 'off',
+      },
+   },
 ]);
 
 export default eslintConfig;

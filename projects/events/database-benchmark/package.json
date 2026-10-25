@@ -1,0 +1,23 @@
+{
+   "scripts": {
+      "seed-accounts": "tsx src/scripts/seeds/accounts.ts",
+      "seed-companies": "tsx src/scripts/seeds/companies.ts",
+      "seed-events": "tsx src/scripts/seeds/events.ts",
+      "seed-games": "tsx src/scripts/seeds/games.ts",
+      "seed-game-accounts": "tsx src/scripts/seeds/game-accounts.ts",
+      "seed-logs": "tsx src/scripts/seeds/logs.ts",
+      "seed-lucky-draw-prizes": "tsx src/scripts/seeds/lucky-draw-prizes.ts",
+      "seed-lucky-draw-attendants": "tsx src/scripts/seeds/lucky-draw-attendants.ts",
+      "seed-lucky-draw-winners": "tsx src/scripts/seeds/lucky-draw-winners.ts",
+      "test-db": "tsx src/scripts/benchmark-db.ts"
+   },
+   "devDependencies": {
+      "@types/node": "^26.6.5",
+      "dotenv": "^18.0.9",
+      "tsx": "^4.23.15"
+   },
+   "dependencies": {
+      "@faker-js/faker": "^10.6.0",
+      "@supabase/supabase-js": "^2.118.0"
+   }
+}

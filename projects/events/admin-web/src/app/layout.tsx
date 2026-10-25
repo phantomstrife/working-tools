@@ -1,18 +1,26 @@
 import { Inter } from 'next/font/google';
-import '@/styles/theme.css';
+import { I18nProvider } from '@admin-web/locale';
 
-import type { Metadata } from 'next';
+import '@admin-web/styles/theme.css';
 
 const inter = Inter({
-   subsets: ['latin', 'vietnamese'],
    display: 'swap',
+   subsets: ['latin', 'vietnamese'],
+   weight: ['400', '500', '600', '700'],
    variable: '--font-inter',
 });
 
-const Layout: Router_Layout = async ({ children }) => {
+const RootLayout: Router.Layout = (properties) => {
+   const { children } = properties;
+
    return (
-      <html className={inter.variable}>
-         <body className="min-h-full flex flex-col">{children}</body>
+      <html
+         lang="vi"
+         className={inter.variable}
+      >
+         <body>
+            <I18nProvider>{children}</I18nProvider>
+         </body>
       </html>
    );
 };
@@ -31,4 +39,4 @@ export const metadata: Metadata = {
    manifest: '/favicon/site.webmanifest',
 };
 
-export default Layout;
+export default RootLayout;
