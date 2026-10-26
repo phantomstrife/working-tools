@@ -1,6 +1,5 @@
 export interface Properties {
-   title: string;
-   description: string;
-   actionLabel?: string;
-   onAction?: () => void;
+   error: string;
+   retryLabel?: string;
+   onRetry?: () => void;
 }

@@ -1,9 +1,12 @@
+import { LucideIcon } from 'lucide-react';
+
 export interface Properties {
    id: string;
    className?: string;
+   Icon?: LucideIcon;
    label: string;
    hint?: string;
-   error?: string;
    required?: boolean;
-   children: ReactNode;
+   error?: string;
+   children: AdminWeb.ReactNode;
 }

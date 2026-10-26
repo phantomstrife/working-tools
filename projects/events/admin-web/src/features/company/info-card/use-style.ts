@@ -46,7 +46,7 @@ const themes = {
 
 export const useStyle = {
    root: {
-      wrapper: `relative overflow-hidden rounded-primary bg-neutral-50 border border-utility-200 shadow-sm transition-all duration-200`,
+      wrapper: `relative overflow-hidden rounded-primary bg-neutral-50 border border-utility-300 shadow-xl transition-all duration-200`,
       accent_bar: themes.accent_bar,
    },
    header: {
@@ -71,7 +71,7 @@ export const useStyle = {
    body: {
       wrapper: 'grid grid-cols-2 gap-primary p-[calc(var(--spacing-primary)*2)]',
       item: {
-         wrapper: `group relative flex items-start gap-primary min-w-0 p-primary bg-neutral-50 border border-utility-200 rounded-primary shadow-2xs transition-all duration-150 hover:border-primary-200 hover:shadow-sm`,
+         wrapper: `group relative flex items-start gap-primary min-w-0 p-primary bg-neutral-50 border border-utility-300 rounded-primary transition-all duration-150 hover:border-primary-200 hover:shadow-lg`,
          icon: themes.icon_tone,
       },
       content: {

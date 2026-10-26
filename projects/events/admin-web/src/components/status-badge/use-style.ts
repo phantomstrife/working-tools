@@ -29,8 +29,8 @@ const themes = {
 };
 
 export const useStyle = {
-   root: {
-      status: themes.status,
+   root: themes.status,
+   info: {
       text: 'text-11 font-semibold capitalize',
    },
 };

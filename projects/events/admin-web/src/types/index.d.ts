@@ -22,8 +22,13 @@ declare global {
    }
 
    declare namespace AdminWeb.Database {
-      type Account_Role = Supabase.Database['public']['Enums']['account_role'];
-      type Company = Supabase.Database['public']['Tables']['companies']['Row'];
+      type Instance = Supabase.Database;
+
+      type Account_Role = Instance['public']['Enums']['account_role'];
+      type Company = Instance['public']['Tables']['companies']['Row'];
+      type Event = Instance['public']['Tables']['events']['Row'];
+      type EventWithGames = Event & { games: Game[] };
+      type Game = Instance['public']['Tables']['games']['Row'];
    }
 
    declare namespace AdminWeb.Utilities.Trycatch {

@@ -4,18 +4,18 @@ import { useStyle } from './use-style';
 
 export const LayoutAuthorize: AdminWeb.Router.Layout = (properties) => {
    const { children } = properties;
-   const { wrapper, panel } = useStyle;
+   const { root, content } = useStyle;
 
    return (
       <div
-         className={wrapper()}
+         className={root.wrapper()}
          style={{
             backgroundImage: `url(${loginBackground.src})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
          }}
       >
-         <div className={panel()}>{children}</div>
+         <div className={content.wrapper()}>{children}</div>
       </div>
    );
 };

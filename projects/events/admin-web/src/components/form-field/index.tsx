@@ -3,28 +3,29 @@ import { useStyle } from './use-style';
 import type * as Types from './type';
 
 export function FormField(properties: Types.Properties) {
-   const { id, className, label, required = false, hint, error, children } = properties;
-   const { root, header, control, footer } = useStyle;
+   const { id, className, Icon, label, required = false, hint, error, children } = properties;
+   const { root, left_block, right_block, control, bottom_block } = useStyle;
 
    return (
       <div className={root.wrapper({ className })}>
+         <div className={left_block.wrapper}>
+            {Icon && (
+               <Icon
+                  className={left_block.icon}
+                  size={15}
+               />
+            )}
+            <span className={left_block.label}>{label}</span>
+            {required && <span className={left_block.required}>*</span>}
+         </div>
+         {hint && <span className={bottom_block.hint}>{hint}</span>}
+         {error && <span className={right_block.error}>{error}</span>}
          <label
             htmlFor={id}
-            className={header.wrapper}
-         >
-            {label}
-            {required && <span className={header.required}>*</span>}
-         </label>
-
-         <div
-            className={control({ hasError: !!error })}
-            role="form"
+            className={control({ error: !!error })}
          >
             {children}
-         </div>
-
-         {hint && <span className={footer.hint}>{hint}</span>}
-         {error && <span className={footer.error}>{error}</span>}
+         </label>
       </div>
    );
 }

@@ -8,6 +8,8 @@ export const useStyle = {
             'bg-neutral-100 border border-utility-200 rounded-primary',
          ],
       }),
+   },
+   info: {
       icon: 'size-3.5',
       title: 'font-medium',
       name: 'text-neutral-950 font-semibold',

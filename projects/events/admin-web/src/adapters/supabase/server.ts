@@ -8,7 +8,7 @@ import type * as Types from './type';
 export const getServerClient: Types.Get_Server_Client = async (proxyResponse) => {
    const localCookies = await cookies();
 
-   return createServerClient<Database>(SUPABASE.URL, SUPABASE.ANON_KEY, {
+   return createServerClient<Types.Database>(SUPABASE.URL, SUPABASE.ANON_KEY, {
       cookies: {
          getAll() {
             return localCookies.getAll();

@@ -1,24 +1,26 @@
 import { CompanyInfoCard } from '@admin-web/features/company/info-card';
+import { EventGameOverview } from '@admin-web/features/event/overview';
 import { NotFound } from '@admin-web/components/not-found';
 
 import { useLogic } from './use-logic';
+import { useStyle } from './use-style';
 
-interface Params {
-   companyId: string;
-}
+import type * as Types from './type';
 
-export const PageAdminHome: AdminWeb.Router.Page<Params> = async ({ params }) => {
+export const PageAdminHome: AdminWeb.Router.Page<Types.Params> = async ({ params }) => {
    const { companyId } = await params;
+
    const { param } = await useLogic(companyId);
+   const { root } = useStyle;
 
    if (param.serviceCompanyRead.error) {
-      return (
-         <NotFound
-            title={param.serviceCompanyRead.message}
-            description="Try adjusting your search criteria or add a new company to get started."
-         />
-      );
+      return <NotFound error={param.serviceCompanyRead.message} />;
    }
 
-   return <CompanyInfoCard company={param.serviceCompanyRead.data.company} />;
+   return (
+      <div className={root.wrapper}>
+         <CompanyInfoCard company={param.serviceCompanyRead.data.company} />
+         {!param.serviceEventGetGames.error && <EventGameOverview events={param.serviceEventGetGames.data.event} />}
+      </div>
+   );
 };

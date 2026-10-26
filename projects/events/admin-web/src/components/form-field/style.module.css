@@ -1,0 +1,22 @@
+.root_wrapper {
+   grid-template-areas:
+      'left    hint    error  '
+      'control control control';
+   grid-template-columns: 1fr auto;
+}
+
+.left_block_wrapper {
+   grid-area: left;
+}
+
+.right_block_error {
+   grid-area: error;
+}
+
+.control_wrapper {
+   grid-area: control;
+}
+
+.bottom_block_hint {
+   grid-area: hint;
+}

@@ -1,4 +1,10 @@
 export const vi = {
+   components: {
+      not_found: {
+         description: `Không có dữ liệu nào phù hợp với tiêu chí tìm kiếm của bạn. Vui lòng thử lại với các tiêu chí khác.`,
+         retry: 'Thử lại',
+      },
+   },
    layouts: {
       admin: {
          navigation: {
@@ -87,6 +93,20 @@ export const vi = {
                update_success: 'Cập nhật thông tin công ty thành công.',
                update_error: 'Không thể cập nhật thông tin công ty.',
             },
+         },
+      },
+      event: {
+         game_selector: {
+            event_label: 'Chọn sự kiện',
+            event_count: '{{count}} sự kiện',
+            event_placeholder: 'Chọn một sự kiện...',
+            game_label: 'Chọn trò chơi',
+            game_count: 'Tìm thấy {{count}} trò chơi',
+            game_placeholder: 'Chọn một trò chơi...',
+         },
+         overview: {
+            title: 'Tổng quan về sự kiện và trò chơi',
+            description: 'Bạn có thể chọn một sự kiện và trò chơi từ danh sách bên trên.',
          },
       },
    },

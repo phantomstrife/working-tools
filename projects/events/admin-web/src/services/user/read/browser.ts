@@ -12,7 +12,7 @@ export const useServicesUserRead: Types.Service = async () => {
          throw new Error('services.user.unauthenticated');
       }
 
-      const role = user.app_metadata.role as AdminWeb.Database.Account_Role;
+      const role = user.app_metadata.role as Types.Account_Role;
       const companyId = user.app_metadata.company_id as string;
 
       return {

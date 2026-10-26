@@ -4,16 +4,16 @@ import type * as Types from './type';
 
 export const StatusBadge: AdminWeb.Component<Types.Properties> = (properties) => {
    const { className, status = 'ACTIVE' } = properties;
-   const { root } = useStyle;
+   const { root, info } = useStyle;
 
-   const { wrapper, dot } = root.status({
+   const { wrapper, dot } = root({
       status: status ?? undefined,
    });
 
    return (
       <div className={wrapper({ className })}>
          <span className={dot()} />
-         <span className={root.text}>{status.toLocaleLowerCase()}</span>
+         <span className={info.text}>{status.toLocaleLowerCase()}</span>
       </div>
    );
 };

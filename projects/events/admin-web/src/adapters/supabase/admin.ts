@@ -9,7 +9,7 @@ export const getAdminClient: Types.Get_Admin_Client = () => {
       throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable.');
    }
 
-   return createClient<Database>(SUPABASE.URL, SUPABASE.SERVICE_ROLE_KEY, {
+   return createClient<Types.Database>(SUPABASE.URL, SUPABASE.SERVICE_ROLE_KEY, {
       auth: {
          autoRefreshToken: false,
          persistSession: false,

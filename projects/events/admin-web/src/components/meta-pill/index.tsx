@@ -6,13 +6,13 @@ import type * as Types from './type';
 
 export const MetaPill: AdminWeb.Component<Types.Properties> = (properties) => {
    const { className, Icon, label, value, copyable } = properties;
-   const { root } = useStyle;
+   const { root, info } = useStyle;
 
    return (
       <div className={root.wrapper({ className })}>
-         <Icon className={root.icon} />
-         <span className={root.title}>{label}:</span>
-         <span className={root.name}>{value}</span>
+         <Icon className={info.icon} />
+         <span className={info.title}>{label}:</span>
+         <span className={info.name}>{value}</span>
          {copyable && <CopyButton value={value} />}
       </div>
    );

@@ -31,7 +31,7 @@ export const CompanyEditForm: AdminWeb.Component<Types.Properties> = (properties
             aria-modal="true"
          >
             <form
-               className={modal.panel}
+               className={modal.form}
                onSubmit={func.onSubmit}
             >
                <div className={modal.header.wrapper}>
@@ -56,7 +56,6 @@ export const CompanyEditForm: AdminWeb.Component<Types.Properties> = (properties
                   <FormField
                      id="company-name"
                      label={func.translate('fields.name.label')}
-                     required
                      error={param.errors.name?.message}
                   >
                      <input
@@ -155,15 +154,15 @@ export const CompanyEditForm: AdminWeb.Component<Types.Properties> = (properties
                <div className={modal.footer.wrapper}>
                   <button
                      type="button"
-                     onClick={() => func.toggleModal(false)}
                      className={modal.footer.cancel_button}
+                     onClick={() => func.toggleModal(false)}
                   >
                      {func.translate('actions.cancel')}
                   </button>
                   <button
                      type="submit"
-                     disabled={param.isDisabled}
                      className={modal.footer.save_button({ disabled: param.isDisabled })}
+                     disabled={param.isDisabled}
                   >
                      {func.translate(`actions.saving_${param.isPending}`)}
                   </button>

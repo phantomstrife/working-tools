@@ -12,7 +12,7 @@ const themes = {
    }),
    button: tv({
       base: [
-         'px-primary py-[calc(var(--spacing-primary)/2)] text-13 font-medium text-neutral-50',
+         'px-primary py-[calc(var(--spacing-primary)/2)] text-14! font-medium text-neutral-50',
          'bg-neutral-900 rounded-primary hover:bg-neutral-950 transition-colors cursor-pointer',
       ],
       variants: {
@@ -35,7 +35,7 @@ export const useStyle = {
    },
    modal: {
       wrapper: themes.modal,
-      panel: 'flex flex-col w-full max-w-2xl max-h-[90vh] bg-neutral-50 border border-utility-200 rounded-secondary shadow-xl overflow-y-auto',
+      form: 'flex flex-col w-full max-w-2xl max-h-[90vh] bg-neutral-50 border border-utility-200 rounded-secondary shadow-xl overflow-y-auto',
       header: {
          wrapper: `sticky top-0 z-10 flex items-center justify-between px-secondary py-primary bg-neutral-50 border-b border-utility-200`,
          title: 'flex items-center gap-x-primary text-neutral-950 text-18 font-semibold',
