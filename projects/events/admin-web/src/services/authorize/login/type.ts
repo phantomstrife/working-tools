@@ -1,12 +1,10 @@
-type AccountRole = Database['public']['Enums']['account_role'];
-
 export type Request = {
    email: string;
    password: string;
 };
 
 export type Response = {
-   accountRole: AccountRole;
+   accountRole: Database.Role;
    companyId: string | null;
 };
 

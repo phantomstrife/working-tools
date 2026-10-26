@@ -17,6 +17,16 @@ export const vi = {
       },
    },
    features: {
+      authorize: {
+         login_form: {
+            title: 'Đăng nhập vào Bảng điều khiển',
+            description: `Đăng nhập bằng tài khoản của bạn để tiếp tục. Nếu bạn gặp sự cố khi đăng nhập, vui lòng liên hệ với quản trị viên của bạn để được trợ giúp.`,
+            email_placeholder: 'Email',
+            password_placeholder: 'Mật khẩu',
+            loading_true: 'Đang đăng nhập...',
+            loading_false: 'Đăng nhập',
+         },
+      },
       company: {
          info_card: {
             industry: 'Ngành nghề',
@@ -26,7 +36,7 @@ export const vi = {
             contact_person: 'Người liên hệ',
             contact_email: 'Email liên hệ',
             contact_phone: 'Số điện thoại liên hệ',
-            address: 'Địa chỉ',
+            contact_address: 'Địa chỉ',
          },
       },
    },

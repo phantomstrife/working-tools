@@ -18,9 +18,9 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
    return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 }
 
-export function useTranslate(keyPrefix: string) {
+export function useTranslate(options: { prefix: string }) {
    const { t } = useTranslation('translation', {
-      keyPrefix,
+      keyPrefix: options.prefix,
    });
 
    return {

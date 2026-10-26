@@ -4,7 +4,9 @@ import { useState } from 'react';
 export function useLogic() {
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-   const { translate } = useTranslate('layouts.admin');
+   const { translate } = useTranslate({
+      prefix: 'layouts.admin',
+   });
 
    return {
       param: {

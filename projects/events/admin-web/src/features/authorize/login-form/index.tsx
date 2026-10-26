@@ -6,7 +6,7 @@ import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
 export const PageAuthorizeLogin: Router.Page = () => {
-   const { param, func } = useLogic();
+   const { state, func } = useLogic();
    const { root, top_block, error_block, form_block, tool_block } = useStyle;
 
    return (
@@ -18,11 +18,8 @@ export const PageAuthorizeLogin: Router.Page = () => {
             <div className={top_block.icon}>
                <LogOutIcon />
             </div>
-            <span className={top_block.header}>Login to Dashboard</span>
-            <span className={top_block.description}>
-               Sign in with your account to continue. If you have trouble logging in, please contact your administrator
-               for help.
-            </span>
+            <span className={top_block.header}>{func.translate('title')}</span>
+            <span className={top_block.description}>{func.translate('description')}</span>
          </div>
          <div className={form_block.wrapper}>
             <div className={form_block.input.wrapper}>
@@ -31,10 +28,10 @@ export const PageAuthorizeLogin: Router.Page = () => {
                   type="email"
                   id="email"
                   className={form_block.input.field}
-                  value={param.email}
-                  placeholder="Email"
-                  onChange={(e) => func.setEmail(e.target.value)}
-                  disabled={param.loading}
+                  value={state.email}
+                  placeholder={func.translate('email_placeholder')}
+                  onChange={(e) => func.setState(e.target.value, 'email')}
+                  disabled={state.loading}
                />
             </div>
             <div className={form_block.input.wrapper}>
@@ -43,28 +40,28 @@ export const PageAuthorizeLogin: Router.Page = () => {
                   type="password"
                   id="password"
                   className={form_block.input.field}
-                  value={param.password}
-                  placeholder="Password"
-                  onChange={(e) => func.setPassword(e.target.value)}
-                  disabled={param.loading}
+                  value={state.password}
+                  placeholder={func.translate('password_placeholder')}
+                  onChange={(e) => func.setState(e.target.value, 'password')}
+                  disabled={state.loading}
                />
             </div>
          </div>
-         {param.error && (
+         {state.error && (
             <p
                className={error_block.wrapper}
                role="alert"
             >
-               {param.error}
+               {state.error}
             </p>
          )}
          <div className={tool_block.wrapper}>
             <button
                type="submit"
-               className={tool_block.button({ loading: param.loading })}
-               disabled={param.loading}
+               className={tool_block.button({ loading: state.loading })}
+               disabled={state.loading}
             >
-               {param.loading ? 'Signing in...' : 'Sign in'}
+               {func.translate(`loading_${state.loading}`)}
             </button>
          </div>
       </form>

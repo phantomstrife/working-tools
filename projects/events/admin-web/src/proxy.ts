@@ -28,7 +28,7 @@ export async function proxy(request: Proxy_Request) {
    const auth = await supabase.auth.getUser();
 
    const user = auth.data.user;
-   const role = user ? (user.app_metadata.role as Role) : null;
+   const role = user ? (user.app_metadata.role as Database.Role) : null;
 
    let redirectUrl: string | null = null;
 
@@ -48,7 +48,7 @@ export async function proxy(request: Proxy_Request) {
          case 'ADMIN': {
             // Todo: Get companyId from user metadata
             if (!IS_ROUTE.ADMIN(currentPath)) {
-               redirectUrl = ROUTE.ADMIN.HOME('');
+               redirectUrl = ROUTE.ADMIN.HOME('Testing');
             }
             break;
          }

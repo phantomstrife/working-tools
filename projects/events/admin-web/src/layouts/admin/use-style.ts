@@ -21,7 +21,7 @@ const themes = {
    }),
    navigation_items: tv({
       slots: {
-         wrapper: 'group flex items-center px-primary py-2 text-14! font-medium rounded-lg transition-colors',
+         wrapper: `group flex items-center px-primary py-[calc(var(--spacing-primary)/2)] text-14! font-medium rounded-lg transition-colors`,
          icon: 'mr-primary size-5',
       },
       variants: {
@@ -52,14 +52,14 @@ export const useStyle = {
          defaultVariants: themes.sidebar_panel.defaultVariants,
       }),
       header: {
-         wrapper: 'flex shrink-0 items-center justify-between px-6 h-16 border-b border-utility-200',
+         wrapper: 'flex shrink-0 items-center justify-between px-primary h-16 border-b border-utility-200',
       },
       logo: {
          wrapper: 'flex items-center gap-primary text-neutral-950 text-20 font-bold',
          text: 'flex size-8 items-center justify-center text-neutral-50 bg-neutral-950 rounded-lg',
       },
       navigation: {
-         wrapper: 'flex flex-col p-primary gap-y-1 overflow-y-auto',
+         wrapper: 'flex flex-col gap-y-1 p-primary overflow-y-auto',
          title: 'mb-primary text-neutral-600 text-12 font-semibold uppercase',
          items: themes.navigation_items,
       },
@@ -71,15 +71,15 @@ export const useStyle = {
       ),
       search: {
          wrapper: 'relative items-center w-full max-w-md lg:max-w-xs',
-         icon: 'absolute mx-3 w-4 h-full text-neutral-950 pointer-events-none',
-         input: 'py-2 pl-10 pr-3 w-full text-neutral-950 text-14! bg-slate-50 border border-utility-300 rounded-md placeholder:text-neutral-400',
+         icon: 'absolute mx-[calc(var(--spacing-primary)*3/4)] w-4 h-full text-neutral-950 pointer-events-none',
+         input: 'py-[calc(var(--spacing-primary)/2)] pl-[calc(var(--spacing-primary)*2.5)] pr-primary w-full h-10 text-neutral-950 text-14! bg-neutral-100 border border-utility-300 rounded-md placeholder:text-neutral-400',
       },
       tool: {
          wrapper: 'flex flex-1 items-center justify-end gap-primary',
-         divider: 'hidden sm:block h-6 w-px bg-slate-200',
-         notify_wrapper: `relative p-3 text-neutral-600 bg-neutral-50 rounded-full transition-colors hover:text-neutral-950 hover:bg-neutral-200`,
+         divider: 'hidden sm:block h-6 w-px bg-neutral-200',
+         notify_wrapper: `relative p-[calc(var(--spacing-primary)*3/4)] text-neutral-600 bg-neutral-50 rounded-full transition-colors hover:text-neutral-950 hover:bg-neutral-200`,
          notify_dot: 'absolute top-2 right-2 size-2 rounded-full bg-error-600',
-         account_wrapper: 'flex items-center p-2 rounded-full hover:bg-neutral-200',
+         account_wrapper: 'flex items-center p-[calc(var(--spacing-primary)/2)] rounded-full hover:bg-neutral-200',
          account_image: 'size-7! object-cover',
       },
    },
@@ -88,7 +88,7 @@ export const useStyle = {
    },
    mobile: {
       overlay: 'fixed inset-0 bg-neutral-950/25 transition-opacity z-20 lg:hidden',
-      open_menu: `mr-4 text-neutral-950 rounded-md hover:text-slate-700 lg:hidden`,
+      open_menu: `mr-primary text-neutral-950 rounded-md hover:text-neutral-800 lg:hidden`,
       close_menu: 'text-neutral-950 lg:hidden',
    },
 };

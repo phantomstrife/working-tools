@@ -2,7 +2,7 @@ export interface Request {
    id: string;
 }
 
-export interface Response extends Company {
+export interface Response extends Database.Company {
    //
 }
 
