@@ -5,7 +5,7 @@ import { useStyle } from './use-style';
 
 import type * as Types from './type';
 
-export const CopyButton: Component<Types.Properties> = (properties) => {
+export const CopyButton: AdminWeb.Component<Types.Properties> = (properties) => {
    const { className, value } = properties;
 
    const { state, func } = useLogic();

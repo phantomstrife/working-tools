@@ -1,4 +1,4 @@
-export type Object = ValueType.Object;
+export type Object = AdminWeb.Object;
 
 export type Cast_Keys = <T extends Object>(object: T) => Array<keyof T>;
 export type Compare_Deep = (objectA: unknown, objectB: unknown) => boolean;

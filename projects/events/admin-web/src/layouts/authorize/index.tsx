@@ -2,7 +2,7 @@ import loginBackground from '@admin-web/assets/images/login-background.webp';
 
 import { useStyle } from './use-style';
 
-export const LayoutAuthorize: Router.Layout = (properties) => {
+export const LayoutAuthorize: AdminWeb.Router.Layout = (properties) => {
    const { children } = properties;
    const { wrapper, panel } = useStyle;
 

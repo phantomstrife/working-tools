@@ -10,7 +10,7 @@ const inter = Inter({
    variable: '--font-inter',
 });
 
-const RootLayout: Router.Layout = (properties) => {
+const RootLayout: AdminWeb.Router.Layout = (properties) => {
    const { children } = properties;
 
    return (
@@ -25,7 +25,7 @@ const RootLayout: Router.Layout = (properties) => {
    );
 };
 
-export const metadata: Metadata = {
+export const metadata: AdminWeb.Router.Metadata = {
    title: 'Lucky draw',
    description: '',
    icons: {

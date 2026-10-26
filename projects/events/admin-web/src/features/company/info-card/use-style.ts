@@ -2,8 +2,6 @@ import { cx, tv } from 'tailwind-variants';
 
 import css from './style.module.css';
 
-// [calc(var(--spacing-primary)*3/4)]
-
 const themes = {
    accent_bar: tv({
       base: 'w-full h-1.5 bg-linear-to-r',
@@ -68,7 +66,7 @@ export const useStyle = {
       badge: css.header_status,
       industry: css.header_industry,
       tax: css.header_tax,
-      action: `absolute top-2 right-2 flex items-center justify-center gap-[calc(var(--spacing-primary)/2)] p-[calc(var(--spacing-primary)*3/4)] text-neutral-50 bg-neutral-950 rounded-primary shadow-xs transition-all cursor-pointer hover:bg-primary-500`,
+      action: `absolute top-4 right-4`,
    },
    body: {
       wrapper: 'grid grid-cols-2 gap-primary p-[calc(var(--spacing-primary)*2)]',

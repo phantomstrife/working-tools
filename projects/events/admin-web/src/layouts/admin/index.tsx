@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { Menu, X, Search, Bell } from 'lucide-react';
 
 import defaultAvatar from '@admin-web/assets/svg/default-avatar.svg';
@@ -9,7 +8,7 @@ import { navItems } from './constants';
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
-export const LayoutAdmin: Router.Layout = (propeties) => {
+export const LayoutAdmin: AdminWeb.Router.Layout = (propeties) => {
    const { children } = propeties;
 
    const { param, func } = useLogic();
@@ -80,8 +79,8 @@ export const LayoutAdmin: Router.Layout = (propeties) => {
                   aria-hidden="true"
                />
                <button className={fixed_header.tool.account_wrapper}>
-                  <Image
-                     src={defaultAvatar}
+                  <img
+                     src={defaultAvatar.src}
                      className={fixed_header.tool.account_image}
                      alt="Profile"
                   />

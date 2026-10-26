@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 
-import { getServerClient } from '@admin-web/adapters/supabase/server';
 import { ROUTE, IS_ROUTE } from '@admin-web/routes/constants';
+import { useServicesUserRead } from '@admin-web/services/user/read/server';
 
 export const config = {
    matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
 
-export async function proxy(request: Proxy_Request) {
+export async function proxy(request: AdminWeb.Router.Proxy_Request) {
    const currentPath = request.nextUrl.pathname;
 
    if (
@@ -24,20 +24,15 @@ export async function proxy(request: Proxy_Request) {
       request,
    });
 
-   const supabase = await getServerClient(response);
-   const auth = await supabase.auth.getUser();
-
-   const user = auth.data.user;
-   const role = user ? (user.app_metadata.role as Database.Role) : null;
-
+   const serviceUserRead = await useServicesUserRead();
    let redirectUrl: string | null = null;
 
-   if (!user && !IS_ROUTE.AUTHORIZE(currentPath)) {
+   if (serviceUserRead.error && !IS_ROUTE.AUTHORIZE(currentPath)) {
       redirectUrl = ROUTE.AUTHORIZE.LOGIN;
    }
 
-   if (user && role) {
-      switch (role) {
+   if (!serviceUserRead.error && serviceUserRead.data.role) {
+      switch (serviceUserRead.data.role) {
          case 'SUPER_ADMIN': {
             if (!IS_ROUTE.SUPER_ADMIN(currentPath)) {
                redirectUrl = ROUTE.SUPER_ADMIN.HOME;
@@ -46,9 +41,8 @@ export async function proxy(request: Proxy_Request) {
          }
 
          case 'ADMIN': {
-            // Todo: Get companyId from user metadata
             if (!IS_ROUTE.ADMIN(currentPath)) {
-               redirectUrl = ROUTE.ADMIN.HOME('Testing');
+               redirectUrl = ROUTE.ADMIN.HOME(serviceUserRead.data.companyId);
             }
             break;
          }

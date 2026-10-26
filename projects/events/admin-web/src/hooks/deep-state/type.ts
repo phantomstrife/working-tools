@@ -20,12 +20,12 @@ export interface UseLogic<T> {
 export type ExtractKeys<T> = T extends Object ? keyof T : never;
 export type Key<T> = keyof T;
 export type LastKey<T, key extends keyof T, subKey extends SubKey<T, key>> = SubKey<T[key], subKey>;
-export type Object = ValueType.Object;
+export type Object = AdminWeb.Object;
 export type SubKey<T, key extends keyof T> = ExtractKeys<T[key]>;
 
 export type Reset_State<T> = (state?: T) => void;
 export type Set_State<T> = <key extends Key<T>, subKey extends SubKey<T, key>, lastKey extends LastKey<T, key, subKey>>(
-   value: ValueType.Primitive | Partial<T>,
+   value: AdminWeb.Primitive | Partial<T>,
    key1?: key,
    key2?: subKey,
    key3?: lastKey,

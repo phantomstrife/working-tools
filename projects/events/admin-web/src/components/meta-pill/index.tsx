@@ -4,7 +4,7 @@ import { useStyle } from './use-style';
 
 import type * as Types from './type';
 
-export const MetaPill: Component<Types.Properties> = (properties) => {
+export const MetaPill: AdminWeb.Component<Types.Properties> = (properties) => {
    const { className, Icon, label, value, copyable } = properties;
    const { root } = useStyle;
 

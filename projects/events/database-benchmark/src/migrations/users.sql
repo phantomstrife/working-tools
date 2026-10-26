@@ -31,7 +31,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.sync_role_to_auth_metadata()
+CREATE OR REPLACE FUNCTION public.sync_account_metadata_to_auth()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = ''
@@ -40,7 +40,10 @@ BEGIN
     UPDATE auth.users
     SET raw_app_meta_data = 
         COALESCE(raw_app_meta_data, '{}'::jsonb) || 
-        jsonb_build_object('role', NEW.role)
+        jsonb_build_object(
+            'role', NEW.role,
+            'company_id', NEW.company_id
+        )
     WHERE id = NEW.id;
     RETURN NEW;
 END;

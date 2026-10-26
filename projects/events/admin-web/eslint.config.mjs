@@ -9,6 +9,7 @@ const eslintConfig = defineConfig([
    {
       rules: {
          '@typescript-eslint/no-empty-object-type': 'off',
+         '@next/next/no-img-element': 'off',
          'react-hooks/rules-of-hooks': 'off',
       },
    },

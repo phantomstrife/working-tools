@@ -2,42 +2,48 @@ import type * as NextJs from 'next/server';
 import type * as Supabase from '@admin-web/types/supabase';
 
 declare global {
-   declare namespace ValueType {
+   declare namespace AdminWeb {
       type Primitive = string | number | boolean | string[] | number[] | boolean[];
       type Object = Record<string, unknown>;
+
+      type Component<T = { children: ReactNode }> = React.FC<T>;
+      type ReactNode = React.ReactNode;
+      type JSXElement = React.JSX.Element;
    }
 
-   type Component<T = object> = React.FC<T>;
+   declare namespace AdminWeb.Router {
+      type Metadata = NextJs.Metadata;
 
-   type Metadata = NextJs.Metadata;
-   type Database = Supabase.Database;
+      type Proxy_Request = NextJs.NextRequest;
+      type Proxy_Response = NextJs.NextResponse;
 
-   type Proxy_Request = NextJs.NextRequest;
-   type Proxy_Response = NextJs.NextResponse;
-
-   declare namespace Router {
       type Layout = (properties: { children: ReactNode }) => Promise<ReactNode> | ReactNode;
-      type Page<T = object> = (properties: { params: Promise<T> }) => JSXElement;
+      type Page<T = object> = (properties: { params: Promise<T> }) => Promise<ReactNode> | ReactNode;
    }
 
-   declare namespace HttpRequest {
-      type Success<T> = {
+   declare namespace AdminWeb.Database {
+      type Account_Role = Supabase.Database['public']['Enums']['account_role'];
+      type Company = Supabase.Database['public']['Tables']['companies']['Row'];
+   }
+
+   declare namespace AdminWeb.Utilities.Trycatch {
+      type Result<T> = Resolved<T> | NotResolved;
+      type ResultAsync<T> = Promise<Resolved<T> | NotResolved>;
+
+      interface Debug extends Error {
+         rawError?: unknown;
+      }
+
+      interface NotResolved {
+         debug: Debug;
+         message: string;
+         error: true;
+      }
+
+      interface Resolved<T> {
          data: T;
          error: false;
-      };
-
-      type Failed = {
-         data: null;
-         error: true;
-         message: string;
-      };
-
-      type Result<T> = Promise<Success<T> | Failed>;
-   }
-
-   declare namespace Database {
-      type Role = Database['public']['Enums']['account_role'];
-      type Company = Database['public']['Tables']['companies']['Row'];
+      }
    }
 }
 

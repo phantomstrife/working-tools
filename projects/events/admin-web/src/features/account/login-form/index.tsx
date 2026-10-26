@@ -5,7 +5,7 @@ import { LogOutIcon, MailIcon, LockIcon } from 'lucide-react';
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
-export const PageAuthorizeLogin: Router.Page = () => {
+export const PageAuthorizeLogin: AdminWeb.Router.Page = () => {
    const { state, func } = useLogic();
    const { root, top_block, error_block, form_block, tool_block } = useStyle;
 

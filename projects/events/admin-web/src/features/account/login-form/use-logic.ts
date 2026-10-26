@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslate } from '@admin-web/locale';
 import { useDeepState } from '@admin-web/hooks/deep-state';
 
-import { login } from '@admin-web/services/authorize/login';
+import { useServiceAccountLogin } from '@admin-web/services/account/login';
 
 import type * as Types from './type';
 
@@ -21,7 +21,7 @@ export function useLogic() {
       error: '',
    });
 
-   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+   async function handleLogin(e: React.ChangeEvent<HTMLFormElement>) {
       e.preventDefault();
 
       setState({
@@ -29,19 +29,20 @@ export function useLogic() {
          error: '',
       });
 
-      try {
-         await login({
-            email: state.email,
-            password: state.password,
-         });
+      const serviceAccountLogin = await useServiceAccountLogin({
+         email: state.email,
+         password: state.password,
+      });
 
-         router.refresh();
-      } catch (error: unknown) {
+      if (serviceAccountLogin.error) {
          setState({
-            error: error instanceof Error ? error.message : 'An unexpected error occurred.',
+            error: serviceAccountLogin.message,
             loading: false,
          });
+         return;
       }
+
+      router.refresh();
    }
 
    return {

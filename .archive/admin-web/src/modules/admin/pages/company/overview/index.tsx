@@ -56,13 +56,13 @@ const PageAdminCompanyOverviewContent = () => {
             </div>
          ) : (
             <>
-               <CompanyInfoCard
-                  company={param.company}
-                  callerRole={param.caller?.role ?? null}
-                  companies={param.companies}
-                  onSwitchCompany={func.handleSwitchCompany}
-                  onCompanyUpdated={func.refreshCompanyData}
-               />
+               // <CompanyInfoCard
+               //    company={param.company}
+               //    callerRole={param.caller?.role ?? null}
+               //    companies={param.companies}
+               //    onSwitchCompany={func.handleSwitchCompany}
+               //    onCompanyUpdated={func.refreshCompanyData}
+               // />
 
                <EventGameSelector
                   events={param.events}

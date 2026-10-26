@@ -1,49 +1,54 @@
-// modal: {
-//       backdrop: tv({
-//          base: [
-//             'fixed inset-0 z-50 flex items-center justify-center p-primary',
-//             'bg-neutral-950/50 backdrop-blur-xs',
-//          ],
-//       }),
-//       panel: tv({
-//          base: [
-//             'w-full max-w-2xl max-h-[90vh] overflow-y-auto',
-//             'bg-neutral-50 border border-utility-400 rounded-secondary shadow-xl flex flex-col',
-//          ],
-//       }),
-//       header: tv({
-//          base: 'flex items-center justify-between px-secondary py-primary border-b border-utility-400 sticky top-0 bg-neutral-50 z-10',
-//       }),
-//       headerTitle: tv({
-//          base: 'text-18 font-semibold text-neutral-950',
-//       }),
-//       closeBtn: tv({
-//          base: 'p-1.5 text-neutral-500 hover:text-neutral-900 rounded-primary hover:bg-neutral-100 transition-colors cursor-pointer',
-//       }),
-//       body: tv({
-//          base: 'p-secondary grid grid-cols-1 sm:grid-cols-2 gap-primary',
-//       }),
-//       readOnlyStatusBox: tv({
-//          base: 'flex items-center justify-between px-3.5 py-2 bg-neutral-100 border border-utility-400 rounded-primary text-13 text-neutral-600',
-//       }),
-//       footer: tv({
-//          base: 'flex items-center justify-end gap-x-2 px-secondary py-primary border-t border-utility-400 bg-neutral-100/50',
-//       }),
-//       cancelBtn: tv({
-//          base: [
-//             'px-primary py-2 text-13 font-medium text-neutral-700',
-//             'bg-neutral-50 border border-utility-400 rounded-primary hover:bg-neutral-100 transition-colors cursor-pointer',
-//          ],
-//       }),
-//       saveBtn: tv({
-//          base: [
-//             'px-primary py-2 text-13 font-medium text-neutral-50',
-//             'bg-neutral-900 rounded-primary hover:bg-neutral-950 transition-colors cursor-pointer',
-//          ],
-//          variants: {
-//             disabled: {
-//                true: 'opacity-50 pointer-events-none cursor-not-allowed',
-//             },
-//          },
-//       }),
-//    },
+import { tv } from 'tailwind-variants';
+
+const themes = {
+   modal: tv({
+      base: 'fixed inset-0 z-50 flex items-center justify-center p-primary bg-neutral-950/50 backdrop-blur-xs',
+      variants: {
+         isOpen: {
+            true: '',
+            false: 'hidden',
+         },
+      },
+   }),
+   button: tv({
+      base: [
+         'px-primary py-[calc(var(--spacing-primary)/2)] text-13 font-medium text-neutral-50',
+         'bg-neutral-900 rounded-primary hover:bg-neutral-950 transition-colors cursor-pointer',
+      ],
+      variants: {
+         disabled: {
+            true: 'opacity-50 pointer-events-none cursor-not-allowed',
+            false: '',
+         },
+      },
+      defaultVariants: {
+         disabled: false,
+      },
+   }),
+};
+
+export const useStyle = {
+   root: {
+      wrapper: tv({
+         base: 'inline-flex shrink-0 items-center justify-center p-[calc(var(--spacing-primary)/2)] text-neutral-600 bg-neutral-50 border border-utility-200 rounded-primary transition-colors cursor-pointer hover:text-neutral-950 hover:bg-neutral-100',
+      }),
+   },
+   modal: {
+      wrapper: themes.modal,
+      panel: 'flex flex-col w-full max-w-2xl max-h-[90vh] bg-neutral-50 border border-utility-200 rounded-secondary shadow-xl overflow-y-auto',
+      header: {
+         wrapper: `sticky top-0 z-10 flex items-center justify-between px-secondary py-primary bg-neutral-50 border-b border-utility-200`,
+         title: 'flex items-center gap-x-primary text-neutral-950 text-18 font-semibold',
+         close_button: `p-[calc(var(--spacing-primary)*3/8)] text-neutral-500 rounded-primary transition-colors cursor-pointer hover:text-neutral-900 hover:bg-neutral-100`,
+         close_icon: 'size-4',
+      },
+      body: {
+         wrapper: 'grid grid-cols-1 sm:grid-cols-2 gap-primary p-secondary',
+      },
+      footer: {
+         wrapper: `flex items-center justify-end gap-x-[calc(var(--spacing-primary)/2)] px-secondary py-primary bg-neutral-100/50 border-t border-utility-200`,
+         cancel_button: `px-primary py-[calc(var(--spacing-primary)/2)] text-neutral-700 text-13 font-medium bg-neutral-50 border border-utility-300 rounded-primary transition-colors cursor-pointer hover:bg-neutral-100`,
+         save_button: themes.button,
+      },
+   },
+};

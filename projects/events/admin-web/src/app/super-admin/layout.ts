@@ -1,1 +1,1 @@
-export { LayoutSuperAdmin as default } from '@admin-web/layouts/super-admin';
+export { LayoutAdmin as default } from '@admin-web/layouts/admin';

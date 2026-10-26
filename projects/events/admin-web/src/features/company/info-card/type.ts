@@ -1,15 +1,19 @@
 import type { LucideIcon } from 'lucide-react';
 
 export interface Properties {
-   company: Database.Company;
+   company: Company;
 }
 
-export type Tone = 'primary' | 'info' | 'success' | 'warning';
+export interface State {
+   company: Company;
+}
+
+export type Company = AdminWeb.Database.Company;
 
 export interface Contact {
    Icon: LucideIcon;
    label: string;
    value: string | null;
-   tone: Tone;
+   tone: 'primary' | 'info' | 'success' | 'warning';
    copyable?: boolean;
 }

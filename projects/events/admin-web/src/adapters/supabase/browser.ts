@@ -8,4 +8,4 @@ const getBrowserClient: Types.Get_Browser_Client = () => {
    return createBrowserClient<Database>(SUPABASE.URL, SUPABASE.ANON_KEY);
 };
 
-export const supabaseBrowser = getBrowserClient();
+export const supabase = getBrowserClient();

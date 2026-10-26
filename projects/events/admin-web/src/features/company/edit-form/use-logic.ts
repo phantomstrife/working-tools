@@ -1,131 +1,86 @@
-import { useState, useTransition } from 'react';
+import z from 'zod';
+
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { toast } from 'sonner';
 
-import { update } from '@/modules/admin/services/company/update';
+import { useTranslate } from '@admin-web/locale';
+import { useDeepState } from '@admin-web/hooks/deep-state';
 
-import type {
-   AccountRole,
-   Company,
-   CompanyOption,
-} from '@/modules/admin/services/company/overview/get-initial-data/type';
+import { useServicesCompanyUpdate } from '@admin-web/services/company/update';
 
-export const companyProfileSchema = z.object({
-   name: z.string().trim().min(2, 'Company name must be at least 2 characters.'),
-   tax_code: z.string().trim().optional().or(z.literal('')),
-   industry: z.string().trim().optional().or(z.literal('')),
-   contact_person: z.string().trim().optional().or(z.literal('')),
-   contact_email: z.string().trim().email('Please enter a valid email address.').optional().or(z.literal('')),
-   contact_phone: z.string().trim().optional().or(z.literal('')),
-   address: z.string().trim().optional().or(z.literal('')),
-   logo_url: z.string().trim().optional().or(z.literal('')),
-   status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']),
-});
+import { schema } from './constants';
 
-export type CompanyProfileFormValues = z.infer<typeof companyProfileSchema>;
+import type * as Types from './type';
 
-export type CompanyInfoCardProps = {
-   company: Company;
-   callerRole: AccountRole | null;
-   companies: CompanyOption[];
-   onSwitchCompany: (companyId: string) => void;
-   onCompanyUpdated: () => Promise<void>;
-};
+export function useLogic(properties: Types.Properties) {
+   const { company, onUpdate } = properties;
 
-export function useLogic(props: CompanyInfoCardProps) {
-   const { company, callerRole, onCompanyUpdated } = props;
-
-   const [isModalOpen, setIsModalOpen] = useState(false);
    const [isPending, startTransition] = useTransition();
 
-   const isSuperAdmin = callerRole === 'SUPER_ADMIN';
+   const [state, setState] = useDeepState<Types.State>({
+      isModalOpen: false,
+   });
 
-   const form = useForm<CompanyProfileFormValues>({
-      resolver: zodResolver(companyProfileSchema),
-      defaultValues: {
-         name: company.name,
-         tax_code: company.tax_code ?? '',
-         industry: company.industry ?? '',
-         contact_person: company.contact_person ?? '',
-         contact_email: company.contact_email ?? '',
-         contact_phone: company.contact_phone ?? '',
-         address: company.address ?? '',
-         logo_url: company.logo_url ?? '',
-         status: company.status ?? 'ACTIVE',
-      },
+   const { translate } = useTranslate({
+      prefix: 'features.company.edit_form',
+   });
+
+   const { formState, register, handleSubmit, reset } = useForm<z.infer<typeof schema>>({
+      resolver: zodResolver(schema),
+      defaultValues: company,
       mode: 'onChange',
    });
 
-   const {
-      register,
-      handleSubmit,
-      reset,
-      formState: { errors, isDirty },
-   } = form;
+   const toggleModal: Types.ToggleModal = (isOpen) => {
+      if (isOpen) {
+         reset(company);
+      }
 
-   function handleOpenModal() {
-      reset({
-         name: company.name,
-         tax_code: company.tax_code ?? '',
-         industry: company.industry ?? '',
-         contact_person: company.contact_person ?? '',
-         contact_email: company.contact_email ?? '',
-         contact_phone: company.contact_phone ?? '',
-         address: company.address ?? '',
-         logo_url: company.logo_url ?? '',
-         status: company.status ?? 'ACTIVE',
-      });
-      setIsModalOpen(true);
-   }
-
-   function handleCloseModal() {
-      if (isPending) return;
-      setIsModalOpen(false);
-   }
+      setState(isOpen, 'isModalOpen');
+   };
 
    const onSubmit = handleSubmit((values) => {
       startTransition(async () => {
-         try {
-            await update({
-               id: company.id,
-               company: {
-                  name: values.name,
-                  tax_code: values.tax_code || null,
-                  industry: values.industry || null,
-                  contact_person: values.contact_person || null,
-                  contact_email: values.contact_email || null,
-                  contact_phone: values.contact_phone || null,
-                  address: values.address || null,
-                  logo_url: values.logo_url || null,
-                  ...(isSuperAdmin ? { status: values.status } : {}),
-                  updated_at: new Date().toISOString(),
-               },
-            });
-            toast.success('Company profile updated successfully.');
-            setIsModalOpen(false);
-            await onCompanyUpdated();
-         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Failed to update company profile.';
-            form.setError('root', { message });
-            toast.error(message);
+         const serviceCompanyUpdate = await useServicesCompanyUpdate({
+            id: company.id,
+            name: values.name,
+            tax_code: values.tax_code || null,
+            industry: values.industry || null,
+            contact_person: values.contact_person || null,
+            contact_email: values.contact_email || null,
+            contact_phone: values.contact_phone || null,
+            address: values.address || null,
+            logo_url: values.logo_url || null,
+            status: company.status,
+         });
+
+         if (serviceCompanyUpdate.error) {
+            toast.error(serviceCompanyUpdate.message);
+            return;
          }
+
+         toast.success(translate('toast.update_success'));
+
+         reset(serviceCompanyUpdate.data.company);
+         onUpdate?.(serviceCompanyUpdate.data.company);
+         setState(false, 'isModalOpen');
       });
    });
 
    return {
+      state,
       param: {
-         isModalOpen,
+         company,
          isPending,
-         isSuperAdmin,
-         isDirty,
-         errors,
+         isDisabled: formState.isDirty && isPending,
+         errors: formState.errors,
       },
       func: {
+         translate,
+         toggleModal,
          register,
-         handleOpenModal,
-         handleCloseModal,
          onSubmit,
       },
    };

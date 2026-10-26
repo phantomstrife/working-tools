@@ -38,6 +38,72 @@ export const vi = {
             contact_phone: 'Số điện thoại liên hệ',
             contact_address: 'Địa chỉ',
          },
+         edit_form: {
+            title: 'Cập nhật thông tin công ty',
+            fields: {
+               name: {
+                  label: 'Tên công ty',
+                  placeholder: 'Ví dụ: Công ty Cổ phần Acme',
+               },
+               tax_code: {
+                  label: 'Mã số thuế',
+                  placeholder: 'Ví dụ: 0101234567',
+               },
+               industry: {
+                  label: 'Ngành nghề',
+                  placeholder: 'Ví dụ: Công nghệ / Tài chính',
+               },
+               status: {
+                  label: 'Trạng thái công ty',
+                  managed_by_admin: 'Quản lý bởi Quản trị viên hệ thống',
+               },
+               contact_person: {
+                  label: 'Người liên hệ',
+                  placeholder: 'Họ và tên đầy đủ',
+               },
+               contact_email: {
+                  label: 'Email liên hệ',
+                  placeholder: 'contact@company.com',
+               },
+               contact_phone: {
+                  label: 'Số điện thoại liên hệ',
+                  placeholder: '+84 90 123 4567',
+               },
+               logo_url: {
+                  label: 'Đường dẫn Logo',
+                  placeholder: 'https://example.com/logo.webp',
+               },
+               address: {
+                  label: 'Địa chỉ công ty',
+                  placeholder: 'Số nhà, tên đường, tòa nhà, thành phố...',
+               },
+            },
+            actions: {
+               cancel: 'Hủy',
+               saving_false: 'Lưu thay đổi',
+               saving_true: 'Đang lưu...',
+            },
+            toast: {
+               update_success: 'Cập nhật thông tin công ty thành công.',
+               update_error: 'Không thể cập nhật thông tin công ty.',
+            },
+         },
+      },
+   },
+   services: {
+      account: {
+         not_found: 'Không tìm thấy tài khoản.',
+         login_failed: 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập của bạn và thử lại.',
+         deactivated: `Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ với quản trị viên của bạn để được trợ giúp.`,
+         access_denied: 'Truy cập bị từ chối: Cổng thông tin này chỉ dành cho Quản trị viên.',
+      },
+      company: {
+         not_found: 'Không tìm thấy công ty.',
+      },
+      user: {
+         not_found: 'Không tìm thấy người dùng.',
+         unauthenticated: 'Người dùng chưa xác thực. Vui lòng đăng nhập để tiếp tục.',
+         access_denied: 'Truy cập bị từ chối: Bạn không có quyền truy cập vào tài nguyên này.',
       },
    },
 };

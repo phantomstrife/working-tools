@@ -1,1 +1,1 @@
-export { PageAuthorizeLogin as default } from '@admin-web/features/authorize/login-form';
+export { PageAuthorizeLogin as default } from '@admin-web/features/account/login-form';

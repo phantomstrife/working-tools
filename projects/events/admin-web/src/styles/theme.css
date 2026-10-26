@@ -140,3 +140,8 @@
 body {
    font-family: var(--font-primary), system-ui, sans-serif;
 }
+
+input,
+select {
+   outline: none !important;
+}

@@ -50,11 +50,11 @@ BEFORE UPDATE ON public.accounts
 FOR EACH ROW
 EXECUTE FUNCTION public.trigger_set_timestamp();
 
-CREATE TRIGGER on_account_role_change
-AFTER INSERT OR UPDATE OF role 
+CREATE TRIGGER on_account_metadata_changed
+AFTER INSERT OR UPDATE OF role, company_id
 ON public.accounts
 FOR EACH ROW
-EXECUTE PROCEDURE public.sync_role_to_auth_metadata();
+EXECUTE PROCEDURE public.sync_account_metadata_to_auth();
 
 -- 4. Row Level Security
 ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
