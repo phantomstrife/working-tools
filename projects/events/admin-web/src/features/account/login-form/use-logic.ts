@@ -11,7 +11,7 @@ export function useLogic() {
    const router = useRouter();
 
    const { translate } = useTranslate({
-      prefix: 'features.authorize.login_form',
+      prefix: '',
    });
 
    const [state, setState] = useDeepState<Types.State>({
@@ -36,7 +36,7 @@ export function useLogic() {
 
       if (serviceAccountLogin.error) {
          setState({
-            error: serviceAccountLogin.message,
+            error: translate(serviceAccountLogin.message),
             loading: false,
          });
          return;

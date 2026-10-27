@@ -32,7 +32,7 @@ export const useStyle = {
       },
    },
    error: {
-      wrapper: 'text-red-600! text-14 font-semibold',
+      wrapper: 'text-red-600! text-14 text-center font-semibold',
    },
    tool: {
       wrapper: 'flex items-center justify-between w-full',

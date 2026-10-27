@@ -18,8 +18,8 @@ export const PageAuthorizeLogin: AdminWeb.Router.Page = () => {
             <div className={top.icon}>
                <LogOutIcon />
             </div>
-            <span className={top.header}>{func.translate('title')}</span>
-            <span className={top.description}>{func.translate('description')}</span>
+            <span className={top.header}>{func.translate('features.authorize.login_form.title')}</span>
+            <span className={top.description}>{func.translate('features.authorize.login_form.description')}</span>
          </div>
          <div className={form.wrapper}>
             <div className={form.input.wrapper}>
@@ -29,7 +29,7 @@ export const PageAuthorizeLogin: AdminWeb.Router.Page = () => {
                   id="email"
                   className={form.input.field}
                   value={state.email}
-                  placeholder={func.translate('email_placeholder')}
+                  placeholder={func.translate('features.authorize.login_form.email_placeholder')}
                   onChange={(e) => func.setState(e.target.value, 'email')}
                   disabled={state.loading}
                />
@@ -41,7 +41,7 @@ export const PageAuthorizeLogin: AdminWeb.Router.Page = () => {
                   id="password"
                   className={form.input.field}
                   value={state.password}
-                  placeholder={func.translate('password_placeholder')}
+                  placeholder={func.translate('features.authorize.login_form.password_placeholder')}
                   onChange={(e) => func.setState(e.target.value, 'password')}
                   disabled={state.loading}
                />
@@ -61,7 +61,7 @@ export const PageAuthorizeLogin: AdminWeb.Router.Page = () => {
                className={tool.button({ loading: state.loading })}
                disabled={state.loading}
             >
-               {func.translate(`loading_${state.loading}`)}
+               {func.translate(`features.authorize.login_form.loading_${state.loading}`)}
             </button>
          </div>
       </form>
