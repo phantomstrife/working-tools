@@ -15,8 +15,8 @@ export function useLogic() {
    });
 
    const [state, setState] = useDeepState<Types.State>({
-      email: 'nguyenthaihoanganh2606@gmail.com',
-      password: 'abcd@1234',
+      email: '',
+      password: '',
       loading: false,
       error: '',
    });
