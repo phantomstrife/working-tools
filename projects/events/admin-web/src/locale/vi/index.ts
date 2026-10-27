@@ -487,6 +487,13 @@ export const vi = {
             csv_missing_headers: 'Tệp CSV thiếu cột bắt buộc: full_name và ticket_code.',
             no_selection: 'Vui lòng chọn ít nhất một người tham dự để gửi email.',
          },
+         check_in: {
+            missing_fields: 'Thiếu thông tin check-in (trò chơi, mã QR hoặc người tham dự).',
+            game_not_assigned: 'Bạn chưa được phân công vào trò chơi này.',
+            invalid_qr: 'Mã QR không hợp lệ.',
+            qr_wrong_game: 'Mã QR này thuộc về trò chơi khác.',
+            attendant_not_found: 'Không tìm thấy người tham dự tương ứng.',
+         },
       },
       user: {
          not_found: 'Không tìm thấy người dùng.',

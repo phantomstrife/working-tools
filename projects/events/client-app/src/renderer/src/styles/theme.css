@@ -75,19 +75,26 @@
    --color-primary-900: #001865;
    --color-primary-950: #001147;
 
+   --color-utility-200: #e2e8f0;
+   --color-utility-300: #cad5e2;
    --color-utility-400: #ced4da;
    --color-utility-600: #d4d4d8;
 
+   --text-8: 0.5rem;
    --text-10: 0.625rem;
    --text-11: 0.6875rem;
    --text-12: 0.75rem;
    --text-13: 0.8125rem;
    --text-14: 0.875rem;
+   --text-15: 0.9375rem;
    --text-16: 1rem;
    --text-18: 1.125rem;
    --text-20: 1.25rem;
+   --text-22: 1.375rem;
    --text-24: 1.5rem;
+   --text-28: 1.75rem;
    --text-30: 1.875rem;
+   --text-32: 2rem;
    --text-36: 2.25rem;
    --text-48: 3rem;
 
@@ -98,7 +105,13 @@
 body {
    margin: 0;
    padding: 0;
-   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+   font-family:
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
 }
 
 .glow-text {

@@ -1,11 +1,15 @@
-import './index.css'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App'
+import { I18nProvider } from '@client-app/locale';
+import { AppRouter } from '@client-app/routes';
+
+import '@client-app/styles/theme.css';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-)
+   <StrictMode>
+      <I18nProvider>
+         <AppRouter />
+      </I18nProvider>
+   </StrictMode>,
+);

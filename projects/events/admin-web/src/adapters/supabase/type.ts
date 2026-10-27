@@ -5,3 +5,4 @@ export type Database = AdminWeb.Database.Instance;
 export type Get_Server_Client = (proxyResponse?: AdminWeb.Router.Proxy_Response) => Promise<SupabaseClient<Database>>;
 export type Get_Admin_Client = () => SupabaseClient<Database>;
 export type Get_Browser_Client = () => SupabaseClient<Database>;
+export type Get_Token_Client = (accessToken: string) => SupabaseClient<Database>;
