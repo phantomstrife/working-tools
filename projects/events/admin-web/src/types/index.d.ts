@@ -27,12 +27,19 @@ declare global {
       type Account_Role = Instance['public']['Enums']['account_role'];
       type Email_Status = Instance['public']['Enums']['email_status_type'];
       type Check_In_Method = Instance['public']['Enums']['check_in_method_type'];
+      type Event_Status = Instance['public']['Enums']['event_status'];
+      type Game_Status = Instance['public']['Enums']['game_status'];
+      type Game_Type = Instance['public']['Enums']['game_type'];
 
       type Company = Instance['public']['Tables']['companies']['Row'];
       type Account = Instance['public']['Tables']['accounts']['Row'];
       type Event = Instance['public']['Tables']['events']['Row'];
+      type EventInsert = Instance['public']['Tables']['events']['Insert'];
+      type EventUpdate = Instance['public']['Tables']['events']['Update'];
       type EventWithGames = Event & { games: Game[] };
       type Game = Instance['public']['Tables']['games']['Row'];
+      type GameInsert = Instance['public']['Tables']['games']['Insert'];
+      type GameUpdate = Instance['public']['Tables']['games']['Update'];
       type GameAccount = Instance['public']['Tables']['game_accounts']['Row'];
       type GameLuckyDrawAttendant = Instance['public']['Tables']['lucky_draw_attendants']['Row'];
       type GameLuckyDrawAttendantInsert = Instance['public']['Tables']['lucky_draw_attendants']['Insert'];

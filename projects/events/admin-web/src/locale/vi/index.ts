@@ -96,6 +96,132 @@ export const vi = {
             game_label: 'Chọn trò chơi',
             game_count: 'Tìm thấy {{count}} trò chơi',
             game_placeholder: 'Chọn một trò chơi...',
+            actions: {
+               create: 'Tạo mới',
+               edit: 'Chỉnh sửa',
+               delete: 'Xóa',
+               cancel: 'Hủy',
+               delete_event_confirm: 'Xóa sự kiện',
+               delete_game_confirm: 'Xóa trò chơi',
+               deleting: 'Đang xóa...',
+            },
+            modals: {
+               create_event_title: 'Tạo sự kiện mới',
+               create_event_description: 'Thiết lập thông tin cơ bản, thời gian và địa điểm tổ chức sự kiện.',
+               edit_event_title: 'Cập nhật sự kiện',
+               edit_event_description: 'Chỉnh sửa thông tin, trạng thái và địa điểm của sự kiện.',
+               delete_event_title: 'Xác nhận xóa sự kiện',
+               delete_event_description: 'Hành động này sẽ xóa toàn bộ trò chơi và dữ liệu thuộc sự kiện này.',
+               delete_event_message: 'Bạn có chắc chắn muốn xóa sự kiện "{{name}}" không?',
+               create_game_title: 'Tạo trò chơi mới',
+               create_game_description: 'Khởi tạo trò chơi tương tác mới thuộc sự kiện của công ty.',
+               edit_game_title: 'Cập nhật trò chơi',
+               edit_game_description: 'Chỉnh sửa tên, trạng thái hoặc mô tả của trò chơi.',
+               delete_game_title: 'Xác nhận xóa trò chơi',
+               delete_game_description: 'Hành động này không thể hoàn tác.',
+               delete_game_message: 'Bạn có chắc chắn muốn xóa trò chơi "{{name}}" khỏi sự kiện này không?',
+            },
+            toast: {
+               delete_event_success: 'Đã xóa sự kiện thành công.',
+               delete_game_success: 'Đã xóa trò chơi thành công.',
+            },
+         },
+         event_form: {
+            fields: {
+               name: {
+                  label: 'Tên sự kiện',
+                  placeholder: 'Ví dụ: Year End Party 2026',
+               },
+               slug: {
+                  label: 'Đường dẫn định danh (Slug)',
+                  placeholder: 'year-end-party-2026',
+               },
+               status: {
+                  label: 'Trạng thái sự kiện',
+               },
+               location_name: {
+                  label: 'Tên địa điểm',
+                  placeholder: 'Ví dụ: Trung tâm Hội nghị White Palace',
+               },
+               start_time: {
+                  label: 'Thời gian bắt đầu',
+               },
+               end_time: {
+                  label: 'Thời gian kết thúc',
+               },
+               location_address: {
+                  label: 'Địa chỉ chi tiết',
+                  placeholder: 'Số nhà, đường, quận/huyện, tỉnh/thành phố...',
+               },
+               banner_url: {
+                  label: 'Đường dẫn ảnh Banner',
+                  placeholder: 'https://example.com/banner.webp',
+               },
+               description: {
+                  label: 'Mô tả sự kiện',
+                  placeholder: 'Thông tin giới thiệu ngắn gọn về chương trình...',
+               },
+            },
+            statuses: {
+               DRAFT: 'Bản nháp (DRAFT)',
+               UPCOMING: 'Sắp diễn ra (UPCOMING)',
+               ONGOING: 'Đang diễn ra (ONGOING)',
+               COMPLETED: 'Đã hoàn thành (COMPLETED)',
+               CANCELLED: 'Đã hủy (CANCELLED)',
+            },
+            actions: {
+               cancel: 'Hủy',
+               create_saving_false: 'Tạo sự kiện',
+               create_saving_true: 'Đang tạo...',
+               edit_saving_false: 'Lưu thay đổi',
+               edit_saving_true: 'Đang lưu...',
+            },
+            toast: {
+               create_success: 'Tạo sự kiện mới thành công.',
+               edit_success: 'Cập nhật sự kiện thành công.',
+            },
+         },
+         game_form: {
+            fields: {
+               event_id: {
+                  label: 'Thuộc sự kiện',
+                  placeholder: 'Chọn một sự kiện...',
+               },
+               name: {
+                  label: 'Tên trò chơi',
+                  placeholder: 'Ví dụ: Quay số may mắn Đêm Gala',
+               },
+               game_type: {
+                  label: 'Loại trò chơi',
+               },
+               status: {
+                  label: 'Trạng thái trò chơi',
+               },
+               description: {
+                  label: 'Mô tả trò chơi',
+                  placeholder: 'Ghi chú thể lệ hoặc mô tả ngắn về trò chơi...',
+               },
+            },
+            game_types: {
+               LUCKY_DRAW: 'Quay số trúng thưởng (LUCKY DRAW)',
+            },
+            statuses: {
+               PENDING: 'Chờ cấu hình (PENDING)',
+               READY: 'Sẵn sàng (READY)',
+               LIVE: 'Đang diễn ra (LIVE)',
+               FINISHED: 'Đã kết thúc (FINISHED)',
+            },
+            actions: {
+               cancel: 'Hủy',
+               create_saving_false: 'Tạo trò chơi',
+               create_saving_true: 'Đang tạo...',
+               edit_saving_false: 'Lưu thay đổi',
+               edit_saving_true: 'Đang lưu...',
+            },
+            toast: {
+               create_success: 'Tạo trò chơi mới thành công.',
+               edit_success: 'Cập nhật trò chơi thành công.',
+            },
          },
          overview: {
             title: 'Tổng quan về sự kiện và trò chơi',
@@ -463,7 +589,21 @@ export const vi = {
       company: {
          not_found: 'Không tìm thấy công ty.',
       },
+      event: {
+         not_found: 'Không tìm thấy sự kiện.',
+         missing_name: 'Vui lòng nhập tên sự kiện.',
+         missing_slug: 'Vui lòng nhập đường dẫn định danh (slug) cho sự kiện.',
+         duplicate_slug: 'Đường dẫn (slug) này đã tồn tại. Vui lòng sử dụng một slug khác.',
+         create_failed: 'Không thể tạo sự kiện mới.',
+         save_failed: 'Không thể lưu thông tin sự kiện.',
+         delete_failed: 'Không thể xóa sự kiện.',
+      },
       game: {
+         missing_name: 'Vui lòng nhập tên trò chơi.',
+         missing_event: 'Vui lòng chọn sự kiện cho trò chơi.',
+         create_failed: 'Không thể tạo trò chơi mới.',
+         save_failed: 'Không thể lưu thông tin trò chơi.',
+         delete_failed: 'Không thể xóa trò chơi.',
          get_staff_not_found: 'Không tìm thấy nhân viên cho trò chơi này.',
          staff_already_assigned: 'Nhân viên này đã được phân công vào trò chơi.',
          staff_assign_failed: 'Không thể phân công nhân viên vào trò chơi.',
