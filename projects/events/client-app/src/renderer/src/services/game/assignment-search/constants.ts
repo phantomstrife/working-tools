@@ -3,6 +3,7 @@ export const GAME_COLUMNS = `
    name,
    status,
    game_type,
+   config,
    is_dev_only,
    event:events!games_event_id_fkey (
       id,

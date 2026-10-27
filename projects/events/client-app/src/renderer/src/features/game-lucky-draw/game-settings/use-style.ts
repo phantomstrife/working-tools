@@ -5,7 +5,7 @@ export const useStyle = {
       base: 'fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2 select-none',
    }),
    expandedContainer: tv({
-      base: 'fixed w-84 bottom-5 right-5 flex flex-col gap-3 z-50 select-none',
+      base: 'fixed w-88 bottom-5 right-5 flex flex-col gap-3 z-50 select-none',
    }),
    noticeBanner: tv({
       base: [
@@ -31,7 +31,7 @@ export const useStyle = {
    }),
    collapsedDrawBtn: tv({
       base: [
-         'px-4 py-1.5 text-12 font-bold tracking-wider uppercase rounded-primary',
+         'inline-flex items-center justify-center gap-1.5 px-4 py-1.5 text-12 font-bold tracking-wider uppercase rounded-primary',
          'bg-warning-500 text-neutral-950 hover:bg-warning-400 transition-colors cursor-pointer',
       ],
       variants: {
@@ -94,6 +94,27 @@ export const useStyle = {
       base: [
          'px-2 py-1 text-11 font-semibold text-neutral-400 hover:text-neutral-50',
          'rounded-primary hover:bg-neutral-800 transition-colors cursor-pointer',
+      ],
+   }),
+   accountRow: tv({
+      base: 'flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-primary bg-neutral-950/70 border border-neutral-800 text-11',
+   }),
+   accountName: tv({
+      base: 'font-semibold text-neutral-200 truncate',
+   }),
+   accountActions: tv({
+      base: 'flex items-center gap-1.5 shrink-0',
+   }),
+   guardSwitchBtn: tv({
+      base: [
+         'px-2 py-0.5 text-11 font-semibold text-info-300 bg-info-950/70 hover:bg-info-900/80',
+         'border border-info-800/70 rounded-primary transition-colors cursor-pointer',
+      ],
+   }),
+   logoutBtn: tv({
+      base: [
+         'px-2 py-0.5 text-11 font-semibold text-error-300 bg-error-950/70 hover:bg-error-900/80',
+         'border border-error-800/70 rounded-primary transition-colors cursor-pointer',
       ],
    }),
    selectorsGroup: tv({
@@ -164,7 +185,7 @@ export const useStyle = {
    }),
    startDrawBtn: tv({
       base: [
-         'w-full px-4 py-3 font-bold text-13 tracking-wider uppercase text-neutral-950',
+         'inline-flex items-center justify-center gap-2 w-full px-4 py-3 font-bold text-13 tracking-wider uppercase text-neutral-950',
          'transition-all bg-warning-500 rounded-primary shadow-lg hover:bg-warning-400 cursor-pointer',
       ],
       variants: {
@@ -172,6 +193,9 @@ export const useStyle = {
             true: 'opacity-40 pointer-events-none cursor-not-allowed',
          },
       },
+   }),
+   spinnerIcon: tv({
+      base: 'w-4 h-4 animate-spin shrink-0',
    }),
    manualStopBtn: tv({
       base: [
@@ -181,9 +205,11 @@ export const useStyle = {
    }),
    redrawAbsentBtn: tv({
       base: [
-         'w-full px-3 py-2 font-semibold text-12 tracking-wide text-warning-300',
+         'inline-flex items-center justify-center gap-2 w-full px-3 py-2 font-semibold text-12 tracking-wide text-warning-300',
          'bg-warning-950/60 hover:bg-warning-900/80 border border-warning-700/70 rounded-primary transition-colors cursor-pointer',
       ],
    }),
+   shortcutHint: tv({
+      base: 'text-10 text-center text-neutral-500 pt-1',
+   }),
 };
-

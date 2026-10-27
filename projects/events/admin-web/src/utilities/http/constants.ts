@@ -12,6 +12,9 @@ export const ERROR_STATUS: Record<string, number> = {
    'services.account.deactivated': 403,
    'services.game_lucky_draw.check_in.game_not_assigned': 403,
    'services.game_lucky_draw.check_in.attendant_not_found': 404,
+   'services.game_lucky_draw.draw.game_not_assigned': 403,
+   'services.game_lucky_draw.draw.winner_not_found': 404,
+   'services.game_lucky_draw.prize.not_found': 404,
    'services.game_lucky_draw.game_not_found': 404,
 };
 

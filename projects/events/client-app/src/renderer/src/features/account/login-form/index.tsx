@@ -65,4 +65,3 @@ export const PageAuthorizeLogin: ClientApp.Router.Page = () => {
       </form>
    );
 };
-

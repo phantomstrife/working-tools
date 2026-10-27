@@ -12,15 +12,16 @@ export function useLogic() {
 
    const selectedEvent = events.find((item) => item.id === selectedEventId) ?? null;
    const selectedGame = selectedEvent?.games.find((game) => game.id === selectedGameId) ?? null;
+   const gameType = selectedGame?.game_type ?? 'LUCKY_DRAW';
 
    return {
       param: {
          selectedEvent,
          selectedGame,
+         gameType,
       },
       func: {
          translate,
       },
    };
 }
-

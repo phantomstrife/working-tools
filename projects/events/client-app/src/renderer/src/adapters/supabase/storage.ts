@@ -1,8 +1,28 @@
 import type * as Types from './type';
 
-// Session tokens live in the Electron main process, encrypted with OS-level safeStorage (DPAPI / Keychain / libsecret).
+// Uses Electron main-process safeStorage when running in the desktop app, and falls back to localStorage in a browser.
 export const secureStorage: Types.Secure_Storage = {
-   getItem: (key) => window.api.secureStorage.getItem(key),
-   setItem: (key, value) => window.api.secureStorage.setItem(key, value),
-   removeItem: (key) => window.api.secureStorage.removeItem(key),
+   getItem: async (key) => {
+      if (window.api?.secureStorage) {
+         return window.api.secureStorage.getItem(key);
+      }
+
+      return window.localStorage.getItem(key);
+   },
+   setItem: async (key, value) => {
+      if (window.api?.secureStorage) {
+         await window.api.secureStorage.setItem(key, value);
+         return;
+      }
+
+      window.localStorage.setItem(key, value);
+   },
+   removeItem: async (key) => {
+      if (window.api?.secureStorage) {
+         await window.api.secureStorage.removeItem(key);
+         return;
+      }
+
+      window.localStorage.removeItem(key);
+   },
 };

@@ -34,4 +34,3 @@ export function useTranslate(options: { prefix: string }) {
       translate: t,
    };
 }
-

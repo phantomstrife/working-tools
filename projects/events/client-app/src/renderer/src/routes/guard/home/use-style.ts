@@ -7,4 +7,3 @@ export const useStyle = {
       description: 'max-w-120 text-13 text-neutral-500',
    },
 };
-

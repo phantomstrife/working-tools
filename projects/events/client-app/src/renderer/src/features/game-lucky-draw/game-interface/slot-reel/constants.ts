@@ -1,0 +1,3 @@
+export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+export const NUMBERS = '0123456789';
+export const SPIN_INTERVAL_MS = 50;

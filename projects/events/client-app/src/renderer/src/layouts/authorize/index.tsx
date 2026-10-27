@@ -22,4 +22,3 @@ export const LayoutAuthorize: ClientApp.Router.Layout = () => {
       </div>
    );
 };
-

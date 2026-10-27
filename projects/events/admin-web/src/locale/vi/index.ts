@@ -494,6 +494,14 @@ export const vi = {
             qr_wrong_game: 'Mã QR này thuộc về trò chơi khác.',
             attendant_not_found: 'Không tìm thấy người tham dự tương ứng.',
          },
+         draw: {
+            missing_fields: 'Thiếu thông tin trò chơi hoặc giải thưởng để quay số.',
+            game_not_assigned: 'Bạn chưa được phân công vận hành trò chơi này.',
+            winner_not_found: 'Không tìm thấy lượt trúng thưởng cần hủy.',
+            prize_depleted: 'Giải thưởng này đã được trao hết.',
+            no_eligible_attendants: 'Không còn khách tham dự đủ điều kiện (đã check-in) để quay số.',
+            draw_conflict: 'Có xung đột dữ liệu khi lưu kết quả quay số. Vui lòng thử lại.',
+         },
       },
       user: {
          not_found: 'Không tìm thấy người dùng.',

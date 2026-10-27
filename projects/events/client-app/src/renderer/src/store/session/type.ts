@@ -22,4 +22,3 @@ export interface Store {
    selectEvent: (eventId: string) => void;
    selectGame: (gameId: string) => void;
 }
-

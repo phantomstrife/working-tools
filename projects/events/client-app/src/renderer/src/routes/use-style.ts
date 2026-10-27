@@ -4,4 +4,3 @@ export const useStyle = {
       spinner: 'w-8 h-8 border-3 border-neutral-300 border-t-neutral-900 rounded-full animate-spin',
    },
 };
-

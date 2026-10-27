@@ -29,4 +29,3 @@ export interface State {
    lastResult: Check_In_Result | null;
    recentHistory: Recent_Entry[];
 }
-

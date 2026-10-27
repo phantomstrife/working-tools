@@ -74,20 +74,26 @@ export const AppRouter: ClientApp.Router.Page = () => {
                      )
                   }
                />
-               <Route
-                  path={ROUTE.OPERATOR.HOME}
-                  element={
-                     canAccessOperator ? (
-                        <PageOperatorHome />
-                     ) : (
-                        <Navigate
-                           to={homePath}
-                           replace
-                        />
-                     )
-                  }
-               />
             </Route>
+
+            <Route
+               path={ROUTE.OPERATOR.HOME}
+               element={
+                  !isAuthenticated ? (
+                     <Navigate
+                        to={ROUTE.AUTHORIZE.LOGIN}
+                        replace
+                     />
+                  ) : canAccessOperator ? (
+                     <PageOperatorHome />
+                  ) : (
+                     <Navigate
+                        to={homePath}
+                        replace
+                     />
+                  )
+               }
+            />
 
             <Route
                path="*"

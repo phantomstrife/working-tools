@@ -9,4 +9,3 @@ export const ROUTE = {
       HOME: '/operator',
    },
 } as const;
-

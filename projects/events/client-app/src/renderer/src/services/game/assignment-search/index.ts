@@ -18,7 +18,13 @@ const groupByEvent = (rows: Types.Game_Row[], includeDevOnly: boolean): Types.Re
       const current = events.get(event.id) ?? { ...event, games: [] };
 
       if (!current.games.some((game) => game.id === row.id)) {
-         current.games.push({ id: row.id, name: row.name, status: row.status });
+         current.games.push({
+            id: row.id,
+            name: row.name,
+            status: row.status,
+            game_type: row.game_type,
+            config: row.config,
+         });
       }
 
       events.set(event.id, current);
@@ -37,7 +43,13 @@ export const useServicesGameAssignmentSearch: Types.Service = async (request) =>
       const isSuperAdmin = role === 'SUPER_ADMIN';
 
       if (isSuperAdmin) {
-         const games = await supabase.from('games').select(GAME_COLUMNS).eq('game_type', gameType);
+         let query = supabase.from('games').select(GAME_COLUMNS);
+
+         if (gameType) {
+            query = query.eq('game_type', gameType);
+         }
+
+         const games = await query;
 
          if (games.error) {
             throw new Error(games.error.message);
@@ -57,7 +69,7 @@ export const useServicesGameAssignmentSearch: Types.Service = async (request) =>
 
       const rows = (assignments.data as unknown as { game: Types.Game_Row | Types.Game_Row[] | null }[])
          .flatMap((assignment) => (Array.isArray(assignment.game) ? assignment.game : [assignment.game]))
-         .filter((game): game is Types.Game_Row => !!game && game.game_type === gameType);
+         .filter((game): game is Types.Game_Row => !!game && (!gameType || game.game_type === gameType));
 
       return groupByEvent(rows, false);
    });

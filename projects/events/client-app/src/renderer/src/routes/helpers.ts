@@ -13,4 +13,3 @@ export const resolveHomeRoute = (role: ClientApp.Database.Account_Role): string 
       }
    }
 };
-
