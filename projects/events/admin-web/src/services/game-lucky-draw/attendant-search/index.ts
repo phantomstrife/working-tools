@@ -6,15 +6,15 @@ import { trycatchAsync } from '@admin-web/utilities/trycatch';
 import type * as Types from './type';
 
 export const useServicesGameLuckyDrawAttendantSearch: Types.Service = async (request) => {
-   const result = await trycatchAsync(async () => {
-      const { gameId, page = 1, pageSize = 10, search = '', filter = '' } = request;
+   const { gameId, page = 1, pageSize = 10, search = '', filter = '' } = request;
 
+   const result = await trycatchAsync(async () => {
+      const trimmedSearch = search.trim();
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
 
       let query = supabase.from('lucky_draw_attendants').select('*', { count: 'exact' }).eq('game_id', gameId);
 
-      const trimmedSearch = search.trim();
       if (trimmedSearch) {
          query = query.or(
             `full_name.ilike.%${trimmedSearch}%,phone.ilike.%${trimmedSearch}%,email.ilike.%${trimmedSearch}%,ticket_code.ilike.%${trimmedSearch}%`,
@@ -38,7 +38,7 @@ export const useServicesGameLuckyDrawAttendantSearch: Types.Service = async (req
       }
 
       return {
-         attendants: (attendants.data ?? []) as AdminWeb.Database.GameLuckyDrawAttendant[],
+         attendants: attendants.data,
          totalCount: attendants.count ?? 0,
       };
    });

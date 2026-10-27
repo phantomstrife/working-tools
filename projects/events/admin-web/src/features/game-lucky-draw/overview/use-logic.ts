@@ -3,7 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { useDeepState } from '@admin-web/hooks/deep-state';
 import { useTranslate } from '@admin-web/locale';
 
-import { useServicesGameLuckyDrawGetPrizes } from '@admin-web/services/game-lucky-draw/get-prizes';
+import { useServicesGameLuckyDrawPrizesGet } from '@admin-web/services/game-lucky-draw/prizes-get';
 import { useServicesGameGetStaff } from '@admin-web/services/game/get-staff';
 
 import type * as Types from './type';
@@ -22,7 +22,7 @@ export function useLogic(properties: Types.Properties) {
    });
 
    const fetchPrizes = useCallback(async () => {
-      const servicesGameLuckyDrawGetPrizes = await useServicesGameLuckyDrawGetPrizes({
+      const servicesGameLuckyDrawGetPrizes = await useServicesGameLuckyDrawPrizesGet({
          id: game.id,
       });
 

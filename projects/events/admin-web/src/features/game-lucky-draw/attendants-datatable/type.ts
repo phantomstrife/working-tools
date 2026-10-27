@@ -1,9 +1,3 @@
-import type { ChangeEvent } from 'react';
-
-export type Attendant = AdminWeb.Database.GameLuckyDrawAttendant;
-
-export type Filter = '' | 'CHECKED_IN' | 'NOT_CHECKED_IN' | 'WINNER' | 'NOT_WINNER';
-
 export interface Properties {
    gameId: string;
    isLoading?: boolean;
@@ -26,7 +20,10 @@ export interface State {
    isLoading: boolean;
 }
 
-export type HandleSearchChange = (event: ChangeEvent<HTMLInputElement>) => void;
-export type HandleFilterChange = (event: ChangeEvent<HTMLSelectElement>) => void;
+export type Attendant = AdminWeb.Database.GameLuckyDrawAttendant;
+export type Filter = AdminWeb.Features.GameLuckyDraw.Attendant.Filter;
+
+export type HandleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => void;
+export type HandleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => void;
 export type HandlePageChange = (nextPage: number) => void;
 export type HandlePageSizeChange = (nextPageSize: number) => void;

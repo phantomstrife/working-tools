@@ -5,7 +5,7 @@ import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
 import type * as Types from './type';
 
-export const useServicesGameLuckyDrawGetPrizes: Types.Service = async (request) => {
+export const useServicesGameLuckyDrawPrizesGet: Types.Service = async (request) => {
    const { id } = request;
 
    const result = await trycatchAsync(async () => {

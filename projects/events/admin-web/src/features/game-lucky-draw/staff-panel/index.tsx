@@ -1,4 +1,5 @@
-<div className="xl:col-span-5 bg-white border border-[#ced4da] rounded-xl shadow-sm flex flex-col overflow-hidden">
+{
+   /* <div className="xl:col-span-5 bg-white border border-[#ced4da] rounded-xl shadow-sm flex flex-col overflow-hidden">
    <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[#e5e5e5] bg-[#f5f5f5]/30">
       <div className="flex items-center gap-2.5">
          <h3 className="text-[16px] font-bold text-[#171717]">Assigned Staff</h3>
@@ -107,4 +108,5 @@
          </tbody>
       </table>
    </div>
-</div>;
+</div>; */
+}

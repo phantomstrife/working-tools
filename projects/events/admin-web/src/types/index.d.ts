@@ -25,6 +25,7 @@ declare global {
       type Instance = Supabase.Database;
 
       type Account_Role = Instance['public']['Enums']['account_role'];
+
       type Company = Instance['public']['Tables']['companies']['Row'];
       type Event = Instance['public']['Tables']['events']['Row'];
       type EventWithGames = Event & { games: Game[] };
@@ -32,6 +33,10 @@ declare global {
       type GameAccount = Instance['public']['Tables']['game_accounts']['Row'];
       type GameLuckyDrawAttendant = Instance['public']['Tables']['lucky_draw_attendants']['Row'];
       type GameLuckyDrawPrize = Instance['public']['Tables']['lucky_draw_prizes']['Row'];
+   }
+
+   declare namespace AdminWeb.Features.GameLuckyDraw.Attendant {
+      type Filter = '' | 'CHECKED_IN' | 'NOT_CHECKED_IN' | 'WINNER' | 'NOT_WINNER';
    }
 
    declare namespace AdminWeb.Utilities.Trycatch {

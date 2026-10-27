@@ -1,16 +1,17 @@
-export type Filter = '' | 'CHECKED_IN' | 'NOT_CHECKED_IN' | 'WINNER' | 'NOT_WINNER';
-
 export interface Request {
    gameId: string;
-   page?: number;
-   pageSize?: number;
    search?: string;
    filter?: Filter;
+   page?: number;
+   pageSize?: number;
 }
 
 export interface Response {
-   attendants: AdminWeb.Database.GameLuckyDrawAttendant[];
+   attendants: Attendant[];
    totalCount: number;
 }
+
+export type Attendant = AdminWeb.Database.GameLuckyDrawAttendant;
+export type Filter = AdminWeb.Features.GameLuckyDraw.Attendant.Filter;
 
 export type Service = (request: Request) => AdminWeb.Utilities.Trycatch.ResultAsync<Response>;
