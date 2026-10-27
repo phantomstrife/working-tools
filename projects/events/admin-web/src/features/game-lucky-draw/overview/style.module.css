@@ -1,0 +1,24 @@
+.statistic_wrapper {
+   grid-template-areas: 'name status . prize staff tool';
+   grid-template-columns: auto auto 1fr auto auto auto;
+}
+
+.statistic_name {
+   grid-area: name;
+}
+
+.statistic_status {
+   grid-area: status;
+}
+
+.statistic_prize {
+   grid-area: prize;
+}
+
+.statistic_staff {
+   grid-area: staff;
+}
+
+.statistic_tool {
+   grid-area: tool;
+}

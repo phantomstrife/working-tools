@@ -39,9 +39,9 @@ CREATE TABLE public.lucky_draw_attendants (
         COALESCE(phone, '') || ' ' || 
         COALESCE(ticket_code, '') || ' ' || 
         COALESCE(company_name, '')
-    ) STORED
+    ) STORED,
 
-    UNIQUE (game_id, ticket_code),
+    UNIQUE (game_id, ticket_code)
 );
 
 -- 3.1 Functions

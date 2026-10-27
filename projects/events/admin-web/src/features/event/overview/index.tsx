@@ -1,12 +1,14 @@
 'use client';
 
+import { Gamepad2 } from 'lucide-react';
+
 import { EventGameSelector } from '@admin-web/features/event/game-selector';
+import { GameLuckyDrawOverview } from '@admin-web/features/game-lucky-draw/overview';
 
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
 import type * as Types from './type';
-import { Gamepad2 } from 'lucide-react';
 
 export const EventGameOverview: AdminWeb.Component<Types.Properties> = (properties) => {
    const { events } = properties;
@@ -30,6 +32,8 @@ export const EventGameOverview: AdminWeb.Component<Types.Properties> = (properti
                <span className={notify.description}>{func.translate('description')}</span>
             </div>
          )}
+
+         {state.game && state.game.game_type === 'LUCKY_DRAW' && <GameLuckyDrawOverview game={state.game} />}
       </div>
    );
 };

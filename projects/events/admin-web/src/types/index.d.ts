@@ -29,6 +29,8 @@ declare global {
       type Event = Instance['public']['Tables']['events']['Row'];
       type EventWithGames = Event & { games: Game[] };
       type Game = Instance['public']['Tables']['games']['Row'];
+      type GameAccount = Instance['public']['Tables']['game_accounts']['Row'];
+      type GameLuckyDrawPrize = Instance['public']['Tables']['lucky_draw_prizes']['Row'];
    }
 
    declare namespace AdminWeb.Utilities.Trycatch {

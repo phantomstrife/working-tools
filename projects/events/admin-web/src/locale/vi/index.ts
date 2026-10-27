@@ -5,23 +5,6 @@ export const vi = {
          retry: 'Thử lại',
       },
    },
-   layouts: {
-      admin: {
-         navigation: {
-            title: 'Menu Chính',
-            items: {
-               dashboard: 'Bảng điều khiển',
-               company: 'Công ty',
-               event: 'Sự kiện',
-               game: 'Trò chơi',
-               account: 'Tài khoản',
-            },
-         },
-         fixed_header: {
-            search_placeholder: 'Tìm kiếm sự kiện, trò chơi, người tham dự...',
-         },
-      },
-   },
    features: {
       authorize: {
          login_form: {
@@ -109,6 +92,29 @@ export const vi = {
             description: 'Bạn có thể chọn một sự kiện và trò chơi từ danh sách bên trên.',
          },
       },
+      game_luck_draw: {
+         overview: {
+            prize: 'Giải thưởng',
+            staff: 'Nhân viên',
+         },
+      },
+   },
+   layouts: {
+      admin: {
+         navigation: {
+            title: 'Menu Chính',
+            items: {
+               dashboard: 'Bảng điều khiển',
+               company: 'Công ty',
+               event: 'Sự kiện',
+               game: 'Trò chơi',
+               account: 'Tài khoản',
+            },
+         },
+         fixed_header: {
+            search_placeholder: 'Tìm kiếm sự kiện, trò chơi, người tham dự...',
+         },
+      },
    },
    services: {
       account: {
@@ -119,6 +125,14 @@ export const vi = {
       },
       company: {
          not_found: 'Không tìm thấy công ty.',
+      },
+      game: {
+         get_staff_not_found: 'Không tìm thấy nhân viên cho trò chơi này.',
+      },
+      game_lucky_draw: {
+         prize: {
+            not_found: 'Không tìm thấy giải thưởng cho trò chơi này.',
+         },
       },
       user: {
          not_found: 'Không tìm thấy người dùng.',
