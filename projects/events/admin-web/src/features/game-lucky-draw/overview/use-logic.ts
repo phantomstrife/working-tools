@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import type { RefObject } from 'react';
 
 import { useDeepState } from '@admin-web/hooks/deep-state';
 import { useTranslate } from '@admin-web/locale';
@@ -8,7 +9,10 @@ import { useServicesGameGetStaff } from '@admin-web/services/game/get-staff';
 
 import type * as Types from './type';
 
-export function useLogic(properties: Types.Properties) {
+export function useLogic(
+   properties: Types.Properties,
+   datatableRef: RefObject<Types.AttendantsDatatableHandle | null>,
+) {
    const { game } = properties;
 
    const { translate } = useTranslate({
@@ -50,7 +54,7 @@ export function useLogic(properties: Types.Properties) {
       setState(staffCount, 'staffCount');
    }, [game.id, setState]);
 
-   const synchronizeData = useCallback(async () => {
+   const synchronizeStats = useCallback(async () => {
       setState({
          loading: true,
       });
@@ -62,7 +66,23 @@ export function useLogic(properties: Types.Properties) {
       });
    }, [setState, fetchPrizes, fetchStaffs]);
 
-   useEffect(() => void synchronizeData(), [synchronizeData]);
+   const synchronizeData = useCallback(async () => {
+      setState({
+         loading: true,
+      });
+
+      await Promise.all([
+         fetchPrizes(),
+         fetchStaffs(),
+         datatableRef.current?.manualRefresh(),
+      ]);
+
+      setState({
+         loading: false,
+      });
+   }, [setState, fetchPrizes, fetchStaffs, datatableRef]);
+
+   useEffect(() => void synchronizeStats(), [synchronizeStats]);
 
    return {
       state,

@@ -32,6 +32,18 @@ const themes = {
          align: 'left',
       },
    }),
+   table_tr: tv({
+      base: 'transition-colors hover:bg-neutral-100/60',
+      variants: {
+         selected: {
+            true: 'bg-primary-100/30 hover:bg-primary-100/50',
+            false: '',
+         },
+      },
+      defaultVariants: {
+         selected: false,
+      },
+   }),
    table_td: tv({
       base: 'align-middle px-[calc(var(--spacing-primary)*5/4)] h-12',
       variants: {
@@ -48,6 +60,18 @@ const themes = {
       defaultVariants: {
          align: 'left',
          emphasis: false,
+      },
+   }),
+   checkbox: tv({
+      base: 'size-4 rounded-sm border-utility-300 accent-neutral-900 cursor-pointer',
+      variants: {
+         disabled: {
+            true: 'opacity-40 cursor-not-allowed pointer-events-none',
+            false: '',
+         },
+      },
+      defaultVariants: {
+         disabled: false,
       },
    }),
    page_button: tv({
@@ -71,9 +95,12 @@ export const useStyle = {
    header: {
       wrapper: `flex flex-wrap items-center justify-between gap-primary px-[calc(var(--spacing-primary)*5/4)] py-primary bg-neutral-100/30 border-b border-utility-300`,
       title: {
-         wrapper: 'flex items-center gap-[calc(var(--spacing-primary)*5/8)]',
+         wrapper: 'flex flex-wrap items-center gap-[calc(var(--spacing-primary)*5/8)]',
          text: 'text-neutral-900 text-16 font-bold',
          badge: 'inline-flex items-center px-[calc(var(--spacing-primary)/2)] h-6 text-neutral-700 text-12 font-semibold bg-neutral-200 rounded-primary',
+         selected_badge: `inline-flex items-center gap-[calc(var(--spacing-primary)/4)] px-[calc(var(--spacing-primary)/2)] h-6 text-primary-700 text-12 font-semibold bg-primary-100 border border-primary-200 rounded-primary`,
+         clear_button: 'inline-flex items-center text-primary-700 hover:text-primary-950 cursor-pointer',
+         clear_icon: 'size-3.5',
       },
       tools: {
          wrapper: 'flex flex-wrap items-center gap-[calc(var(--spacing-primary)/2)]',
@@ -100,12 +127,17 @@ export const useStyle = {
       head: {
          wrapper: 'sticky top-0 z-10 bg-neutral-100 border-b border-utility-300',
          th: themes.table_th,
+         checkbox_th:
+            'w-11 pl-[calc(var(--spacing-primary)*5/4)] pr-2 py-[calc(var(--spacing-primary)*3/4)] align-middle',
       },
       body: {
          wrapper: 'divide-y divide-neutral-200',
-         tr: 'transition-colors hover:bg-neutral-100/60',
+         tr: themes.table_tr,
          td: themes.table_td,
+         checkbox_td: 'w-11 pl-[calc(var(--spacing-primary)*5/4)] pr-2 h-12 align-middle',
       },
+      checkbox: themes.checkbox,
+      checkbox_skeleton: 'size-4 bg-neutral-200 rounded-[4px] animate-pulse',
       skeleton: 'w-3/4 h-4 bg-neutral-200 rounded-primary animate-pulse',
       empty_state: 'pt-75 text-center align-middle text-18! text-neutral-950 font-semibold',
    },

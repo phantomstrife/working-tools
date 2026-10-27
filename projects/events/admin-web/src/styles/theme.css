@@ -145,3 +145,13 @@ input,
 select {
    outline: none !important;
 }
+
+.modal-open {
+   overflow-y: hidden !important;
+}
+
+@media (pointer: coarse) {
+   .modal-open {
+      padding-right: 0 !important;
+   }
+}

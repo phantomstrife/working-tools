@@ -1,0 +1,4 @@
+.main_wrapper {
+   width: min(var(--mWidth), 100%);
+}
+

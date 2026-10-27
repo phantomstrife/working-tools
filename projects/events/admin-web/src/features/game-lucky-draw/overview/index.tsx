@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { Gift, RefreshCw, User2Icon } from 'lucide-react';
 
 import { StatusBadge } from '@admin-web/components/status-badge';
@@ -11,7 +12,9 @@ import { useStyle } from './use-style';
 import type * as Types from './type';
 
 export const GameLuckyDrawOverview: AdminWeb.Component<Types.Properties> = (properties) => {
-   const { state, param, func } = useLogic(properties);
+   const datatableRef = useRef<Types.AttendantsDatatableHandle>(null);
+
+   const { state, param, func } = useLogic(properties, datatableRef);
    const { root, statistic } = useStyle;
 
    return (
@@ -53,6 +56,8 @@ export const GameLuckyDrawOverview: AdminWeb.Component<Types.Properties> = (prop
          </div>
 
          <AttendantsDatatable
+            ref={datatableRef}
+            key={param.game.id}
             gameId={param.game.id}
             isLoading={state.loading}
          />

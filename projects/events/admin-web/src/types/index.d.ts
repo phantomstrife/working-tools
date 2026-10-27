@@ -25,6 +25,8 @@ declare global {
       type Instance = Supabase.Database;
 
       type Account_Role = Instance['public']['Enums']['account_role'];
+      type Email_Status = Instance['public']['Enums']['email_status_type'];
+      type Check_In_Method = Instance['public']['Enums']['check_in_method_type'];
 
       type Company = Instance['public']['Tables']['companies']['Row'];
       type Event = Instance['public']['Tables']['events']['Row'];
@@ -32,11 +34,28 @@ declare global {
       type Game = Instance['public']['Tables']['games']['Row'];
       type GameAccount = Instance['public']['Tables']['game_accounts']['Row'];
       type GameLuckyDrawAttendant = Instance['public']['Tables']['lucky_draw_attendants']['Row'];
+      type GameLuckyDrawAttendantInsert = Instance['public']['Tables']['lucky_draw_attendants']['Insert'];
+      type GameLuckyDrawAttendantUpdate = Instance['public']['Tables']['lucky_draw_attendants']['Update'];
       type GameLuckyDrawPrize = Instance['public']['Tables']['lucky_draw_prizes']['Row'];
+      type GameLuckyDrawWinner = Instance['public']['Tables']['lucky_draw_winners']['Row'];
    }
 
    declare namespace AdminWeb.Features.GameLuckyDraw.Attendant {
-      type Filter = '' | 'CHECKED_IN' | 'NOT_CHECKED_IN' | 'WINNER' | 'NOT_WINNER';
+      type Filter =
+         | ''
+         | 'CHECKED_IN'
+         | 'NOT_CHECKED_IN'
+         | 'WINNER'
+         | 'NOT_WINNER'
+         | 'EMAIL_SENT'
+         | 'EMAIL_PENDING';
+   }
+
+   declare namespace AdminWeb.Store.Modal {
+      interface Functions {
+         open: (event?: React.MouseEvent | MouseEvent) => void;
+         close: () => void;
+      }
    }
 
    declare namespace AdminWeb.Utilities.Trycatch {

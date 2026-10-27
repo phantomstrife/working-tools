@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 
 import { PAGE_SIZE_OPTIONS, SKELETONS } from '@admin-web/components/datatable/constants';
 
@@ -19,25 +19,44 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
             <div className={header.title.wrapper}>
                <h3 className={header.title.text}>{param.title}</h3>
                <span className={header.title.badge}>{func.translate('total_count', { count: param.totalCount })}</span>
+               {param.hasBatchSelect && param.selectedCount > 0 && (
+                  <span className={header.title.selected_badge}>
+                     {func.translate('selected_count', { count: param.selectedCount })}
+                     <button
+                        type="button"
+                        aria-label="Clear selection"
+                        className={header.title.clear_button}
+                        onClick={func.handleClearSelection}
+                     >
+                        <X className={header.title.clear_icon} />
+                     </button>
+                  </span>
+               )}
             </div>
             {param.tools.length > 0 && (
                <div className={header.tools.wrapper}>
                   {param.tools.map((action) => {
                      const IconComponent = action.icon;
+                     const isDisabled =
+                        Boolean(action.disabled) || (Boolean(action.batchSelect) && param.selectedCount === 0);
+                     const label =
+                        action.batchSelect && param.selectedCount > 0
+                           ? `${action.label} (${param.selectedCount})`
+                           : action.label;
 
                      return (
                         <button
                            key={action.key}
                            type="button"
-                           disabled={action.disabled}
-                           onClick={action.onClick}
+                           disabled={isDisabled}
+                           onClick={() => func.handleToolClick(action)}
                            className={header.tools.button({
                               variant: action.variant ?? 'secondary',
-                              disabled: action.disabled,
+                              disabled: isDisabled,
                            })}
                         >
                            {IconComponent && <IconComponent className={header.tools.icon} />}
-                           <span className={header.tools.label}>{action.label}</span>
+                           <span className={header.tools.label}>{label}</span>
                         </button>
                      );
                   })}
@@ -89,6 +108,23 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
             <table className={table.wrapper}>
                <thead className={table.head.wrapper}>
                   <tr>
+                     {param.hasBatchSelect && (
+                        <th className={table.head.checkbox_th}>
+                           <input
+                              ref={(element) => {
+                                 if (element) {
+                                    element.indeterminate = param.isSomeCurrentPageSelected;
+                                 }
+                              }}
+                              type="checkbox"
+                              aria-label="Select all rows on current page"
+                              checked={param.isAllCurrentPageSelected}
+                              disabled={param.isSelectAllDisabled}
+                              onChange={func.handleToggleAll}
+                              className={table.checkbox({ disabled: param.isSelectAllDisabled })}
+                           />
+                        </th>
+                     )}
                      {columns.map((column) => (
                         <th
                            key={`datatable-column-${column.key}`}
@@ -101,11 +137,16 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
                </thead>
                <tbody className={table.body.wrapper}>
                   {param.isLoading &&
-                     SKELETONS.map((row, index) => (
+                     SKELETONS.map((_, index) => (
                         <tr
                            key={`datatable-skeleton-${index}`}
-                           className={table.body.tr}
+                           className={table.body.tr()}
                         >
+                           {param.hasBatchSelect && (
+                              <td className={table.body.checkbox_td}>
+                                 <div className={table.checkbox_skeleton} />
+                              </td>
+                           )}
                            {columns.map((column) => (
                               <td
                                  key={`datatable-skeleton-${index}-column-${column.key}`}
@@ -121,7 +162,7 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
                      <tr>
                         <td
                            key="datatable-column-empty-state"
-                           colSpan={columns.length}
+                           colSpan={param.totalColumns}
                            className={table.empty_state}
                         >
                            {func.translate('no_record')}
@@ -131,29 +172,45 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
 
                   {!param.isLoading &&
                      data.length > 0 &&
-                     data.map((row, rowIndex) => (
-                        <tr
-                           key={`datatable-row-${rowIndex}`}
-                           className={table.body.tr}
-                        >
-                           {columns.map((column) => {
-                              const raw = (row as Record<string, unknown>)[column.key];
-                              const value = raw !== null && raw !== undefined && raw !== '' ? String(raw) : '—';
+                     data.map((row, rowIndex) => {
+                        const rowKey = func.resolveRowKey(row, rowIndex);
+                        const isRowSelected = param.hasBatchSelect ? param.selectedSet.has(rowKey) : false;
 
-                              return (
-                                 <td
-                                    key={column.key}
-                                    className={table.body.td({
-                                       align: column.align,
-                                       emphasis: Boolean(column.emphasis),
-                                    })}
-                                 >
-                                    {column.render ? column.render(row, rowIndex) : value}
+                        return (
+                           <tr
+                              key={rowKey}
+                              className={table.body.tr({ selected: isRowSelected })}
+                           >
+                              {param.hasBatchSelect && (
+                                 <td className={table.body.checkbox_td}>
+                                    <input
+                                       type="checkbox"
+                                       aria-label={`Select row ${rowIndex + 1}`}
+                                       checked={isRowSelected}
+                                       onChange={() => func.handleToggleRow(row, rowIndex)}
+                                       className={table.checkbox()}
+                                    />
                                  </td>
-                              );
-                           })}
-                        </tr>
-                     ))}
+                              )}
+                              {columns.map((column) => {
+                                 const raw = (row as Record<string, unknown>)[column.key];
+                                 const value = raw !== null && raw !== undefined && raw !== '' ? String(raw) : '—';
+
+                                 return (
+                                    <td
+                                       key={column.key}
+                                       className={table.body.td({
+                                          align: column.align,
+                                          emphasis: Boolean(column.emphasis),
+                                       })}
+                                    >
+                                       {column.render ? column.render(row, rowIndex) : value}
+                                    </td>
+                                 );
+                              })}
+                           </tr>
+                        );
+                     })}
                </tbody>
             </table>
          </div>

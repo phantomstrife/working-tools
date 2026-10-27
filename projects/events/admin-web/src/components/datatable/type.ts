@@ -3,7 +3,8 @@ import { LucideIcon } from 'lucide-react';
 export interface Properties<T> {
    title: ReactNode;
    totalCount?: number;
-   tools?: Tool[];
+   rowKey?: keyof T | ((row: T) => string);
+   tools?: Tool<T>[];
    searchTool?: SearchTool;
    filterTools?: FilterTool[];
    data: T[];
@@ -12,9 +13,10 @@ export interface Properties<T> {
    isLoading?: boolean;
 }
 
-export interface State {
+export interface State<T> {
    page: number;
    pageSize: number;
+   selectedMap: Record<string, T>;
 }
 
 export type ReactNode = AdminWeb.ReactNode;
@@ -24,14 +26,25 @@ export interface Option {
    options: { label: string; value: string }[];
 }
 
-export interface Tool {
+export interface BaseTool {
    key: string;
    label: string;
    icon?: LucideIcon;
    variant?: 'primary' | 'secondary';
    disabled?: boolean;
+}
+
+export interface StandardTool extends BaseTool {
+   batchSelect?: false;
    onClick: () => void;
 }
+
+export interface BatchSelectTool<T> extends BaseTool {
+   batchSelect: true;
+   onClick: (selectedRows: T[], clearSelection: () => void) => void | Promise<void>;
+}
+
+export type Tool<T = unknown> = StandardTool | BatchSelectTool<T>;
 
 export interface SearchTool {
    placeholder: string;
