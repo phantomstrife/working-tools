@@ -90,7 +90,9 @@ const themes = {
 
 export const useStyle = {
    root: {
-      wrapper: 'flex flex-col bg-neutral-50 border border-utility-300 rounded-secondary shadow-sm overflow-hidden',
+      wrapper: tv({
+         base: 'flex flex-col bg-neutral-50 border border-utility-300 rounded-secondary shadow-sm overflow-hidden',
+      }),
    },
    header: {
       wrapper: `flex flex-wrap items-center justify-between gap-primary px-[calc(var(--spacing-primary)*5/4)] py-primary bg-neutral-100/30 border-b border-utility-300`,
@@ -122,7 +124,18 @@ export const useStyle = {
       },
    },
    table: {
-      scroll_wrapper: 'min-h-135 overflow-x-auto',
+      scroll_wrapper: tv({
+         base: 'overflow-x-auto',
+         variants: {
+            compact: {
+               true: 'min-h-135',
+               false: 'min-h-135',
+            },
+         },
+         defaultVariants: {
+            compact: false,
+         },
+      }),
       wrapper: 'w-full text-left border-collapse whitespace-nowrap',
       head: {
          wrapper: 'sticky top-0 z-10 bg-neutral-100 border-b border-utility-300',
@@ -139,7 +152,18 @@ export const useStyle = {
       checkbox: themes.checkbox,
       checkbox_skeleton: 'size-4 bg-neutral-200 rounded-[4px] animate-pulse',
       skeleton: 'w-3/4 h-4 bg-neutral-200 rounded-primary animate-pulse',
-      empty_state: 'pt-75 text-center align-middle text-18! text-neutral-950 font-semibold',
+      empty_state: tv({
+         base: 'text-center align-middle',
+         variants: {
+            compact: {
+               true: 'py-20 text-14 text-neutral-500 font-medium',
+               false: 'pt-75 text-18! text-neutral-950 font-semibold',
+            },
+         },
+         defaultVariants: {
+            compact: false,
+         },
+      }),
    },
    pagination: {
       wrapper: `flex flex-wrap items-center justify-between px-[calc(var(--spacing-primary)*5/4)] py-[calc(var(--spacing-primary)*3/4)] bg-neutral-100/60 border-t border-utility-300`,

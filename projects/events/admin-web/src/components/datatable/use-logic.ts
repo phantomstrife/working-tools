@@ -56,6 +56,15 @@ export function useLogic<T>(properties: Types.Properties<T>) {
    const totalPages = Math.max(1, Math.ceil(totalCount / currentPageSize));
    const safePage = Math.min(currentPage, totalPages);
 
+   const displayData = useMemo(() => {
+      if (pagination) {
+         return data;
+      }
+
+      const start = (safePage - 1) * currentPageSize;
+      return data.slice(start, start + currentPageSize);
+   }, [data, pagination, safePage, currentPageSize]);
+
    const selectedKeys = useMemo(() => Object.keys(state.selectedMap), [state.selectedMap]);
    const selectedSet = useMemo(() => new Set(selectedKeys), [selectedKeys]);
 
@@ -64,11 +73,11 @@ export function useLogic<T>(properties: Types.Properties<T>) {
          return [];
       }
 
-      return data.map((row, index) => ({
+      return displayData.map((row, index) => ({
          key: resolveRowKey(row, index),
          row,
       }));
-   }, [data, hasBatchSelect, resolveRowKey]);
+   }, [displayData, hasBatchSelect, resolveRowKey]);
 
    const isAllCurrentPageSelected =
       currentPageEntries.length > 0 && currentPageEntries.every((entry) => selectedSet.has(entry.key));
@@ -165,6 +174,7 @@ export function useLogic<T>(properties: Types.Properties<T>) {
       param: {
          title,
          tools,
+         displayData,
          totalCount,
          totalPages,
          totalColumns: columns.length + (hasBatchSelect ? 1 : 0),

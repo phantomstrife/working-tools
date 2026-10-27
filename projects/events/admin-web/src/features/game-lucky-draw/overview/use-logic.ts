@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from 'react';
-import type { RefObject } from 'react';
 
 import { useDeepState } from '@admin-web/hooks/deep-state';
 import { useTranslate } from '@admin-web/locale';
@@ -9,10 +8,7 @@ import { useServicesGameGetStaff } from '@admin-web/services/game/get-staff';
 
 import type * as Types from './type';
 
-export function useLogic(
-   properties: Types.Properties,
-   datatableRef: RefObject<Types.AttendantsDatatableHandle | null>,
-) {
+export function useLogic(properties: Types.Properties, refs: Types.PanelRefs) {
    const { game } = properties;
 
    const { translate } = useTranslate({
@@ -74,13 +70,15 @@ export function useLogic(
       await Promise.all([
          fetchPrizes(),
          fetchStaffs(),
-         datatableRef.current?.manualRefresh(),
+         refs.attendants.current?.manualRefresh(),
+         refs.prizes.current?.manualRefresh(),
+         refs.staff.current?.manualRefresh(),
       ]);
 
       setState({
          loading: false,
       });
-   }, [setState, fetchPrizes, fetchStaffs, datatableRef]);
+   }, [setState, fetchPrizes, fetchStaffs, refs]);
 
    useEffect(() => void synchronizeStats(), [synchronizeStats]);
 
@@ -91,6 +89,8 @@ export function useLogic(
       },
       func: {
          translate,
+         fetchPrizes: () => void fetchPrizes(),
+         fetchStaffs: () => void fetchStaffs(),
          synchronizeData,
       },
    };

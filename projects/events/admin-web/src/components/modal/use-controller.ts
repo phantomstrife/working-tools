@@ -17,6 +17,7 @@ export function useController(properties: Types.Properties, contentRef: RefObjec
    });
 
    const actions = useStoreModal((store) => store.actions);
+
    const logic = useLogic({
       state,
       properties,

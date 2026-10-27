@@ -29,6 +29,7 @@ declare global {
       type Check_In_Method = Instance['public']['Enums']['check_in_method_type'];
 
       type Company = Instance['public']['Tables']['companies']['Row'];
+      type Account = Instance['public']['Tables']['accounts']['Row'];
       type Event = Instance['public']['Tables']['events']['Row'];
       type EventWithGames = Event & { games: Game[] };
       type Game = Instance['public']['Tables']['games']['Row'];
@@ -37,6 +38,8 @@ declare global {
       type GameLuckyDrawAttendantInsert = Instance['public']['Tables']['lucky_draw_attendants']['Insert'];
       type GameLuckyDrawAttendantUpdate = Instance['public']['Tables']['lucky_draw_attendants']['Update'];
       type GameLuckyDrawPrize = Instance['public']['Tables']['lucky_draw_prizes']['Row'];
+      type GameLuckyDrawPrizeInsert = Instance['public']['Tables']['lucky_draw_prizes']['Insert'];
+      type GameLuckyDrawPrizeUpdate = Instance['public']['Tables']['lucky_draw_prizes']['Update'];
       type GameLuckyDrawWinner = Instance['public']['Tables']['lucky_draw_winners']['Row'];
    }
 
@@ -49,6 +52,15 @@ declare global {
          | 'NOT_WINNER'
          | 'EMAIL_SENT'
          | 'EMAIL_PENDING';
+   }
+
+   declare namespace AdminWeb.Features.GameLuckyDraw.Prize {
+      type Filter = '' | 'IN_STOCK' | 'DEPLETED';
+      type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'DEPLETED';
+   }
+
+   declare namespace AdminWeb.Features.GameLuckyDraw.Staff {
+      type Filter = '' | 'FIELD_STAFF' | 'GUARD';
    }
 
    declare namespace AdminWeb.Store.Modal {

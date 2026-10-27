@@ -25,6 +25,9 @@ const themes = {
 export const useStyle = {
    root: {
       wrapper: 'flex flex-col gap-y-primary',
+      panels_grid: 'grid grid-cols-1 xl:grid-cols-12 gap-primary items-start',
+      prize_col: 'xl:col-span-7',
+      staff_col: 'xl:col-span-5',
    },
    statistic: {
       wrapper: cx(

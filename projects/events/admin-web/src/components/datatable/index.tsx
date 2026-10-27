@@ -9,12 +9,13 @@ import { useStyle } from './use-style';
 import type * as Types from './type';
 
 export const DataTable = <T,>(properties: Types.Properties<T>) => {
-   const { searchTool, filterTools = [], data = [], columns = [] } = properties;
+   const { className, compact = false, searchTool, filterTools = [], columns = [] } = properties;
+
    const { param, func } = useLogic(properties);
    const { root, header, toolbar, table, pagination } = useStyle;
 
    return (
-      <div className={root.wrapper}>
+      <div className={root.wrapper({ className })}>
          <div className={header.wrapper}>
             <div className={header.title.wrapper}>
                <h3 className={header.title.text}>{param.title}</h3>
@@ -104,7 +105,7 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
             </div>
          </div>
 
-         <div className={table.scroll_wrapper}>
+         <div className={table.scroll_wrapper({ compact })}>
             <table className={table.wrapper}>
                <thead className={table.head.wrapper}>
                   <tr>
@@ -158,12 +159,12 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
                         </tr>
                      ))}
 
-                  {!param.isLoading && data.length === 0 && (
+                  {!param.isLoading && param.displayData.length === 0 && (
                      <tr>
                         <td
                            key="datatable-column-empty-state"
                            colSpan={param.totalColumns}
-                           className={table.empty_state}
+                           className={table.empty_state({ compact })}
                         >
                            {func.translate('no_record')}
                         </td>
@@ -171,8 +172,8 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
                   )}
 
                   {!param.isLoading &&
-                     data.length > 0 &&
-                     data.map((row, rowIndex) => {
+                     param.displayData.length > 0 &&
+                     param.displayData.map((row, rowIndex) => {
                         const rowKey = func.resolveRowKey(row, rowIndex);
                         const isRowSelected = param.hasBatchSelect ? param.selectedSet.has(rowKey) : false;
 

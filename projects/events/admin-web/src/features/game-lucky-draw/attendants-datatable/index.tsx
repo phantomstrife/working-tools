@@ -1,9 +1,11 @@
 'use client';
 
-import { Download, Mail, Pencil, Plus, Trash2, Upload } from 'lucide-react';
+import { Download, Mail, Plus, Upload } from 'lucide-react';
 
+import { ConfirmModal } from '@admin-web/components/confirm-modal';
 import { DataTable } from '@admin-web/components/datatable';
 import { Modal } from '@admin-web/components/modal';
+import { RowActions } from '@admin-web/components/row-actions';
 import { AttendantForm } from '@admin-web/features/game-lucky-draw/attendant-form';
 import { AttendantImport } from '@admin-web/features/game-lucky-draw/attendant-import';
 
@@ -15,7 +17,7 @@ import type * as Types from './type';
 
 export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (properties) => {
    const { param, func } = useLogic(properties);
-   const { cell, action, delete_modal } = useStyle;
+   const { cell } = useStyle;
 
    return (
       <>
@@ -179,22 +181,10 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                   header: func.translate('table.headers.actions'),
                   align: 'right',
                   render: (row) => (
-                     <div className={action.wrapper}>
-                        <button
-                           type="button"
-                           className={action.button({ danger: false })}
-                           onClick={() => func.handleEdit(row)}
-                        >
-                           <Pencil className={action.icon} />
-                        </button>
-                        <button
-                           type="button"
-                           className={action.button({ danger: true })}
-                           onClick={() => func.handleDelete(row)}
-                        >
-                           <Trash2 className={action.icon} />
-                        </button>
-                     </div>
+                     <RowActions
+                        onEdit={() => func.handleEdit(row)}
+                        onDelete={() => func.handleDelete(row)}
+                     />
                   ),
                },
             ]}
@@ -208,7 +198,9 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
 
          <Modal
             id={MODAL_ID.ATTENDANT_FORM}
-            title={param.targetAttendant ? func.translate('modals.edit_title') : func.translate('modals.create_title')}
+            title={
+               param.targetAttendant ? func.translate('modals.edit_title') : func.translate('modals.create_title')
+            }
             description={
                param.targetAttendant
                   ? func.translate('modals.edit_description')
@@ -244,40 +236,20 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
             )}
          </Modal>
 
-         <Modal
+         <ConfirmModal
             id={MODAL_ID.DELETE_ATTENDANT}
-            disabled={param.isDeleting}
+            isLoading={param.isDeleting}
             title={func.translate('modals.delete_title')}
             description={func.translate('modals.delete_description')}
-            style={{ width: '28rem' }}
-            footer={(close) => (
-               <>
-                  <button
-                     type="button"
-                     disabled={param.isDeleting}
-                     className={delete_modal.cancel_button}
-                     onClick={close}
-                  >
-                     {func.translate('actions.cancel')}
-                  </button>
-                  <button
-                     type="button"
-                     disabled={param.isDeleting}
-                     className={delete_modal.confirm_button({ disabled: param.isDeleting })}
-                     onClick={func.handleConfirmDelete}
-                  >
-                     {param.isDeleting ? func.translate('actions.deleting') : func.translate('actions.delete_confirm')}
-                  </button>
-               </>
-            )}
-         >
-            <p className={delete_modal.message}>
-               {func.translate('modals.delete_message', {
-                  name: param.targetAttendant?.full_name ?? '',
-                  ticket: param.targetAttendant?.ticket_code ?? '',
-               })}
-            </p>
-         </Modal>
+            message={func.translate('modals.delete_message', {
+               name: param.targetAttendant?.full_name ?? '',
+               ticket: param.targetAttendant?.ticket_code ?? '',
+            })}
+            cancelLabel={func.translate('actions.cancel')}
+            confirmLabel={func.translate('actions.delete_confirm')}
+            loadingLabel={func.translate('actions.deleting')}
+            onConfirm={func.handleConfirmDelete}
+         />
       </>
    );
 };

@@ -28,4 +28,3 @@ export const useStoreModal = create<Types.Store>()((set, get) => ({
       },
    },
 }));
-

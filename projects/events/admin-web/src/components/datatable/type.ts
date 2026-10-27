@@ -1,6 +1,8 @@
 import { LucideIcon } from 'lucide-react';
 
 export interface Properties<T> {
+   className?: string;
+   compact?: boolean;
    title: ReactNode;
    totalCount?: number;
    rowKey?: keyof T | ((row: T) => string);

@@ -258,6 +258,182 @@ export const vi = {
                import_success: 'Nhập CSV hoàn tất: {{inserted}} thêm mới, {{updated}} cập nhật.',
             },
          },
+         prize_panel: {
+            title: 'Cấu hình giải thưởng',
+            actions: {
+               create: 'Tạo giải thưởng',
+               cancel: 'Hủy',
+               delete_confirm: 'Xóa giải thưởng',
+               deleting: 'Đang xóa...',
+            },
+            toolbar: {
+               search_placeholder: 'Tìm kiếm giải thưởng...',
+               filters: {
+                  stock_group: 'Tình trạng số lượng',
+                  in_stock: 'Còn giải',
+                  depleted: 'Đã hết',
+               },
+            },
+            table: {
+               tier_label: 'Hạng #{{tier}}',
+               headers: {
+                  tier: 'Hạng giải',
+                  prize: 'Giải thưởng',
+                  stock: 'Số lượng',
+                  status: 'Trạng thái',
+                  actions: 'Thao tác',
+               },
+               badges: {
+                  IN_STOCK: 'Còn giải',
+                  LOW_STOCK: 'Sắp hết',
+                  DEPLETED: 'Đã hết',
+               },
+            },
+            modals: {
+               create_title: 'Tạo giải thưởng mới',
+               create_description: 'Thiết lập hạng giải và số lượng phần thưởng cho chương trình.',
+               edit_title: 'Cập nhật giải thưởng',
+               edit_description: 'Chỉnh sửa thông tin và số lượng giải thưởng.',
+               delete_title: 'Xác nhận xóa giải thưởng',
+               delete_description: 'Hành động này không thể hoàn tác.',
+               delete_message: 'Bạn có chắc chắn muốn xóa giải thưởng "{{name}}" khỏi trò chơi này không?',
+            },
+            toast: {
+               delete_success: 'Đã xóa giải thưởng thành công.',
+            },
+         },
+         prize_form: {
+            fields: {
+               name: {
+                  label: 'Tên giải thưởng',
+                  placeholder: 'Ví dụ: Giải Nhất - iPhone 16 Pro',
+               },
+               tier_order: {
+                  label: 'Thứ tự hạng giải',
+                  placeholder: '1',
+               },
+               total_quantity: {
+                  label: 'Tổng số lượng',
+                  placeholder: '1',
+               },
+               remaining_quantity: {
+                  label: 'Số lượng còn lại',
+                  placeholder: '1',
+               },
+               image_url: {
+                  label: 'Đường dẫn hình ảnh',
+                  placeholder: 'https://example.com/prize.webp',
+               },
+               description: {
+                  label: 'Mô tả giải thưởng',
+                  placeholder: 'Thông tin chi tiết về phần thưởng...',
+               },
+            },
+            actions: {
+               cancel: 'Hủy',
+               create_saving_false: 'Tạo giải thưởng',
+               create_saving_true: 'Đang tạo...',
+               edit_saving_false: 'Lưu thay đổi',
+               edit_saving_true: 'Đang lưu...',
+            },
+            toast: {
+               create_success: 'Tạo giải thưởng mới thành công.',
+               edit_success: 'Cập nhật giải thưởng thành công.',
+            },
+         },
+         staff_panel: {
+            title: 'Nhân sự phụ trách',
+            actions: {
+               assign: 'Phân công',
+               cancel: 'Hủy',
+               unassign_confirm: 'Gỡ phân công',
+               unassigning: 'Đang gỡ...',
+            },
+            toolbar: {
+               search_placeholder: 'Tìm theo tên, email hoặc số điện thoại...',
+               filters: {
+                  role_group: 'Vai trò nhân sự',
+                  field_staff: 'Nhân viên hiện trường',
+                  guard: 'Bảo vệ / Kiểm soát',
+               },
+            },
+            table: {
+               inactive: 'Ngưng hoạt động',
+               headers: {
+                  staff_member: 'Nhân viên',
+                  role: 'Vai trò',
+                  actions: 'Thao tác',
+               },
+               roles: {
+                  FIELD_STAFF: 'FIELD STAFF',
+                  GUARD: 'GUARD',
+                  ADMIN: 'ADMIN',
+                  SUPER_ADMIN: 'SUPER ADMIN',
+               },
+            },
+            modals: {
+               assign_title: 'Phân công nhân sự vào trò chơi',
+               assign_description: 'Chọn nhân viên thuộc công ty để cấp quyền vận hành trò chơi này.',
+               edit_title: 'Cập nhật thông tin nhân sự',
+               edit_description: 'Chỉnh sửa thông tin, vai trò hoặc trạng thái hoạt động của nhân viên.',
+               unassign_title: 'Xác nhận gỡ phân công',
+               unassign_description: 'Nhân viên sẽ không còn quyền thao tác trên trò chơi này.',
+               unassign_message:
+                  'Bạn có chắc chắn muốn gỡ phân công nhân viên "{{name}}" ({{email}}) khỏi trò chơi này không?',
+            },
+            toast: {
+               unassign_success: 'Đã gỡ phân công nhân sự thành công.',
+            },
+         },
+         staff_form: {
+            empty_candidates:
+               'Hiện không còn nhân sự nào khả dụng để phân công (tất cả nhân viên hiện trường/bảo vệ của công ty đã được gán hoặc chưa được tạo).',
+            fields: {
+               account: {
+                  label: 'Chọn nhân viên',
+                  placeholder: 'Chọn một nhân viên trong công ty...',
+                  loading: 'Đang tải danh sách nhân viên...',
+               },
+               full_name: {
+                  label: 'Họ và tên',
+                  placeholder: 'Nguyễn Văn B',
+               },
+               email: {
+                  label: 'Email tài khoản',
+               },
+               phone: {
+                  label: 'Số điện thoại',
+                  placeholder: '0901234567',
+               },
+               role: {
+                  label: 'Vai trò',
+               },
+               status: {
+                  label: 'Trạng thái hoạt động',
+               },
+            },
+            roles: {
+               FIELD_STAFF: 'Nhân viên hiện trường (FIELD STAFF)',
+               GUARD: 'Bảo vệ / Kiểm soát (GUARD)',
+               ADMIN: 'Quản trị viên (ADMIN)',
+               SUPER_ADMIN: 'Quản trị hệ thống (SUPER ADMIN)',
+            },
+            statuses: {
+               ACTIVE: 'Đang hoạt động',
+               INACTIVE: 'Ngưng hoạt động',
+            },
+            actions: {
+               cancel: 'Hủy',
+               assign_saving_false: 'Phân công',
+               assign_saving_true: 'Đang phân công...',
+               edit_saving_false: 'Lưu thay đổi',
+               edit_saving_true: 'Đang lưu...',
+            },
+            toast: {
+               assign_success: 'Phân công nhân sự vào trò chơi thành công.',
+               edit_success: 'Cập nhật thông tin nhân sự thành công.',
+            },
+         },
       },
    },
    layouts: {
@@ -289,11 +465,18 @@ export const vi = {
       },
       game: {
          get_staff_not_found: 'Không tìm thấy nhân viên cho trò chơi này.',
+         staff_already_assigned: 'Nhân viên này đã được phân công vào trò chơi.',
+         staff_assign_failed: 'Không thể phân công nhân viên vào trò chơi.',
+         staff_missing_name: 'Vui lòng nhập họ và tên nhân viên.',
+         staff_update_failed: 'Không thể cập nhật thông tin nhân viên.',
       },
       game_lucky_draw: {
          game_not_found: 'Không tìm thấy trò chơi hoặc sự kiện tương ứng.',
          prize: {
             not_found: 'Không tìm thấy giải thưởng cho trò chơi này.',
+            missing_name: 'Vui lòng nhập tên giải thưởng.',
+            invalid_quantity: 'Số lượng giải thưởng không hợp lệ.',
+            save_failed: 'Không thể lưu thông tin giải thưởng.',
          },
          attendant: {
             not_found: 'Không tìm thấy người tham dự.',
