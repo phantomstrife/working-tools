@@ -50,15 +50,19 @@ export function useLogic(properties: Types.Properties) {
       setState(staffCount, 'staffCount');
    }, [game.id, setState]);
 
-   const syncData = useCallback(async () => {
-      setState(true, 'loading');
+   const synchronizeData = useCallback(async () => {
+      setState({
+         loading: true,
+      });
+
       await Promise.all([fetchPrizes(), fetchStaffs()]);
-      setState(false, 'loading');
+
+      setState({
+         loading: false,
+      });
    }, [setState, fetchPrizes, fetchStaffs]);
 
-   useEffect(() => {
-      syncData();
-   }, [syncData]);
+   useEffect(() => void synchronizeData(), [synchronizeData]);
 
    return {
       state,
@@ -67,7 +71,7 @@ export function useLogic(properties: Types.Properties) {
       },
       func: {
          translate,
-         syncData,
+         synchronizeData,
       },
    };
 }

@@ -3,6 +3,7 @@
 import { Gift, RefreshCw, User2Icon } from 'lucide-react';
 
 import { StatusBadge } from '@admin-web/components/status-badge';
+import { AttendantsDatatable } from '@admin-web/features/game-lucky-draw/attendants-datatable';
 
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
@@ -42,7 +43,7 @@ export const GameLuckyDrawOverview: AdminWeb.Component<Types.Properties> = (prop
             <button
                type="button"
                className={statistic.tool}
-               onClick={func.syncData}
+               onClick={func.synchronizeData}
             >
                <RefreshCw
                   className={statistic.icon({ loading: state.loading })}
@@ -50,6 +51,11 @@ export const GameLuckyDrawOverview: AdminWeb.Component<Types.Properties> = (prop
                />
             </button>
          </div>
+
+         <AttendantsDatatable
+            gameId={param.game.id}
+            isLoading={state.loading}
+         />
       </div>
    );
 };

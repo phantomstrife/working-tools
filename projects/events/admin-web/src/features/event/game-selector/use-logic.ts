@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import { useTranslate } from '@admin-web/locale';
 import { useDeepState } from '@admin-web/hooks/deep-state';
 
@@ -13,8 +11,8 @@ export function useLogic(properties: Types.Properties) {
    });
 
    const [state, setState] = useDeepState<Types.State>({
-      eventId: '9f269717-5027-4725-bd1c-8ef827c82ec1',
-      gameId: '1c76f99b-ab93-41ac-acbd-826881c1d90c',
+      eventId: '',
+      gameId: '',
    });
 
    const games = events.find((event) => event.id === state.eventId)?.games || [];
@@ -34,19 +32,6 @@ export function useLogic(properties: Types.Properties) {
       setState(gameId, 'gameId');
       onChooseGame?.(game);
    };
-
-   // Todo: remove
-   useEffect(() => {
-      const gameId = '1c76f99b-ab93-41ac-acbd-826881c1d90c';
-      const game = games.find((game) => game.id === gameId);
-
-      if (!game) {
-         return;
-      }
-
-      setState(gameId, 'gameId');
-      onChooseGame?.(game);
-   }, []);
 
    return {
       state,

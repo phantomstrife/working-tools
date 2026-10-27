@@ -26,20 +26,20 @@ export const useStyle = {
          base: ['grid gap-y-1', css.root_wrapper],
       }),
    },
-   left_block: {
-      wrapper: cx('flex items-center gap-x-1', css.left_block_wrapper),
+   left: {
+      wrapper: cx('flex items-center gap-x-1', css.left_wrapper),
       icon: 'mr-1 text-neutral-500',
       label: 'font-medium',
       required: 'text-error-600 ml-0.5',
    },
-   right_block: {
-      error: cx('text-12 font-medium text-error-600', css.right_block_error),
+   right: {
+      error: cx('text-12 font-medium text-error-600', css.right_error),
    },
    control: tv({
       base: [themes.control.base, css.control_wrapper],
       variants: themes.control.variants,
    }),
-   bottom_block: {
-      hint: cx('mt-1 text-12 text-neutral-500', css.bottom_block_hint),
+   bottom: {
+      hint: cx('mt-1 text-12 text-neutral-500', css.bottom_hint),
    },
 };

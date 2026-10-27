@@ -5,11 +5,11 @@
    grid-template-columns: 1fr auto;
 }
 
-.left_block_wrapper {
+.left_wrapper {
    grid-area: left;
 }
 
-.right_block_error {
+.right_error {
    grid-area: error;
 }
 
@@ -17,6 +17,6 @@
    grid-area: control;
 }
 
-.bottom_block_hint {
+.bottom_hint {
    grid-area: hint;
 }

@@ -1,5 +1,14 @@
 export const vi = {
    components: {
+      datatable: {
+         total_count: '{{count}} bản ghi',
+         search_placeholder: 'Tìm kiếm...',
+         all_records: 'Tất cả bản ghi',
+         no_record: 'Không có bản ghi nào',
+         sumary: 'Hiển thị {{start}} đến {{end}} trong tổng số {{total}} bản ghi',
+         per_page: 'Bản ghi trên mỗi trang',
+         page: 'Trang {{current}} / {{total}}',
+      },
       not_found: {
          description: `Không có dữ liệu nào phù hợp với tiêu chí tìm kiếm của bạn. Vui lòng thử lại với các tiêu chí khác.`,
          retry: 'Thử lại',
@@ -96,6 +105,46 @@ export const vi = {
          overview: {
             prize: 'Giải thưởng',
             staff: 'Nhân viên',
+         },
+      },
+      lucky_draw: {
+         attendants_panel: {
+            title: 'Quản lý người tham dự',
+            actions: {
+               import_csv: 'Nhập CSV',
+               send_emails: 'Gửi Email',
+               export_winners: 'Xuất DS trúng thưởng',
+               create: 'Tạo mới',
+            },
+            toolbar: {
+               search_placeholder: 'Tìm theo tên, số điện thoại, email hoặc mã vé...',
+               filters: {
+                  all: 'Tất cả người tham dự',
+                  checkin_group: 'Trạng thái Check-In',
+                  checked_in: 'Đã Check-In',
+                  not_checked_in: 'Chưa Check-In',
+                  winner_group: 'Trạng thái trúng thưởng',
+                  winner: 'Đã trúng thưởng',
+                  not_winner: 'Chưa trúng thưởng',
+               },
+            },
+            table: {
+               headers: {
+                  full_name: 'Họ và tên',
+                  phone: 'Số điện thoại',
+                  email: 'Email',
+                  ticket_code: 'Mã vé',
+                  checked_in: 'Check-In',
+                  has_won: 'Trúng thưởng',
+                  actions: 'Thao tác',
+               },
+               badges: {
+                  checked_in: 'Đã Check-In',
+                  pending: 'Chờ',
+                  winner: 'Trúng thưởng',
+                  no: 'Chưa',
+               },
+            },
          },
       },
    },

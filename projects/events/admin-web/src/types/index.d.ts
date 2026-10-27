@@ -30,6 +30,7 @@ declare global {
       type EventWithGames = Event & { games: Game[] };
       type Game = Instance['public']['Tables']['games']['Row'];
       type GameAccount = Instance['public']['Tables']['game_accounts']['Row'];
+      type GameLuckyDrawAttendant = Instance['public']['Tables']['lucky_draw_attendants']['Row'];
       type GameLuckyDrawPrize = Instance['public']['Tables']['lucky_draw_prizes']['Row'];
    }
 
