@@ -41,8 +41,27 @@ export async function proxy(request: AdminWeb.Router.Proxy_Request) {
          }
 
          case 'ADMIN': {
-            if (!IS_ROUTE.ADMIN(currentPath)) {
-               redirectUrl = ROUTE.ADMIN.HOME(serviceUserRead.data.companyId);
+            const adminCompanyPath = ROUTE.ADMIN.HOME(serviceUserRead.data.companyId);
+            const isOwnCompanyAdminRoute =
+               Boolean(serviceUserRead.data.companyId) &&
+               (currentPath === adminCompanyPath || currentPath.startsWith(`${adminCompanyPath}/`));
+
+            if (!isOwnCompanyAdminRoute && !IS_ROUTE.GUARD(currentPath) && !IS_ROUTE.OPERATOR(currentPath)) {
+               redirectUrl = adminCompanyPath;
+            }
+            break;
+         }
+
+         case 'FIELD_STAFF': {
+            if (!IS_ROUTE.OPERATOR(currentPath)) {
+               redirectUrl = ROUTE.OPERATOR.HOME;
+            }
+            break;
+         }
+
+         case 'GUARD': {
+            if (!IS_ROUTE.GUARD(currentPath)) {
+               redirectUrl = ROUTE.GUARD.HOME;
             }
             break;
          }

@@ -7,6 +7,7 @@ export const GAME_COLUMNS = `
    is_dev_only,
    event:events!games_event_id_fkey (
       id,
+      company_id,
       name,
       location_name,
       start_time

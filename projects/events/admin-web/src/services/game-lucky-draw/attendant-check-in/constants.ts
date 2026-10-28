@@ -1,4 +1,8 @@
-export const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = ['GUARD', 'SUPER_ADMIN'];
+export const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = [
+   'GUARD',
+   'ADMIN',
+   'SUPER_ADMIN',
+];
 
 export const ATTENDANT_COLUMNS = [
    'id',
@@ -18,4 +22,3 @@ export const LOG_ACTION = {
    QR_SCAN: 'CHECKIN_QR_SCAN',
    MANUAL_SEARCH: 'CHECKIN_MANUAL_SEARCH',
 } as const;
-

@@ -15,7 +15,13 @@ const groupByEvent = (rows: Types.Game_Row[], includeDevOnly: boolean): Types.Re
          return;
       }
 
-      const current = events.get(event.id) ?? { ...event, games: [] };
+      const current = events.get(event.id) ?? {
+         id: event.id,
+         name: event.name,
+         location_name: event.location_name,
+         start_time: event.start_time,
+         games: [],
+      };
 
       if (!current.games.some((game) => game.id === row.id)) {
          current.games.push({
@@ -35,9 +41,9 @@ const groupByEvent = (rows: Types.Game_Row[], includeDevOnly: boolean): Types.Re
       .sort((a, b) => b.start_time.localeCompare(a.start_time));
 };
 
-// Lists the events/games the caller may operate. Staff are scoped by `game_accounts`; SUPER_ADMIN sees every game.
+// Lists the events/games the caller may operate. Staff are scoped by `game_accounts` + `company_id`; SUPER_ADMIN sees every game.
 export const useServicesGameAssignmentSearch: Types.Service = async (request) => {
-   const { accountId, role, gameType } = request;
+   const { accountId, role, companyId, gameType } = request;
 
    const result = await trycatchAsync(async () => {
       const isSuperAdmin = role === 'SUPER_ADMIN';
@@ -60,16 +66,30 @@ export const useServicesGameAssignmentSearch: Types.Service = async (request) =>
 
       const assignments = await supabase
          .from('game_accounts')
-         .select(`game:games!game_accounts_game_id_fkey (${GAME_COLUMNS})`)
+         .select(`event_id, game:games!game_accounts_game_id_fkey (${GAME_COLUMNS})`)
          .eq('account_id', accountId);
 
       if (assignments.error) {
          throw new Error(assignments.error.message);
       }
 
-      const rows = (assignments.data as unknown as { game: Types.Game_Row | Types.Game_Row[] | null }[])
-         .flatMap((assignment) => (Array.isArray(assignment.game) ? assignment.game : [assignment.game]))
-         .filter((game): game is Types.Game_Row => !!game && (!gameType || game.game_type === gameType));
+      const rows = (assignments.data as unknown as Types.Assignment_Row[]).flatMap((assignment) => {
+         const games = Array.isArray(assignment.game) ? assignment.game : [assignment.game];
+
+         return games.filter((game): game is Types.Game_Row => {
+            if (!game || (gameType && game.game_type !== gameType)) {
+               return false;
+            }
+
+            const event = Array.isArray(game.event) ? game.event[0] : game.event;
+
+            if (!event || event.id !== assignment.event_id) {
+               return false;
+            }
+
+            return !companyId || event.company_id === companyId;
+         });
+      });
 
       return groupByEvent(rows, false);
    });

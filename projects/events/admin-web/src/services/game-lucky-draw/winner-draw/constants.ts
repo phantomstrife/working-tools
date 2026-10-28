@@ -1,4 +1,8 @@
-export const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = ['FIELD_STAFF', 'SUPER_ADMIN'];
+export const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = [
+   'FIELD_STAFF',
+   'ADMIN',
+   'SUPER_ADMIN',
+];
 
 export const PRIZE_COLUMNS = [
    'id',
@@ -24,4 +28,3 @@ export const ATTENDANT_COLUMNS = [
    'custom_metadata',
    //
 ].join(', ');
-

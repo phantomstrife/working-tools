@@ -38,6 +38,7 @@ export function useLogic() {
       const serviceAssignmentSearch = await useServicesGameAssignmentSearch({
          accountId: account.id,
          role: account.role,
+         companyId: account.company_id,
          gameType: 'LUCKY_DRAW',
       });
 

@@ -5,6 +5,13 @@ import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
 import type * as Types from './type';
 
+const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = [
+   'SUPER_ADMIN',
+   'ADMIN',
+   'FIELD_STAFF',
+   'GUARD',
+];
+
 export const useServiceAccountLogin: Types.Login = async (request) => {
    const result = await trycatchAsync(async () => {
       const auth = await supabase.auth.signInWithPassword({
@@ -30,7 +37,7 @@ export const useServiceAccountLogin: Types.Login = async (request) => {
          throw new Error('services.account.deactivated');
       }
 
-      if (account.data.role !== 'SUPER_ADMIN' && account.data.role !== 'ADMIN') {
+      if (!ALLOWED_ROLES.includes(account.data.role)) {
          throw new Error('services.account.access_denied');
       }
 

@@ -25,7 +25,11 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
          throw new Error('services.user.unauthenticated');
       }
 
-      const account = await supabase.from('accounts').select('id, role, is_active').eq('id', user.id).single();
+      const account = await supabase
+         .from('accounts')
+         .select('id, role, company_id, is_active')
+         .eq('id', user.id)
+         .single();
 
       if (account.error || !account.data) {
          throw new Error('services.account.not_found');
@@ -52,15 +56,36 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
             throw new Error('services.game_lucky_draw.game_not_found');
          }
 
-         const assignment = await supabase
-            .from('game_accounts')
-            .select('id')
-            .eq('game_id', gameId)
-            .eq('account_id', user.id)
+         const event = await supabase
+            .from('events')
+            .select('id, company_id')
+            .eq('id', game.data.event_id)
             .maybeSingle();
 
-         if (assignment.error || !assignment.data) {
+         if (event.error || !event.data) {
             throw new Error('services.game_lucky_draw.check_in.game_not_assigned');
+         }
+
+         if (role === 'ADMIN') {
+            if (!account.data.company_id || event.data.company_id !== account.data.company_id) {
+               throw new Error('services.game_lucky_draw.check_in.game_not_assigned');
+            }
+         } else {
+            if (account.data.company_id && event.data.company_id !== account.data.company_id) {
+               throw new Error('services.game_lucky_draw.check_in.game_not_assigned');
+            }
+
+            const assignment = await supabase
+               .from('game_accounts')
+               .select('id')
+               .eq('game_id', gameId)
+               .eq('event_id', game.data.event_id)
+               .eq('account_id', user.id)
+               .maybeSingle();
+
+            if (assignment.error || !assignment.data) {
+               throw new Error('services.game_lucky_draw.check_in.game_not_assigned');
+            }
          }
       }
 

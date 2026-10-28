@@ -12,12 +12,19 @@ export const useServicesUserRead: Types.Service = async () => {
          throw new Error('services.user.unauthenticated');
       }
 
-      const role = user.app_metadata.role as Types.Account_Role;
-      const companyId = user.app_metadata.company_id as string;
+      const account = await supabase
+         .from('accounts')
+         .select('role, company_id, is_active')
+         .eq('id', user.id)
+         .single();
+
+      if (account.error || !account.data || !account.data.is_active) {
+         throw new Error('services.user.unauthenticated');
+      }
 
       return {
-         role,
-         companyId,
+         role: account.data.role,
+         companyId: account.data.company_id || '',
       };
    });
 

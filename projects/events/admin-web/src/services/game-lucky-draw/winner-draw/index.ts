@@ -16,7 +16,6 @@ const isAbsentForfeited = (metadata: unknown): boolean => {
    return Boolean((metadata as Record<string, unknown>).is_absent_forfeited);
 };
 
-// Server-side atomic-style draw & absent-redraw for [CLIENT_APP] (FIELD_STAFF / SUPER_ADMIN).
 export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request) => {
    const { accessToken, gameId, prizeId, revokeWinnerRecordId, excludeAttendantIds = [] } = request;
 
@@ -38,7 +37,11 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
       }
 
       const admin = getAdminClient();
-      const account = await admin.from('accounts').select('id, role, is_active').eq('id', user.id).single();
+      const account = await admin
+         .from('accounts')
+         .select('id, role, company_id, is_active')
+         .eq('id', user.id)
+         .single();
 
       if (account.error || !account.data) {
          throw new Error('services.account.not_found');
@@ -65,15 +68,36 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
             throw new Error('services.game_lucky_draw.game_not_found');
          }
 
-         const assignment = await admin
-            .from('game_accounts')
-            .select('id')
-            .eq('game_id', gameId)
-            .eq('account_id', user.id)
+         const event = await admin
+            .from('events')
+            .select('id, company_id')
+            .eq('id', game.data.event_id)
             .maybeSingle();
 
-         if (assignment.error || !assignment.data) {
+         if (event.error || !event.data) {
             throw new Error('services.game_lucky_draw.draw.game_not_assigned');
+         }
+
+         if (role === 'ADMIN') {
+            if (!account.data.company_id || event.data.company_id !== account.data.company_id) {
+               throw new Error('services.game_lucky_draw.draw.game_not_assigned');
+            }
+         } else {
+            if (account.data.company_id && event.data.company_id !== account.data.company_id) {
+               throw new Error('services.game_lucky_draw.draw.game_not_assigned');
+            }
+
+            const assignment = await admin
+               .from('game_accounts')
+               .select('id')
+               .eq('game_id', gameId)
+               .eq('event_id', game.data.event_id)
+               .eq('account_id', user.id)
+               .maybeSingle();
+
+            if (assignment.error || !assignment.data) {
+               throw new Error('services.game_lucky_draw.draw.game_not_assigned');
+            }
          }
       }
 
@@ -278,4 +302,3 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
 
    return result;
 };
-

@@ -50,6 +50,87 @@ declare global {
       type GameLuckyDrawWinner = Instance['public']['Tables']['lucky_draw_winners']['Row'];
    }
 
+   declare namespace AdminWeb.Features.Game {
+      interface AssignedGame {
+         id: string;
+         name: string;
+         status: Database.Game_Status;
+         game_type: Database.Game_Type;
+         config: Database.Game['config'];
+      }
+
+      interface AssignedEvent {
+         id: string;
+         name: string;
+         location_name: string | null;
+         start_time: string;
+         games: AssignedGame[];
+      }
+   }
+
+   declare namespace AdminWeb.Features.GameLuckyDraw {
+      type DrawMode = 'auto' | 'manual' | 'instant';
+      type ThemeName = 'theme-02';
+
+      interface Prize {
+         id: string;
+         name: string;
+         description: string | null;
+         imageUrl: string;
+         tierOrder: number;
+         totalQuantity: number;
+         remainingQuantity: number;
+      }
+
+      interface Participant {
+         id: string;
+         ticketCode: string;
+         name: string;
+         companyName: string | null;
+         department: string | null;
+         hasWon: boolean;
+         isAbsentForfeited: boolean;
+      }
+
+      interface WinnerEntry {
+         id: string;
+         prizeId: string;
+         attendantId: string;
+         ticketCode: string;
+         name: string;
+         companyName: string | null;
+         department: string | null;
+         wonAt: string | null;
+      }
+
+      interface Notice {
+         kind: 'error' | 'warning' | 'info';
+         text: string;
+      }
+   }
+
+   declare namespace AdminWeb.Features.GameLuckyDraw.CheckIn {
+      type Status = 'CHECKED_IN' | 'ALREADY_CHECKED_IN';
+
+      type Attendant = Pick<
+         Database.GameLuckyDrawAttendant,
+         | 'id'
+         | 'full_name'
+         | 'ticket_code'
+         | 'email'
+         | 'phone'
+         | 'company_name'
+         | 'department'
+         | 'is_checked_in'
+         | 'checked_in_at'
+         | 'check_in_method'
+      >;
+
+      type Result =
+         | { kind: 'SUCCESS' | 'ALREADY'; attendant: Attendant; at: number }
+         | { kind: 'ERROR'; message: string; at: number };
+   }
+
    declare namespace AdminWeb.Features.GameLuckyDraw.Attendant {
       type Filter =
          | ''
@@ -68,6 +149,18 @@ declare global {
 
    declare namespace AdminWeb.Features.GameLuckyDraw.Staff {
       type Filter = '' | 'FIELD_STAFF' | 'GUARD';
+   }
+
+   declare namespace AdminWeb.Store.Session {
+      type Status = 'LOADING' | 'AUTHENTICATED' | 'UNAUTHENTICATED';
+
+      interface Account {
+         id: string;
+         email: string;
+         full_name: string;
+         role: Database.Account_Role;
+         company_id: string | null;
+      }
    }
 
    declare namespace AdminWeb.Store.Modal {

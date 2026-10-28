@@ -3,7 +3,12 @@ export type Assigned_Event = ClientApp.Features.Game.AssignedEvent;
 export interface Request {
    accountId: string;
    role: ClientApp.Database.Account_Role;
+   companyId: string | null;
    gameType?: ClientApp.Database.Game_Type;
+}
+
+export interface Event_Row extends Omit<Assigned_Event, 'games'> {
+   company_id: string;
 }
 
 export interface Game_Row {
@@ -13,7 +18,12 @@ export interface Game_Row {
    game_type: ClientApp.Database.Game_Type;
    config: ClientApp.Database.Game['config'];
    is_dev_only: boolean | null;
-   event: Omit<Assigned_Event, 'games'> | Omit<Assigned_Event, 'games'>[] | null;
+   event: Event_Row | Event_Row[] | null;
+}
+
+export interface Assignment_Row {
+   event_id: string;
+   game: Game_Row | Game_Row[] | null;
 }
 
 export type Response = Assigned_Event[];

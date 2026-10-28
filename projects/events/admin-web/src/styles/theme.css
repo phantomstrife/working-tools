@@ -103,6 +103,8 @@
 
    --color-utility-200: #e2e8f0;
    --color-utility-300: #cad5e2;
+   --color-utility-400: #ced4da;
+   --color-utility-600: #d4d4d8;
 
    --font-primary: var(--font-inter);
    --font-secondary: Arial;
@@ -154,4 +156,68 @@ select {
    .modal-open {
       padding-right: 0 !important;
    }
+}
+
+.glow-text {
+   color: #d8f3ff;
+   -webkit-text-stroke: 3px #ff9f2e;
+   paint-order: stroke fill;
+   text-shadow:
+      0 0 8px rgba(120, 200, 255, 0.9),
+      0 0 24px rgba(60, 140, 255, 0.9),
+      0 0 48px rgba(60, 140, 255, 0.6);
+}
+
+.info_wrapper {
+   grid-template-areas:
+      'winner'
+      'reel'
+      'prize';
+   grid-template-rows: 76fr 110fr 150fr;
+}
+
+.winner {
+   grid-area: winner;
+}
+
+.prize {
+   grid-area: prize;
+}
+
+.reel {
+   grid-area: reel;
+}
+
+@keyframes scroll-y {
+   0% {
+      transform: translateY(0);
+   }
+   100% {
+      transform: translateY(-50%);
+   }
+}
+
+.animate-slot-scroll {
+   animation: scroll-y 0.2s linear infinite;
+}
+
+@keyframes landing-bounce {
+   0% {
+      transform: translateY(-80%);
+      opacity: 0;
+   }
+   60% {
+      transform: translateY(10%);
+      opacity: 1;
+   }
+   80% {
+      transform: translateY(-5%);
+   }
+   100% {
+      transform: translateY(0);
+   }
+}
+
+.animate-landing {
+   animation: landing-bounce 0.5s ease-out forwards;
 }
