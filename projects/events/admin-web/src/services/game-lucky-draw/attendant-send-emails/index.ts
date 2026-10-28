@@ -106,6 +106,7 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
             });
 
             const dispatchResults = await emailService.sendBatchEmails(messages);
+            console.log('Email dispatch results:', dispatchResults);
 
             dispatchResults.forEach((dispatchResult, index) => {
                const attendant = sendableAttendants[index];
@@ -187,4 +188,3 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
       };
    });
 };
-

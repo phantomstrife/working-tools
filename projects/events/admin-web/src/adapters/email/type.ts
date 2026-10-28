@@ -6,6 +6,11 @@ export interface Email_Message {
    html: string;
    text?: string;
    from?: string;
+   attachments?: {
+      filename: string;
+      content: string | Buffer;
+      cid?: string;
+   }[];
 }
 
 export interface Send_Result {
@@ -21,4 +26,3 @@ export interface Email_Service {
 }
 
 export type Get_Email_Service = () => Email_Service;
-

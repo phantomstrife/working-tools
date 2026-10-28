@@ -1,10 +1,9 @@
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
-
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
+import nodemailer from 'nodemailer';
 import { EMAIL_CONFIG } from './constants';
-
 import type * as Types from './type';
 
-const getSesClient = (): SESClient => {
+const getSesClient = (): SESv2Client => {
    const region = process.env.AWS_REGION || process.env.AWS_SES_REGION || EMAIL_CONFIG.AWS_REGION;
    const accessKeyId = process.env.AWS_ACCESS_KEY_ID || EMAIL_CONFIG.AWS_ACCESS_KEY_ID;
    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || EMAIL_CONFIG.AWS_SECRET_ACCESS_KEY;
@@ -13,7 +12,7 @@ const getSesClient = (): SESClient => {
       throw new Error('Missing AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY environment variables for AWS SES.');
    }
 
-   return new SESClient({
+   return new SESv2Client({
       region,
       credentials: {
          accessKeyId,
@@ -22,40 +21,28 @@ const getSesClient = (): SESClient => {
    });
 };
 
-const sendSingleWithSes = async (client: SESClient, message: Types.Email_Message): Promise<Types.Send_Result> => {
+const sendSingleWithSes = async (client: SESv2Client, message: Types.Email_Message): Promise<Types.Send_Result> => {
    try {
-      const command = new SendEmailCommand({
-         Source: message.from || process.env.EMAIL_FROM || EMAIL_CONFIG.FROM_DEFAULT,
-         Destination: {
-            ToAddresses: [message.to],
-         },
-         Message: {
-            Subject: {
-               Data: message.subject,
-               Charset: 'UTF-8',
-            },
-            Body: {
-               Html: {
-                  Data: message.html,
-                  Charset: 'UTF-8',
-               },
-               ...(message.text
-                  ? {
-                       Text: {
-                          Data: message.text,
-                          Charset: 'UTF-8',
-                       },
-                    }
-                  : {}),
-            },
+      // Truyền toàn bộ module awsSesV2 để vượt qua vòng kiểm tra type của Nodemailer
+      const transporter = nodemailer.createTransport({
+         SES: {
+            sesClient: client,
+            SendEmailCommand,
          },
       });
 
-      const response = await client.send(command);
+      const response = await transporter.sendMail({
+         from: message.from || process.env.EMAIL_FROM || EMAIL_CONFIG.FROM_DEFAULT,
+         to: message.to,
+         subject: message.subject,
+         html: message.html,
+         text: message.text,
+         attachments: message.attachments, // QR code buffer/base64 nằm ở đây
+      });
 
       return {
          success: true,
-         messageId: response.MessageId,
+         messageId: response.messageId,
       };
    } catch (error) {
       return {
@@ -68,16 +55,12 @@ const sendSingleWithSes = async (client: SESClient, message: Types.Email_Message
 export const createAwsSesEmailService = (): Types.Email_Service => {
    return {
       provider: 'aws',
-
       async sendEmail(message) {
          const client = getSesClient();
          return sendSingleWithSes(client, message);
       },
-
       async sendBatchEmails(messages) {
-         if (messages.length === 0) {
-            return [];
-         }
+         if (messages.length === 0) return [];
 
          const client = getSesClient();
          const results: Types.Send_Result[] = [];
@@ -87,9 +70,7 @@ export const createAwsSesEmailService = (): Types.Email_Service => {
             const chunkResults = await Promise.all(chunk.map((msg) => sendSingleWithSes(client, msg)));
             results.push(...chunkResults);
          }
-
          return results;
       },
    };
 };
-
