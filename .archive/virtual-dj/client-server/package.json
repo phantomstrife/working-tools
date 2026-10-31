@@ -1,0 +1,32 @@
+{
+   "name": "client-server",
+   "version": "1.0.0",
+   "private": true,
+   "type": "module",
+   "engines": {
+      "node": ">=24"
+   },
+   "scripts": {
+      "dev": "tsx watch src/bootstrap/index.ts",
+      "build": "tsc -p tsconfig.build.json",
+      "start": "node dist/bootstrap/index.js",
+      "lint": "eslint"
+   },
+   "dependencies": {
+      "axios": "^1.21.0",
+      "dotenv": "^18.0.9",
+      "express": "^5.3.0",
+      "https-proxy-agent": "^9.1.0",
+      "locale-currency": "^1.1.0",
+      "ws": "^8.22.0"
+   },
+   "devDependencies": {
+      "@types/express": "^5.0.6",
+      "@types/node": "^26.6.5",
+      "@types/ws": "^8.18.2",
+      "eslint": "^9",
+      "tsx": "^4.23.15",
+      "typescript": "^6.0.3",
+      "typescript-eslint": "^8.72.1"
+   }
+}
