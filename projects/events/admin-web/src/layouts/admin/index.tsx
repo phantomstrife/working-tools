@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, X, Search, Bell } from 'lucide-react';
+import { Menu, X, Search, Bell, Building2, LogOut } from 'lucide-react';
 
 import defaultAvatar from '@admin-web/assets/svg/default-avatar.svg';
 
@@ -70,6 +70,27 @@ export const LayoutAdmin: AdminWeb.Router.Layout = (propeties) => {
                />
             </div>
             <div className={fixed_header.tool.wrapper}>
+               {param.isSuperAdmin && (
+                  <div className={fixed_header.tool.company_wrapper}>
+                     <Building2 className={fixed_header.tool.company_icon} />
+                     <select
+                        value={param.currentCompanyId}
+                        onChange={func.handleCompanyChange}
+                        className={fixed_header.tool.company_select}
+                        aria-label={func.translate('company_switcher.label')}
+                     >
+                        <option value="">{func.translate('company_switcher.placeholder')}</option>
+                        {param.companies.map((company) => (
+                           <option
+                              key={company.id}
+                              value={company.id}
+                           >
+                              {company.name}
+                           </option>
+                        ))}
+                     </select>
+                  </div>
+               )}
                <button className={fixed_header.tool.notify_wrapper}>
                   <span className={fixed_header.tool.notify_dot} />
                   <Bell size={20} />
@@ -78,12 +99,27 @@ export const LayoutAdmin: AdminWeb.Router.Layout = (propeties) => {
                   className={fixed_header.tool.divider}
                   aria-hidden="true"
                />
-               <button className={fixed_header.tool.account_wrapper}>
-                  <img
-                     src={defaultAvatar.src}
-                     className={fixed_header.tool.account_image}
-                     alt="Profile"
-                  />
+               {param.account && (
+                  <div className={fixed_header.tool.account_info}>
+                     <span className={fixed_header.tool.account_name}>{param.account.full_name}</span>
+                     <span className={fixed_header.tool.account_role}>
+                        {func.translate(`roles.${param.account.role}`)}
+                     </span>
+                  </div>
+               )}
+               <img
+                  src={defaultAvatar.src}
+                  className={fixed_header.tool.account_image}
+                  alt="Profile"
+               />
+               <button
+                  type="button"
+                  onClick={func.handleLogout}
+                  disabled={param.isLoggingOut}
+                  className={fixed_header.tool.logout_button({ loading: param.isLoggingOut })}
+               >
+                  <LogOut className={fixed_header.tool.logout_icon} />
+                  {func.translate(param.isLoggingOut ? 'logout.loading' : 'logout.label')}
                </button>
             </div>
          </header>

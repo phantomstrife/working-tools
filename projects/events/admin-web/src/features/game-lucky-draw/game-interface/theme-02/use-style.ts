@@ -111,5 +111,11 @@ export const useStyle = {
    prizeRemainingLabel: tv({
       base: 'text-14 font-semibold uppercase tracking-wider text-warning-300 tabular-nums',
    }),
+   fullscreenBtn: tv({
+      base: [
+         'fixed top-5 right-5 z-30 w-10 h-10 grid place-items-center rounded-secondary',
+         'bg-neutral-900/80 border border-neutral-700/80 text-neutral-300 shadow-lg backdrop-blur-md',
+         'hover:text-neutral-50 hover:bg-neutral-800 transition-colors cursor-pointer',
+      ],
+   }),
 };
-

@@ -6,7 +6,7 @@ import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
 import type * as Types from './type';
 
-export const useServicesEventGetGames: Types.Service = async () => {
+export const useServicesEventGetGames: Types.Service = async (request) => {
    const result = await trycatchAsync(async () => {
       const serviceUserRead = await useServicesUserRead();
 
@@ -14,7 +14,8 @@ export const useServicesEventGetGames: Types.Service = async () => {
          throw new Error(serviceUserRead.message);
       }
 
-      const companyId = serviceUserRead.data.companyId;
+      const isSuperAdmin = serviceUserRead.data.role === 'SUPER_ADMIN';
+      const companyId = (isSuperAdmin && request?.companyId) || serviceUserRead.data.companyId;
 
       const supabase = await getServerClient();
       const events = await supabase.from('events').select('*, games(*)').eq('company_id', companyId);

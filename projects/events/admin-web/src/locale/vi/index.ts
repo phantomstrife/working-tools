@@ -721,6 +721,21 @@ export const vi = {
          fixed_header: {
             search_placeholder: 'Tìm kiếm sự kiện, trò chơi, người tham dự...',
          },
+         company_switcher: {
+            label: 'Chọn công ty',
+            placeholder: 'Chọn công ty...',
+         },
+         logout: {
+            label: 'Đăng xuất',
+            loading: 'Đang đăng xuất...',
+         },
+         roles: {
+            SUPER_ADMIN: 'Quản trị hệ thống',
+            ADMIN: 'Quản trị viên',
+            FIELD_STAFF: 'Nhân viên hiện trường',
+            GUARD: 'Bảo vệ / Kiểm soát',
+            NOT_ASSIGNED: 'Chưa phân quyền',
+         },
       },
       venue: {
          app_title: 'Event Tools • Venue',

@@ -76,6 +76,23 @@ export const useStyle = {
       },
       tool: {
          wrapper: 'flex flex-1 items-center justify-end gap-primary',
+         company_wrapper:
+            'flex items-center gap-x-2 px-3 h-10 bg-neutral-100 border border-utility-300 rounded-md',
+         company_icon: 'size-4 text-neutral-500 shrink-0',
+         company_select:
+            'max-w-48 text-14! font-medium text-neutral-950 bg-transparent cursor-pointer truncate',
+         account_info: 'hidden sm:flex flex-col items-end leading-tight',
+         account_name: 'text-13 font-semibold text-neutral-950',
+         account_role: 'text-11 text-neutral-500',
+         logout_button: tv({
+            base: 'flex items-center gap-x-1.5 px-3 h-10 text-13 font-semibold text-error-700 bg-error-50 border border-error-200 rounded-md transition-colors cursor-pointer hover:bg-error-100',
+            variants: {
+               loading: {
+                  true: 'opacity-50 pointer-events-none',
+               },
+            },
+         }),
+         logout_icon: 'size-4',
          divider: 'hidden sm:block h-6 w-px bg-neutral-200',
          notify_wrapper: `relative p-[calc(var(--spacing-primary)*3/4)] text-neutral-600 bg-neutral-50 rounded-full transition-colors hover:text-neutral-950 hover:bg-neutral-200`,
          notify_dot: 'absolute top-2 right-2 size-2 rounded-full bg-error-600',
