@@ -86,6 +86,7 @@ declare global {
          id: string;
          ticketCode: string;
          name: string;
+         representative: string | null;
          companyName: string | null;
          department: string | null;
          hasWon: boolean;
@@ -98,6 +99,7 @@ declare global {
          attendantId: string;
          ticketCode: string;
          name: string;
+         representative: string | null;
          companyName: string | null;
          department: string | null;
          wonAt: string | null;

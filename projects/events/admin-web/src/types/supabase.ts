@@ -325,9 +325,11 @@ export type Database = {
          };
          lucky_draw_attendants: {
             Row: {
+               accommodation: boolean | null;
                check_in_method: Database['public']['Enums']['check_in_method_type'] | null;
                checked_in_at: string | null;
                checked_in_by: string | null;
+               citizen_id: string | null;
                company_name: string | null;
                created_at: string | null;
                custom_metadata: Json | null;
@@ -347,9 +349,11 @@ export type Database = {
                updated_at: string | null;
             };
             Insert: {
+               accommodation?: boolean | null;
                check_in_method?: Database['public']['Enums']['check_in_method_type'] | null;
                checked_in_at?: string | null;
                checked_in_by?: string | null;
+               citizen_id?: string | null;
                company_name?: string | null;
                created_at?: string | null;
                custom_metadata?: Json | null;
@@ -369,9 +373,11 @@ export type Database = {
                updated_at?: string | null;
             };
             Update: {
+               accommodation?: boolean | null;
                check_in_method?: Database['public']['Enums']['check_in_method_type'] | null;
                checked_in_at?: string | null;
                checked_in_by?: string | null;
+               citizen_id?: string | null;
                company_name?: string | null;
                created_at?: string | null;
                custom_metadata?: Json | null;

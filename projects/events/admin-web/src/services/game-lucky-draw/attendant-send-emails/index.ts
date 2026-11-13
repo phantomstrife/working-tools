@@ -1,21 +1,56 @@
 'use server';
 
+import { headers } from 'next/headers';
+
 import { getEmailService } from '@admin-web/adapters/email';
+import { ROUTE } from '@admin-web/routes/constants';
 import { EMAIL_REGEX } from '@admin-web/services/game-lucky-draw/attendant-import-csv/constants';
 import { verifyGameAccess } from '@admin-web/services/game-lucky-draw/verify-game-access';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
+import { signVipAccommodationToken } from '@admin-web/utilities/vip-accommodation-token';
 
 import { buildAttendantTicketEmail } from './template';
 
 import type * as Types from './type';
 
 const UPDATE_CHUNK_SIZE = 200;
+const FETCH_PAGE_SIZE = 1000;
+
+const resolveBaseUrl = async (): Promise<string> => {
+   const envUrl =
+      process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL;
+
+   if (envUrl) {
+      return envUrl.replace(/\/+$/, '');
+   }
+
+   try {
+      const requestHeaders = await headers();
+      const origin = requestHeaders.get('origin');
+      if (origin) {
+         return origin.replace(/\/+$/, '');
+      }
+
+      const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host');
+      if (host) {
+         const forwardedProto = requestHeaders.get('x-forwarded-proto');
+         const proto =
+            forwardedProto || (host.includes('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
+         return `${proto}://${host}`;
+      }
+   } catch {
+      // Ignore header lookup outside active HTTP request scope.
+   }
+
+   return 'http://localhost:3000';
+};
 
 export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async (request) => {
    return trycatchAsync(async () => {
-      const uniqueIds = Array.from(new Set(request.attendantIds.filter(Boolean)));
+      const sendAll = Boolean(request.sendAll);
+      const uniqueIds = Array.from(new Set((request.attendantIds ?? []).filter(Boolean)));
 
-      if (uniqueIds.length === 0) {
+      if (!sendAll && uniqueIds.length === 0) {
          throw new Error('services.game_lucky_draw.attendant.no_selection');
       }
 
@@ -31,24 +66,52 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
       const attendants: Array<{
          id: string;
          full_name: string;
+         citizen_id: string | null;
+         phone: string | null;
          ticket_code: string;
          email: string | null;
          qr_code_payload: string;
+         accommodation: boolean | null;
       }> = [];
 
-      for (let i = 0; i < uniqueIds.length; i += UPDATE_CHUNK_SIZE) {
-         const idChunk = uniqueIds.slice(i, i + UPDATE_CHUNK_SIZE);
-         const query = await supabase
-            .from('lucky_draw_attendants')
-            .select('id, full_name, ticket_code, email, qr_code_payload')
-            .eq('game_id', request.gameId)
-            .in('id', idChunk);
+      if (sendAll) {
+         let offset = 0;
 
-         if (query.error) {
-            throw new Error(query.error.message);
+         while (true) {
+            const query = await supabase
+               .from('lucky_draw_attendants')
+               .select('id, full_name, citizen_id, phone, ticket_code, email, qr_code_payload, accommodation')
+               .eq('game_id', request.gameId)
+               .range(offset, offset + FETCH_PAGE_SIZE - 1);
+
+            if (query.error) {
+               throw new Error(query.error.message);
+            }
+
+            const batch = query.data ?? [];
+            attendants.push(...batch);
+
+            if (batch.length < FETCH_PAGE_SIZE) {
+               break;
+            }
+
+            offset += FETCH_PAGE_SIZE;
          }
+      } else {
+         for (let i = 0; i < uniqueIds.length; i += UPDATE_CHUNK_SIZE) {
+            const idChunk = uniqueIds.slice(i, i + UPDATE_CHUNK_SIZE);
+            const query = await supabase
+               .from('lucky_draw_attendants')
+               .select('id, full_name, citizen_id, phone, ticket_code, email, qr_code_payload, accommodation')
+               .eq('game_id', request.gameId)
+               .in('id', idChunk);
 
-         attendants.push(...(query.data ?? []));
+            if (query.error) {
+               throw new Error(query.error.message);
+            }
+
+            attendants.push(...(query.data ?? []));
+         }
       }
 
       if (attendants.length === 0) {
@@ -86,15 +149,38 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
 
       try {
          if (sendableAttendants.length > 0) {
+            const baseUrl = await resolveBaseUrl();
+            const vipBasePath = `${baseUrl}${ROUTE.PUBLIC.VIP_ACCOMMODATION}`;
+
             const messages = sendableAttendants.map((attendant) => {
+               const isVip = attendant.accommodation === true;
+               let confirmUrl: string | undefined;
+               let editUrl: string | undefined;
+
+               if (isVip) {
+                  const token = signVipAccommodationToken({
+                     attendantId: attendant.id,
+                     gameId: request.gameId,
+                  });
+                  const encodedToken = encodeURIComponent(token);
+                  confirmUrl = `${vipBasePath}?token=${encodedToken}&action=confirm`;
+                  editUrl = `${vipBasePath}?token=${encodedToken}&action=edit`;
+               }
+
                const content = buildAttendantTicketEmail({
                   fullName: attendant.full_name,
+                  citizenId: attendant.citizen_id,
+                  email: attendant.email,
+                  phone: attendant.phone,
                   ticketCode: attendant.ticket_code,
                   qrCodePayload: attendant.qr_code_payload,
                   eventName: event.name,
                   gameName: game.name,
                   locationName: event.location_name,
                   startTime: event.start_time,
+                  isVip,
+                  confirmUrl,
+                  editUrl,
                });
 
                return {

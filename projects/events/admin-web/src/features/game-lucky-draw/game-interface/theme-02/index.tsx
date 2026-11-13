@@ -80,7 +80,7 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
                               <div className={winnerItemLeft()}>
                                  <span className={winnerIndex()}>#{idx + 1}</span>
                                  <div className={winnerNameBlock()}>
-                                    <span className={winnerNameText()}>{w.name}</span>
+                                    <span className={winnerNameText()}>{w.representative || w.name}</span>
                                     {w.companyName && <span className={winnerOrgText()}>{w.companyName}</span>}
                                  </div>
                               </div>

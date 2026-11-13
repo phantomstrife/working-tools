@@ -6,3 +6,4 @@ export type Get_Server_Client = (proxyResponse?: AdminWeb.Router.Proxy_Response)
 export type Get_Admin_Client = () => SupabaseClient<Database>;
 export type Get_Browser_Client = () => SupabaseClient<Database>;
 export type Get_Token_Client = (accessToken: string) => SupabaseClient<Database>;
+export type Get_Attendant_Client = (attendantId: string) => SupabaseClient<Database>;

@@ -19,6 +19,7 @@ export const PRIZE_COLUMNS = [
 export const ATTENDANT_COLUMNS = [
    'id',
    'full_name',
+   'representative',
    'ticket_code',
    'email',
    'phone',

@@ -13,6 +13,8 @@ const themes = {
             email_SENDING: 'bg-info-50 text-info-700 border-info-200 animate-pulse',
             email_SENT: 'bg-success-50 text-success-700 border-success-200',
             email_FAILED: 'bg-error-50 text-error-700 border-error-200',
+            accommodation_true: 'bg-warning-50 text-warning-700 border-warning-200',
+            accommodation_false: 'bg-neutral-100 text-neutral-500 border-neutral-200',
          },
       },
       defaultVariants: {

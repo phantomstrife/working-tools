@@ -52,6 +52,7 @@ export function useLogic(properties: Types.Properties) {
       isDeleting: false,
       isExporting: false,
       isSendingEmails: false,
+      isSendingAllEmails: false,
    });
 
    const resolveErrorMessage = useCallback(
@@ -242,8 +243,44 @@ export function useLogic(properties: Types.Properties) {
       );
    };
 
+   const notifyEmailDispatchResult = (
+      dispatchResult: Awaited<ReturnType<typeof useServicesGameLuckyDrawAttendantSendEmails>>,
+   ) => {
+      if (dispatchResult.error) {
+         toast.error(resolveErrorMessage(dispatchResult.message));
+         return false;
+      }
+
+      if (!dispatchResult.data) {
+         return false;
+      }
+
+      const { provider, totalRequested, sentCount, failedCount } = dispatchResult.data;
+
+      if (failedCount === 0) {
+         toast.success(
+            translate('toast.email_batch_success', {
+               sent: sentCount,
+               total: totalRequested,
+               provider: provider.toUpperCase(),
+            }),
+         );
+      } else {
+         toast.warning(
+            translate('toast.email_batch_partial', {
+               sent: sentCount,
+               total: totalRequested,
+               failed: failedCount,
+               provider: provider.toUpperCase(),
+            }),
+         );
+      }
+
+      return true;
+   };
+
    const handleSendEmails: Types.HandleSendEmails = async (selectedAttendants, clearSelection) => {
-      if (state.isSendingEmails || !gameId || selectedAttendants.length === 0) {
+      if (state.isSendingEmails || state.isSendingAllEmails || !gameId || selectedAttendants.length === 0) {
          return;
       }
 
@@ -270,41 +307,48 @@ export function useLogic(properties: Types.Properties) {
          attendantIds,
       });
 
-      if (dispatchResult.error) {
-         toast.error(resolveErrorMessage(dispatchResult.message));
-         setState({
-            isSendingEmails: false,
-         });
-         void handleSearch();
-         return;
-      }
-
-      const { provider, totalRequested, sentCount, failedCount } = dispatchResult.data;
-
-      if (failedCount === 0) {
-         toast.success(
-            translate('toast.email_batch_success', {
-               sent: sentCount,
-               total: totalRequested,
-               provider: provider.toUpperCase(),
-            }),
-         );
-      } else {
-         toast.warning(
-            translate('toast.email_batch_partial', {
-               sent: sentCount,
-               total: totalRequested,
-               failed: failedCount,
-               provider: provider.toUpperCase(),
-            }),
-         );
-      }
+      const succeeded = notifyEmailDispatchResult(dispatchResult);
 
       setState({
          isSendingEmails: false,
       });
 
-      clearSelection();
+      if (succeeded) {
+         clearSelection();
+      }
+
+      void handleSearch();
+   };
+
+   const handleSendAllEmails = () => {
+      if (state.isSendingEmails || state.isSendingAllEmails || !gameId) {
+         return;
+      }
+
+      modalActions.openModal(MODAL_ID.SEND_ALL_EMAILS);
+   };
+
+   const handleConfirmSendAllEmails = async () => {
+      if (state.isSendingEmails || state.isSendingAllEmails || !gameId) {
+         return;
+      }
+
+      setState({
+         isSendingAllEmails: true,
+      });
+
+      const dispatchResult = await useServicesGameLuckyDrawAttendantSendEmails({
+         gameId,
+         sendAll: true,
+      });
+
+      notifyEmailDispatchResult(dispatchResult);
+
+      setState({
+         isSendingAllEmails: false,
+      });
+
+      modalActions.closeModal(MODAL_ID.SEND_ALL_EMAILS);
       void handleSearch();
    };
 
@@ -320,6 +364,7 @@ export function useLogic(properties: Types.Properties) {
          isDeleting: state.isDeleting,
          isExporting: state.isExporting,
          isSendingEmails: state.isSendingEmails,
+         isSendingAllEmails: state.isSendingAllEmails,
       },
       func: {
          translate,
@@ -335,6 +380,8 @@ export function useLogic(properties: Types.Properties) {
          handleConfirmDelete,
          handleExportWinners,
          handleSendEmails,
+         handleSendAllEmails,
+         handleConfirmSendAllEmails,
       },
    };
 }

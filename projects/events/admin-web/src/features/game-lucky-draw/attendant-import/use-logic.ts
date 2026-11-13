@@ -90,12 +90,14 @@ export function useLogic(properties: Types.Properties) {
 
    const handleDownloadTemplate = () => {
       const sampleCsv = stringifyCsv(SAMPLE_CSV_ROWS, [
+         { header: 'citizen_id', getValue: (row) => row.citizen_id },
          { header: 'full_name', getValue: (row) => row.full_name },
          { header: 'ticket_code', getValue: (row) => row.ticket_code },
          { header: 'email', getValue: (row) => row.email },
          { header: 'phone', getValue: (row) => row.phone },
          { header: 'company_name', getValue: (row) => row.company_name },
          { header: 'department', getValue: (row) => row.department },
+         { header: 'accommodation', getValue: (row) => row.accommodation },
       ]);
 
       downloadCsvFile(sampleCsv, 'lucky-draw-attendants-template.csv');

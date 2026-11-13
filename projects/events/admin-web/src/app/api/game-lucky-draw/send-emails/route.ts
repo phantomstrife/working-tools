@@ -6,16 +6,18 @@ export async function POST(request: Request) {
    const body = (await request.json().catch(() => null)) as {
       gameId?: string;
       attendantIds?: string[];
+      sendAll?: boolean;
    } | null;
 
    const gameId = body?.gameId ?? '';
    const attendantIds = Array.isArray(body?.attendantIds) ? body.attendantIds : [];
+   const sendAll = Boolean(body?.sendAll);
 
-   if (!gameId || attendantIds.length === 0) {
+   if (!gameId || (!sendAll && attendantIds.length === 0)) {
       return NextResponse.json(
          {
             error: true,
-            message: 'Missing required fields: gameId and non-empty attendantIds.',
+            message: 'Missing required fields: gameId and either sendAll or non-empty attendantIds.',
          },
          { status: 400 },
       );
@@ -24,6 +26,7 @@ export async function POST(request: Request) {
    const result = await useServicesGameLuckyDrawAttendantSendEmails({
       gameId,
       attendantIds,
+      sendAll,
    });
 
    if (result.error) {

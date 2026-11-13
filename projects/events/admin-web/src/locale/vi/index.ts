@@ -250,6 +250,9 @@ export const vi = {
                send_emails: 'Gửi Email',
                send_emails_selected: 'Gửi Email ({{count}})',
                sending_emails: 'Đang gửi Email...',
+               send_all_emails: 'Gửi Email tất cả',
+               sending_all_emails: 'Đang gửi tất cả...',
+               send_all_confirm: 'Gửi tất cả Email',
                export_winners: 'Xuất DS trúng thưởng',
                exporting_winners: 'Đang xuất...',
                create: 'Tạo mới',
@@ -274,9 +277,12 @@ export const vi = {
             },
             table: {
                headers: {
+                  citizen_id: 'CCCD / CMND',
                   full_name: 'Họ và tên',
+                  representative: 'Người đại diện',
                   phone: 'Số điện thoại',
                   email: 'Email',
+                  accommodation: 'Lưu trú',
                   ticket_code: 'Mã vé',
                   email_status: 'Email',
                   checked_in: 'Check-In',
@@ -284,6 +290,8 @@ export const vi = {
                   actions: 'Thao tác',
                },
                badges: {
+                  accommodation_true: 'true',
+                  accommodation_false: 'false',
                   checked_in: 'Đã Check-In',
                   pending: 'Chờ',
                   winner: 'Trúng thưởng',
@@ -305,6 +313,10 @@ export const vi = {
                delete_description: 'Hành động này không thể hoàn tác.',
                delete_message:
                   'Bạn có chắc chắn muốn xóa người tham dự "{{name}}" (Mã vé: {{ticket}}) khỏi trò chơi này không?',
+               send_all_title: 'Xác nhận gửi Email cho tất cả',
+               send_all_description: 'Email vé tham dự và mã QR sẽ được gửi tới toàn bộ người tham dự hợp lệ trong trò chơi.',
+               send_all_message:
+                  'Bạn có chắc chắn muốn gửi email tới tất cả người tham dự hiện có trong trò chơi này không?',
             },
             toast: {
                delete_success: 'Đã xóa người tham dự thành công.',
@@ -319,6 +331,10 @@ export const vi = {
                full_name: {
                   label: 'Họ và tên',
                   placeholder: 'Ví dụ: Nguyễn Văn A',
+               },
+               citizen_id: {
+                  label: 'Số CCCD / CMND',
+                  placeholder: 'Ví dụ: 079090001234',
                },
                ticket_code: {
                   label: 'Mã vé',
@@ -339,6 +355,10 @@ export const vi = {
                department: {
                   label: 'Phòng ban',
                   placeholder: 'Ví dụ: Kỹ thuật',
+               },
+               accommodation: {
+                  label: 'Lưu trú (VIP)',
+                  checkbox_label: 'Khách lưu trú VIP (gửi kèm nút Xác nhận / Thay đổi trong Email)',
                },
                qr_code_payload: {
                   label: 'Mã định danh QR (Tự động tạo)',
@@ -375,6 +395,7 @@ export const vi = {
                reasons: {
                   missing_required_fields: 'Thiếu họ tên (full_name) hoặc mã vé (ticket_code)',
                   invalid_email: 'Định dạng email không hợp lệ',
+                  invalid_accommodation: 'Giá trị accommodation không hợp lệ (chỉ nhận true hoặc false)',
                   duplicate_in_file: 'Trùng mã vé trong cùng tệp CSV',
                },
             },
@@ -389,6 +410,61 @@ export const vi = {
                invalid_file_type: 'Vui lòng chọn tệp có định dạng .csv hợp lệ.',
                empty_file: 'Tệp CSV trống hoặc không có dữ liệu hợp lệ.',
                import_success: 'Nhập CSV hoàn tất: {{inserted}} thêm mới, {{updated}} cập nhật.',
+            },
+         },
+         vip_accommodation: {
+            ticket_label: 'Mã vé: {{code}}',
+            loading: {
+               confirming: 'Đang xác nhận thông tin lưu trú của bạn...',
+               loading_info: 'Đang tải thông tin khách mời VIP...',
+            },
+            error: {
+               title: 'Không thể truy cập thông tin',
+               fallback: 'Liên kết không hợp lệ hoặc đã xảy ra lỗi. Vui lòng kiểm tra lại email của bạn.',
+            },
+            confirmed: {
+               title: 'Xác nhận thông tin thành công',
+               updated_title: 'Cập nhật thông tin thành công',
+               description: 'Cảm ơn Quý khách. Thông tin lưu trú VIP của Quý khách đã được ghi nhận trên hệ thống.',
+               updated_description: 'Thông tin cá nhân của Quý khách đã được cập nhật và lưu lại thành công.',
+               edit_button: 'Chỉnh sửa thông tin',
+            },
+            summary: {
+               title: 'Thông tin lưu trú hiện tại',
+               full_name: 'Họ và tên',
+               citizen_id: 'Số CCCD / CMND',
+               email: 'Email',
+               phone: 'Số điện thoại',
+            },
+            edit: {
+               title: 'Cập nhật thông tin khách mời VIP',
+               description: 'Vui lòng kiểm tra và chỉnh sửa thông tin cá nhân dưới đây nếu có thay đổi.',
+               fields: {
+                  full_name: {
+                     label: 'Họ và tên',
+                     placeholder: 'Nhập họ và tên',
+                  },
+                  citizen_id: {
+                     label: 'Số CCCD / CMND',
+                     placeholder: 'Nhập số CCCD / CMND',
+                  },
+                  email: {
+                     label: 'Email',
+                     placeholder: 'Nhập địa chỉ email',
+                  },
+                  phone: {
+                     label: 'Số điện thoại',
+                     placeholder: 'Nhập số điện thoại',
+                  },
+               },
+               actions: {
+                  cancel: 'Quay lại',
+                  saving_false: 'Lưu thay đổi',
+                  saving_true: 'Đang lưu...',
+               },
+            },
+            toast: {
+               update_success: 'Cập nhật thông tin thành công.',
             },
          },
          prize_panel: {
@@ -665,6 +741,7 @@ export const vi = {
             close_winners_shortcut: 'Đóng (W)',
             no_winners: 'Chưa có người trúng giải',
             congrats: 'Chúc mừng người chiến thắng',
+            representative_label: 'Người đại diện: {{name}}',
             searching_winner: 'Đang tìm kiếm người may mắn...',
             select_prize: 'Vui lòng chọn giải thưởng',
             prize_exhausted: 'Đã hết giải thưởng',
@@ -833,6 +910,10 @@ export const vi = {
             csv_empty: 'Tệp CSV trống hoặc không có dòng dữ liệu nào.',
             csv_missing_headers: 'Tệp CSV thiếu cột bắt buộc: full_name và ticket_code.',
             no_selection: 'Vui lòng chọn ít nhất một người tham dự để gửi email.',
+            vip_link_invalid: 'Liên kết xác nhận không hợp lệ hoặc đã bị thay đổi.',
+            vip_not_eligible: 'Khách mời này không thuộc danh sách lưu trú VIP.',
+            vip_invalid_email: 'Vui lòng nhập địa chỉ email hợp lệ.',
+            vip_missing_full_name: 'Vui lòng nhập họ và tên.',
          },
          check_in: {
             missing_fields: 'Thiếu thông tin check-in (trò chơi, mã QR hoặc người tham dự).',

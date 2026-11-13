@@ -44,11 +44,13 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
 
       const normalizedPayload = {
          full_name: trimmedFullName,
+         citizen_id: request.citizen_id?.trim() || null,
          ticket_code: trimmedTicketCode,
          email: request.email?.trim() || null,
          phone: request.phone?.trim() || null,
          company_name: request.company_name?.trim() || null,
          department: request.department?.trim() || null,
+         accommodation: Boolean(request.accommodation),
       };
 
       if (request.id) {

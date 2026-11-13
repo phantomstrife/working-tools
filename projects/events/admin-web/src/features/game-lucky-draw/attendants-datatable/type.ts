@@ -29,6 +29,7 @@ export interface State {
    isDeleting: boolean;
    isExporting: boolean;
    isSendingEmails: boolean;
+   isSendingAllEmails: boolean;
 }
 
 export type Attendant = AdminWeb.Database.GameLuckyDrawAttendant;

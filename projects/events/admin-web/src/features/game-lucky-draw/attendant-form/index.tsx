@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Hash, Mail, Phone, User, Users } from 'lucide-react';
+import { BedDouble, Building2, CreditCard, Hash, Mail, Phone, User, Users } from 'lucide-react';
 
 import { CopyButton } from '@admin-web/components/copy-button';
 import { FormField } from '@admin-web/components/form-field';
@@ -12,7 +12,7 @@ import type * as Types from './type';
 
 export const AttendantForm: AdminWeb.Component<Types.Properties> = (properties) => {
    const { param, func } = useLogic(properties);
-   const { form, grid, qr_box, footer } = useStyle;
+   const { form, grid, checkbox_field, qr_box, footer } = useStyle;
 
    return (
       <form
@@ -32,6 +32,20 @@ export const AttendantForm: AdminWeb.Component<Types.Properties> = (properties) 
                   type="text"
                   placeholder={func.translate('fields.full_name.placeholder')}
                   {...func.register('full_name')}
+               />
+            </FormField>
+
+            <FormField
+               id="attendant-citizen-id"
+               Icon={CreditCard}
+               label={func.translate('fields.citizen_id.label')}
+               error={param.errors.citizen_id?.message}
+            >
+               <input
+                  id="attendant-citizen-id"
+                  type="text"
+                  placeholder={func.translate('fields.citizen_id.placeholder')}
+                  {...func.register('citizen_id')}
                />
             </FormField>
 
@@ -105,6 +119,28 @@ export const AttendantForm: AdminWeb.Component<Types.Properties> = (properties) 
                   {...func.register('department')}
                />
             </FormField>
+
+            <div className={checkbox_field.wrapper}>
+               <div className={checkbox_field.title_row}>
+                  <BedDouble
+                     size={15}
+                     className={checkbox_field.title_icon}
+                  />
+                  <span>{func.translate('fields.accommodation.label')}</span>
+               </div>
+               <label
+                  htmlFor="attendant-accommodation"
+                  className={checkbox_field.control}
+               >
+                  <input
+                     id="attendant-accommodation"
+                     type="checkbox"
+                     className={checkbox_field.input}
+                     {...func.register('accommodation')}
+                  />
+                  <span className={checkbox_field.label}>{func.translate('fields.accommodation.checkbox_label')}</span>
+               </label>
+            </div>
          </div>
 
          {param.mode === 'edit' && param.attendant?.qr_code_payload && (

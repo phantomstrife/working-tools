@@ -16,8 +16,48 @@ export const buildAttendantTicketEmail = (context: Types.TemplateContext) => {
    const safeEventName = escapeHtml(context.eventName);
    const safeGameName = escapeHtml(context.gameName);
    const safeLocation = context.locationName ? escapeHtml(context.locationName) : null;
-   const formattedStartTime = context.startTime ? escapeHtml(new Date(context.startTime).toLocaleString('vi-VN')) : null;
+   const formattedStartTime = context.startTime
+      ? escapeHtml(new Date(context.startTime).toLocaleString('vi-VN'))
+      : null;
    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(context.qrCodePayload)}`;
+
+   const isVip = Boolean(context.isVip && context.confirmUrl && context.editUrl);
+   const safeConfirmUrl = context.confirmUrl ? escapeHtml(context.confirmUrl) : '';
+   const safeEditUrl = context.editUrl ? escapeHtml(context.editUrl) : '';
+   const safeCitizenId = context.citizenId?.trim() ? escapeHtml(context.citizenId.trim()) : '—';
+   const safeEmail = context.email?.trim() ? escapeHtml(context.email.trim()) : '—';
+   const safePhone = context.phone?.trim() ? escapeHtml(context.phone.trim()) : '—';
+
+   const vipSectionHtml = isVip
+      ? `<div style="padding:16px;background-color:#fefce8;border:1px solid #fff085;border-radius:8px;margin-bottom:20px;">
+                  <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#404040;text-align:center;">
+                     Vui lòng kiểm tra thông tin lưu trú của bạn. Nhấn Thay đổi để chỉnh sửa.
+                  </p>
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#ffffff;border:1px solid #e5e5e5;border-radius:6px;margin-bottom:14px;font-size:13px;color:#171717;">
+                     <tr>
+                        <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#737373;width:40%;">Họ và tên</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;font-weight:700;text-align:right;">${safeFullName}</td>
+                     </tr>
+                     <tr>
+                        <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#737373;">CCCD / CMND</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;font-weight:700;text-align:right;">${safeCitizenId}</td>
+                     </tr>
+                     <tr>
+                        <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#737373;">Email</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;font-weight:700;text-align:right;word-break:break-all;">${safeEmail}</td>
+                     </tr>
+                     <tr>
+                        <td style="padding:8px 12px;color:#737373;">Số điện thoại</td>
+                        <td style="padding:8px 12px;font-weight:700;text-align:right;">${safePhone}</td>
+                     </tr>
+                  </table>
+                  <div style="text-align:center;">
+                     <a href="${safeEditUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:4px 6px;padding:10px 20px;background-color:#ffffff;color:#171717;border:1px solid #d4d4d4;text-decoration:none;font-size:14px;font-weight:700;border-radius:6px;">
+                        Thay đổi
+                     </a>
+                  </div>
+               </div>`
+      : '';
 
    const subject = `[${context.eventName}] Vé tham dự & Mã QR Check-In (${context.ticketCode})`;
 
@@ -57,6 +97,8 @@ export const buildAttendantTicketEmail = (context: Types.TemplateContext) => {
                   </div>
                </div>
 
+               ${vipSectionHtml}
+
                ${
                   safeLocation || formattedStartTime
                      ? `<div style="font-size:13px;line-height:1.6;color:#404040;border-top:1px solid #e5e5e5;padding-top:16px;">
@@ -76,6 +118,15 @@ export const buildAttendantTicketEmail = (context: Types.TemplateContext) => {
       `Sự kiện: ${context.eventName} - ${context.gameName}`,
       `Mã vé của bạn: ${context.ticketCode}`,
       `Mã QR Check-In: ${context.qrCodePayload}`,
+      isVip
+         ? 'Vui lòng kiểm tra thông tin lưu trú của bạn. Nhấn Xác nhận nếu chính xác, hoặc Thay đổi để chỉnh sửa.'
+         : '',
+      isVip ? `Họ và tên: ${context.fullName}` : '',
+      isVip ? `CCCD / CMND: ${context.citizenId?.trim() || '—'}` : '',
+      isVip ? `Email: ${context.email?.trim() || '—'}` : '',
+      isVip ? `Số điện thoại: ${context.phone?.trim() || '—'}` : '',
+      isVip ? `Xác nhận: ${context.confirmUrl}` : '',
+      isVip ? `Thay đổi: ${context.editUrl}` : '',
       context.locationName ? `Địa điểm: ${context.locationName}` : '',
       context.startTime ? `Thời gian: ${new Date(context.startTime).toLocaleString('vi-VN')}` : '',
    ]
@@ -88,4 +139,3 @@ export const buildAttendantTicketEmail = (context: Types.TemplateContext) => {
       text,
    };
 };
-

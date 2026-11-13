@@ -1,10 +1,12 @@
 export const STANDARD_CSV_COLUMNS = [
+   'citizen_id',
    'full_name',
    'ticket_code',
    'email',
    'phone',
    'company_name',
    'department',
+   'accommodation',
 ] as const;
 
 export const BATCH_CHUNK_SIZE = 200;

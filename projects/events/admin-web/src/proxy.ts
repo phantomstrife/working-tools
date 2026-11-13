@@ -15,7 +15,8 @@ export async function proxy(request: AdminWeb.Router.Proxy_Request) {
       currentPath.startsWith('/api') ||
       currentPath.startsWith('/assets') ||
       currentPath.startsWith('/favicon') ||
-      currentPath.match(/\.(.*)$/)
+      currentPath.match(/\.(.*)$/) ||
+      IS_ROUTE.PUBLIC(currentPath)
    ) {
       return NextResponse.next();
    }

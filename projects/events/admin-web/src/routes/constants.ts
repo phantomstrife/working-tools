@@ -30,6 +30,9 @@ export const ROUTE = {
    OPERATOR: {
       HOME: `${BASE.OPERATOR}`,
    },
+   PUBLIC: {
+      VIP_ACCOMMODATION: '/vip-accommodation',
+   },
 };
 
 export const IS_ROUTE = {
@@ -39,4 +42,5 @@ export const IS_ROUTE = {
       isValidPath(path, [ROUTE.SUPER_ADMIN, ROUTE.ADMIN, ROUTE.GUARD, ROUTE.OPERATOR]),
    GUARD: (path: string): boolean => isValidPath(path, ROUTE.GUARD),
    OPERATOR: (path: string): boolean => isValidPath(path, ROUTE.OPERATOR),
+   PUBLIC: (path: string): boolean => isValidPath(path, ROUTE.PUBLIC),
 };

@@ -45,7 +45,9 @@ export function useLogic() {
       isSpinning || isDrawingRequest
          ? translate('searching_winner')
          : winningParticipant
-           ? winningParticipant.name
+           ? winningParticipant.representative
+              ? winningParticipant.representative
+              : winningParticipant.name
            : !currentPrize
              ? translate('select_prize')
              : prizeDone

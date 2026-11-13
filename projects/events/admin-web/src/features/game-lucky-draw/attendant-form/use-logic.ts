@@ -12,11 +12,13 @@ import type * as Types from './type';
 
 const getInitialValues = (attendant?: Types.Attendant | null): Types.FormValues => ({
    full_name: attendant?.full_name ?? '',
+   citizen_id: attendant?.citizen_id ?? '',
    ticket_code: attendant?.ticket_code ?? '',
    email: attendant?.email ?? '',
    phone: attendant?.phone ?? '',
    company_name: attendant?.company_name ?? '',
    department: attendant?.department ?? '',
+   accommodation: Boolean(attendant?.accommodation),
 });
 
 export function useLogic(properties: Types.Properties) {
@@ -49,11 +51,13 @@ export function useLogic(properties: Types.Properties) {
             id: attendant?.id,
             gameId,
             full_name: values.full_name,
+            citizen_id: values.citizen_id || null,
             ticket_code: values.ticket_code,
             email: values.email || null,
             phone: values.phone || null,
             company_name: values.company_name || null,
             department: values.department || null,
+            accommodation: Boolean(values.accommodation),
          });
 
          if (saveResult.error) {

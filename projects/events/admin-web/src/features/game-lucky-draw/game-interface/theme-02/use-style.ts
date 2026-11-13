@@ -64,6 +64,9 @@ export const useStyle = {
    winnerNameText: tv({
       base: 'truncate font-semibold text-neutral-50 text-13',
    }),
+   winnerRepText: tv({
+      base: 'truncate text-11 font-medium text-warning-200',
+   }),
    winnerOrgText: tv({
       base: 'truncate text-11 text-neutral-400',
    }),
@@ -84,6 +87,9 @@ export const useStyle = {
    }),
    displayNameHeading: tv({
       base: 'text-20 sm:text-26 md:text-30 font-extrabold tracking-wider text-neutral-50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] uppercase',
+   }),
+   representativeSubLabel: tv({
+      base: 'text-13 sm:text-16 font-bold tracking-wide text-neutral-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]',
    }),
    companySubLabel: tv({
       base: 'text-12 sm:text-14 font-semibold tracking-wide text-warning-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]',

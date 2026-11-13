@@ -5,7 +5,16 @@ export type Prize = Pick<
 >;
 export type Attendant = Pick<
    AdminWeb.Database.GameLuckyDrawAttendant,
-   'id' | 'full_name' | 'ticket_code' | 'email' | 'phone' | 'company_name' | 'department' | 'has_won' | 'custom_metadata'
+   | 'id'
+   | 'full_name'
+   | 'representative'
+   | 'ticket_code'
+   | 'email'
+   | 'phone'
+   | 'company_name'
+   | 'department'
+   | 'has_won'
+   | 'custom_metadata'
 >;
 
 export interface Winner_Record {

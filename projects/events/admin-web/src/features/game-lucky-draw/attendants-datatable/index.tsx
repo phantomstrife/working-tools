@@ -1,6 +1,6 @@
 'use client';
 
-import { Download, Mail, Plus, Upload } from 'lucide-react';
+import { Download, Mail, Plus, Send, Upload } from 'lucide-react';
 
 import { ConfirmModal } from '@admin-web/components/confirm-modal';
 import { DataTable } from '@admin-web/components/datatable';
@@ -40,8 +40,17 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                      : func.translate('actions.send_emails'),
                   icon: Mail,
                   batchSelect: true,
-                  disabled: param.isLoading || param.isSendingEmails,
+                  disabled: param.isLoading || param.isSendingEmails || param.isSendingAllEmails,
                   onClick: func.handleSendEmails,
+               },
+               {
+                  key: 'send-all-emails',
+                  label: param.isSendingAllEmails
+                     ? func.translate('actions.sending_all_emails')
+                     : func.translate('actions.send_all_emails'),
+                  icon: Send,
+                  disabled: param.isLoading || param.isSendingEmails || param.isSendingAllEmails,
+                  onClick: func.handleSendAllEmails,
                },
                {
                   key: 'export',
@@ -114,9 +123,17 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
             data={param.attendants}
             columns={[
                {
+                  key: 'citizen_id',
+                  header: func.translate('table.headers.citizen_id'),
+               },
+               {
                   key: 'full_name',
                   header: func.translate('table.headers.full_name'),
                   emphasis: true,
+               },
+               {
+                  key: 'representative',
+                  header: func.translate('table.headers.representative'),
                },
                {
                   key: 'phone',
@@ -125,6 +142,25 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                {
                   key: 'email',
                   header: func.translate('table.headers.email'),
+               },
+               {
+                  key: 'accommodation',
+                  header: func.translate('table.headers.accommodation'),
+                  render: (row) => {
+                     const isVip = Boolean(row.accommodation);
+
+                     return (
+                        <span
+                           className={cell.status_badge({
+                              variant: isVip ? 'accommodation_true' : 'accommodation_false',
+                           })}
+                        >
+                           {isVip
+                              ? func.translate('table.badges.accommodation_true')
+                              : func.translate('table.badges.accommodation_false')}
+                        </span>
+                     );
+                  },
                },
                {
                   key: 'ticket_code',
@@ -249,6 +285,18 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
             confirmLabel={func.translate('actions.delete_confirm')}
             loadingLabel={func.translate('actions.deleting')}
             onConfirm={func.handleConfirmDelete}
+         />
+
+         <ConfirmModal
+            id={MODAL_ID.SEND_ALL_EMAILS}
+            isLoading={param.isSendingAllEmails}
+            title={func.translate('modals.send_all_title')}
+            description={func.translate('modals.send_all_description')}
+            message={func.translate('modals.send_all_message')}
+            cancelLabel={func.translate('actions.cancel')}
+            confirmLabel={func.translate('actions.send_all_confirm')}
+            loadingLabel={func.translate('actions.sending_all_emails')}
+            onConfirm={func.handleConfirmSendAllEmails}
          />
       </>
    );

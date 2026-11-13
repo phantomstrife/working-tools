@@ -15,6 +15,7 @@ export interface Prize_Row {
 export interface Participant_Row {
    id: string;
    full_name: string;
+   representative: string | null;
    ticket_code: string;
    company_name: string | null;
    department: string | null;
@@ -31,6 +32,7 @@ export interface Winner_Row {
       | {
            id: string;
            full_name: string;
+           representative: string | null;
            ticket_code: string;
            company_name: string | null;
            department: string | null;
@@ -38,6 +40,7 @@ export interface Winner_Row {
       | {
            id: string;
            full_name: string;
+           representative: string | null;
            ticket_code: string;
            company_name: string | null;
            department: string | null;

@@ -16,6 +16,24 @@ const normalizeHeaderKey = (header: string): string => {
       .replace(/[\s-]+/g, '_');
 };
 
+const parseAccommodationCell = (rawValue: string): boolean | null | 'invalid' => {
+   const normalized = rawValue.trim().toLowerCase();
+
+   if (!normalized) {
+      return null;
+   }
+
+   if (normalized === 'true' || normalized === '1' || normalized === 'yes' || normalized === 'y' || normalized === 'có') {
+      return true;
+   }
+
+   if (normalized === 'false' || normalized === '0' || normalized === 'no' || normalized === 'n' || normalized === 'không') {
+      return false;
+   }
+
+   return 'invalid';
+};
+
 export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (request) => {
    return trycatchAsync(async () => {
       const access = await verifyGameAccess({ gameId: request.gameId });
@@ -98,12 +116,14 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
             }
          });
 
+         const citizenId = normalizedRow.citizen_id ?? '';
          const fullName = normalizedRow.full_name ?? '';
          const ticketCode = normalizedRow.ticket_code ?? '';
          const email = normalizedRow.email ?? '';
          const phone = normalizedRow.phone ?? '';
          const companyName = normalizedRow.company_name ?? '';
          const department = normalizedRow.department ?? '';
+         const parsedAccommodation = parseAccommodationCell(normalizedRow.accommodation ?? '');
 
          if (!fullName || !ticketCode) {
             errors.push({
@@ -119,6 +139,15 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
                row: rowNumber,
                ticket_code: ticketCode,
                reason: 'invalid_email',
+            });
+            return;
+         }
+
+         if (parsedAccommodation === 'invalid') {
+            errors.push({
+               row: rowNumber,
+               ticket_code: ticketCode,
+               reason: 'invalid_accommodation',
             });
             return;
          }
@@ -146,6 +175,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
             toUpdate.push({
                id: existing.id,
                game_id: request.gameId,
+               citizen_id: citizenId || null,
                full_name: fullName,
                ticket_code: existing.ticket_code,
                qr_code_payload: existing.qr_code_payload,
@@ -153,6 +183,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
                phone: phone || null,
                company_name: companyName || null,
                department: department || null,
+               ...(parsedAccommodation !== null ? { accommodation: parsedAccommodation } : {}),
                ...(hasCustomMetadata ? { custom_metadata: customMetadata } : {}),
                ...(emailChanged ? { email_status: 'NOT_SENT', email_sent_at: null } : {}),
                updated_at: new Date().toISOString(),
@@ -162,6 +193,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
 
          toInsert.push({
             game_id: request.gameId,
+            citizen_id: citizenId || null,
             full_name: fullName,
             ticket_code: ticketCode,
             qr_code_payload: generateQrCodePayload(request.gameId, ticketCode),
@@ -169,6 +201,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
             phone: phone || null,
             company_name: companyName || null,
             department: department || null,
+            accommodation: parsedAccommodation ?? false,
             custom_metadata: hasCustomMetadata ? customMetadata : null,
             email_status: 'NOT_SENT',
             is_checked_in: false,
