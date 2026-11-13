@@ -27,6 +27,11 @@ export const vi = {
          },
       },
       company: {
+         selector: {
+            label: 'Chuyển đổi công ty',
+            count: '{{count}} công ty',
+            placeholder: 'Chọn một công ty...',
+         },
          info_card: {
             industry: 'Ngành nghề',
             tax_code: 'Mã số thuế',
@@ -302,8 +307,7 @@ export const vi = {
                delete_success: 'Đã xóa người tham dự thành công.',
                export_success: 'Đã xuất danh sách trúng thưởng ({{count}} kết quả).',
                email_batch_success: 'Đã gửi thành công {{sent}}/{{total}} email qua {{provider}}.',
-               email_batch_partial:
-                  'Đã gửi {{sent}}/{{total}} email ({{failed}} thất bại) qua {{provider}}.',
+               email_batch_partial: 'Đã gửi {{sent}}/{{total}} email ({{failed}} thất bại) qua {{provider}}.',
                select_attendants_first: 'Vui lòng chọn ít nhất một người tham dự trong bảng để gửi email.',
             },
          },
@@ -576,11 +580,10 @@ export const vi = {
             },
             qr: {
                title: 'Quét mã QR Check-in',
-               subtitle:
-                  'Sử dụng máy quét cầm tay (USB) hoặc bật camera để quét vé mời QR của khách tham dự.',
+               subtitle: 'Sử dụng máy quét cầm tay (USB) hoặc bật camera để quét vé mời QR của khách tham dự.',
                modes: {
-                  scanner: 'Máy quét USB / Nhập mã',
-                  camera: 'Camera trực tiếp',
+                  scanner: 'Máy quét',
+                  camera: 'Camera',
                },
                scanner_input_label: 'Chuỗi mã QR (qr_code_payload)',
                scanner_placeholder: 'Đặt con trỏ tại đây và quét mã QR (hoặc dán mã QR)...',
@@ -591,13 +594,14 @@ export const vi = {
                camera_stop: 'Tắt camera',
                camera_starting: 'Đang kết nối camera...',
                camera_active_hint: 'Đưa mã QR của khách vào khung ngắm để tự động nhận diện.',
-               camera_error:
-                  'Không thể truy cập camera. Vui lòng kiểm tra quyền thiết bị hoặc dùng máy quét USB.',
+               camera_error: 'Không thể truy cập camera. Vui lòng kiểm tra quyền thiết bị hoặc dùng máy quét USB.',
+               reset_scan: 'Đặt lại lượt quét',
+               status_ready: 'Sẵn sàng quét mã QR',
+               status_verifying: 'Đang kiểm tra mã vé...',
             },
             manual: {
                title: 'Tra cứu & Check-in thủ công',
-               subtitle:
-                  'Tìm kiếm theo họ tên, mã vé, số điện thoại hoặc email khi khách quên mang mã QR.',
+               subtitle: 'Tìm kiếm theo họ tên, mã vé, số điện thoại hoặc email khi khách quên mang mã QR.',
                search_placeholder: 'Nhập tên, mã vé, SĐT hoặc email...',
                searching: 'Đang tìm kiếm...',
                empty_prompt: 'Nhập từ khóa ở ô tìm kiếm để tra cứu danh sách khách tham dự.',
@@ -619,6 +623,8 @@ export const vi = {
             feedback: {
                title: 'Kết quả Check-in gần nhất',
                empty: 'Chưa có lượt check-in nào trong phiên làm việc này.',
+               verifying_title: 'ĐANG KIỂM TRA VÉ...',
+               verifying_description: 'Đang đối chiếu dữ liệu khách tham dự trên hệ thống.',
                success_title: 'CHECK-IN THÀNH CÔNG',
                already_title: 'KHÁCH ĐÃ CHECK-IN TRƯỚC ĐÓ',
                error_title: 'KHÔNG THỂ CHECK-IN',
@@ -683,7 +689,7 @@ export const vi = {
                instant: 'Tức thì',
             },
             start_draw: 'Bắt đầu quay số',
-            preparing_draw: 'Đang lấy kết quả...',
+            preparing_draw: 'Đang quay số....',
             spinning_reels: 'Đang quay số...',
             prize_completed: 'Đã trao hết giải này',
             stop_next_reel: 'Dừng ô tiếp theo ({{stopped}}/{{total}}) · Space',
@@ -692,8 +698,7 @@ export const vi = {
             preparing_short: 'Đang xử lý...',
             spinning_short: 'Đang quay...',
             stop_short: 'Dừng',
-            shortcuts_hint:
-               'Phím tắt: [Space] Dừng ô số • [W] DS trúng giải • [H] Ẩn/hiện bảng điều khiển',
+            shortcuts_hint: 'Phím tắt: [Space] Dừng ô số • [W] DS trúng giải • [H] Ẩn/hiện bảng điều khiển',
          },
          placeholder: {
             badge: 'FIELD STAFF • EVENT GAME',

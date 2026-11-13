@@ -1,6 +1,7 @@
 export type Attendant = AdminWeb.Features.GameLuckyDraw.CheckIn.Attendant;
 export type Check_In_Result = AdminWeb.Features.GameLuckyDraw.CheckIn.Result;
 export type Qr_Mode = 'SCANNER' | 'CAMERA';
+export type Camera_Hud_Status = 'IDLE' | 'VERIFYING' | 'SUCCESS' | 'ALREADY' | 'ERROR';
 
 export interface Properties {
    gameId: string;
@@ -19,6 +20,7 @@ export interface State {
    qrMode: Qr_Mode;
    qrInput: string;
    isQrSubmitting: boolean;
+   lastScannedPayload: string;
    isCameraActive: boolean;
    isCameraStarting: boolean;
    cameraError: string;

@@ -37,8 +37,8 @@ export const useStyle = {
       image: 'size-full object-cover',
       icon: 'size-5',
       info: 'min-w-0',
-      name: 'text-14 font-bold text-neutral-900 truncate max-w-50',
-      description: 'text-12 text-neutral-500 truncate max-w-50',
+      name: 'text-14 font-bold text-neutral-900 truncate max-w-36 sm:max-w-50',
+      description: 'text-12 text-neutral-500 truncate max-w-36 sm:max-w-50',
    },
    stock: {
       wrapper: 'flex flex-col gap-1',

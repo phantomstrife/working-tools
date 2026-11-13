@@ -2,7 +2,17 @@
    grid-template-areas:
       'left    hint    error  '
       'control control control';
-   grid-template-columns: 1fr auto;
+   grid-template-columns: 1fr auto auto;
+}
+
+@media (max-width: 639px) {
+   .root_wrapper {
+      grid-template-areas:
+         'left    hint'
+         'error   error'
+         'control control';
+      grid-template-columns: 1fr auto;
+   }
 }
 
 .left_wrapper {

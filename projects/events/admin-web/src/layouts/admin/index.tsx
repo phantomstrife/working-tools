@@ -1,6 +1,7 @@
 'use client';
 
-import { Menu, X, Search, Bell, Building2, LogOut } from 'lucide-react';
+import { useRef } from 'react';
+import { Menu, X, Search, Bell, LogOut } from 'lucide-react';
 
 import defaultAvatar from '@admin-web/assets/svg/default-avatar.svg';
 
@@ -10,8 +11,9 @@ import { useStyle } from './use-style';
 
 export const LayoutAdmin: AdminWeb.Router.Layout = (propeties) => {
    const { children } = propeties;
+   const userMenuRef = useRef<HTMLDivElement>(null);
 
-   const { param, func } = useLogic();
+   const { param, func } = useLogic(userMenuRef);
    const { root, mobile, sidebar, fixed_header, main_content } = useStyle;
 
    return (
@@ -22,6 +24,7 @@ export const LayoutAdmin: AdminWeb.Router.Layout = (propeties) => {
                   <div className={sidebar.logo.text}>E</div> Event Tools
                </div>
                <button
+                  type="button"
                   className={mobile.close_menu}
                   onClick={() => func.setIsSidebarOpen(false)}
                >
@@ -55,72 +58,89 @@ export const LayoutAdmin: AdminWeb.Router.Layout = (propeties) => {
          )}
 
          <header className={fixed_header.wrapper}>
-            <button
-               className={mobile.open_menu}
-               onClick={() => func.setIsSidebarOpen(true)}
-            >
-               <Menu size={28} />
-            </button>
-            <div className={fixed_header.search.wrapper}>
-               <Search className={fixed_header.search.icon} />
-               <input
-                  type="text"
-                  className={fixed_header.search.input}
-                  placeholder={func.translate('fixed_header.search_placeholder')}
-               />
-            </div>
-            <div className={fixed_header.tool.wrapper}>
-               {param.isSuperAdmin && (
-                  <div className={fixed_header.tool.company_wrapper}>
-                     <Building2 className={fixed_header.tool.company_icon} />
-                     <select
-                        value={param.currentCompanyId}
-                        onChange={func.handleCompanyChange}
-                        className={fixed_header.tool.company_select}
-                        aria-label={func.translate('company_switcher.label')}
-                     >
-                        <option value="">{func.translate('company_switcher.placeholder')}</option>
-                        {param.companies.map((company) => (
-                           <option
-                              key={company.id}
-                              value={company.id}
-                           >
-                              {company.name}
-                           </option>
-                        ))}
-                     </select>
-                  </div>
-               )}
-               <button className={fixed_header.tool.notify_wrapper}>
-                  <span className={fixed_header.tool.notify_dot} />
-                  <Bell size={20} />
+            <div className={fixed_header.left}>
+               <button
+                  type="button"
+                  className={mobile.open_menu}
+                  onClick={() => func.setIsSidebarOpen(true)}
+               >
+                  <Menu size={22} />
                </button>
+               <div className={fixed_header.search.wrapper}>
+                  <Search className={fixed_header.search.icon} />
+                  <input
+                     type="text"
+                     className={fixed_header.search.input}
+                     placeholder={func.translate('fixed_header.search_placeholder')}
+                  />
+               </div>
+            </div>
+
+            <div className={fixed_header.tool.wrapper}>
+               <button
+                  type="button"
+                  className={fixed_header.tool.notify_wrapper}
+               >
+                  <span className={fixed_header.tool.notify_dot} />
+                  <Bell size={19} />
+               </button>
+
                <div
                   className={fixed_header.tool.divider}
                   aria-hidden="true"
                />
-               {param.account && (
-                  <div className={fixed_header.tool.account_info}>
-                     <span className={fixed_header.tool.account_name}>{param.account.full_name}</span>
-                     <span className={fixed_header.tool.account_role}>
-                        {func.translate(`roles.${param.account.role}`)}
-                     </span>
-                  </div>
-               )}
-               <img
-                  src={defaultAvatar.src}
-                  className={fixed_header.tool.account_image}
-                  alt="Profile"
-               />
-               <button
-                  type="button"
-                  onClick={func.handleLogout}
-                  disabled={param.isLoggingOut}
-                  className={fixed_header.tool.logout_button({ loading: param.isLoggingOut })}
+
+               <div
+                  ref={userMenuRef}
+                  className={fixed_header.user.wrapper}
                >
-                  <LogOut className={fixed_header.tool.logout_icon} />
-                  {func.translate(param.isLoggingOut ? 'logout.loading' : 'logout.label')}
-               </button>
+                  <button
+                     type="button"
+                     onClick={func.handleToggleUserMenu}
+                     aria-expanded={param.isUserMenuOpen}
+                     aria-haspopup="menu"
+                     className={fixed_header.user.trigger({ isOpen: param.isUserMenuOpen })}
+                  >
+                     <img
+                        src={defaultAvatar.src}
+                        className={fixed_header.user.avatar}
+                        alt="Profile"
+                     />
+                  </button>
+
+                  {param.isUserMenuOpen && (
+                     <div
+                        role="menu"
+                        className={fixed_header.user.dropdown}
+                     >
+                        {param.account && (
+                           <div className={fixed_header.user.dropdown_header}>
+                              <span className={fixed_header.user.dropdown_name}>
+                                 {param.account.full_name}
+                              </span>
+                              <span className={fixed_header.user.dropdown_email}>
+                                 {param.account.email}
+                              </span>
+                              <span className={fixed_header.user.dropdown_role}>
+                                 {func.translate(`roles.${param.account.role}`)}
+                              </span>
+                           </div>
+                        )}
+                        <div className={fixed_header.user.dropdown_body}>
+                           <button
+                              type="button"
+                              role="menuitem"
+                              onClick={func.handleLogout}
+                              disabled={param.isLoggingOut}
+                              className={fixed_header.user.logout_button({ loading: param.isLoggingOut })}
+                           >
+                              <LogOut className={fixed_header.user.logout_icon} />
+                              {func.translate(param.isLoggingOut ? 'logout.loading' : 'logout.label')}
+                           </button>
+                        </div>
+                     </div>
+                  )}
+               </div>
             </div>
          </header>
 

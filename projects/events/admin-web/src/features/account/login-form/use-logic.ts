@@ -1,5 +1,5 @@
 import { useRouter } from 'next/navigation';
-
+import { ROUTE } from '@admin-web/routes/constants';
 import { useTranslate } from '@admin-web/locale';
 import { useDeepState } from '@admin-web/hooks/deep-state';
 
@@ -42,7 +42,23 @@ export function useLogic() {
          return;
       }
 
-      router.refresh();
+      const { accountRole, companyId } = serviceAccountLogin.data;
+
+      switch (accountRole) {
+         case 'SUPER_ADMIN':
+            router.replace(ROUTE.SUPER_ADMIN.HOME);
+            break;
+         case 'ADMIN':
+            router.replace(companyId ? ROUTE.ADMIN.HOME(companyId) : ROUTE.AUTHORIZE.LOGIN);
+            break;
+         case 'FIELD_STAFF':
+            router.replace(ROUTE.OPERATOR.HOME);
+            break;
+         case 'GUARD':
+         default:
+            router.replace(ROUTE.GUARD.HOME);
+            break;
+      }
    }
 
    return {

@@ -26,13 +26,13 @@ const themes = {
 
 export const useStyle = {
    root: {
-      wrapper: `grid grid-cols-[1fr_auto_1fr] items-center gap-primary p-secondary bg-neutral-50 border border-utility-300 rounded-secondary shadow-xl`,
+      wrapper: `grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] items-stretch lg:items-center gap-primary p-primary sm:p-secondary bg-neutral-50 border border-utility-300 rounded-secondary shadow-xl`,
    },
    field: {
-      column: 'flex flex-col gap-y-2',
-      toolbar: 'flex items-center justify-end gap-x-1.5 pt-2',
+      column: 'flex flex-col gap-y-2 min-w-0',
+      toolbar: 'flex flex-wrap items-center justify-end gap-1.5 pt-2',
       action_button: themes.action_button,
-      arrow: '-mt-[calc(var(--spacing-primary))]',
-      select: 'w-full h-full text-14',
+      arrow: 'mx-auto rotate-90 lg:rotate-0 lg:-mt-[calc(var(--spacing-primary))]',
+      select: 'w-full min-w-0 h-full text-14',
    },
 };

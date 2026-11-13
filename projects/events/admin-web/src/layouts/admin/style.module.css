@@ -18,7 +18,7 @@
    grid-area: main_content;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
    .root_wrapper {
       grid-template-areas:
          'fixed_header'

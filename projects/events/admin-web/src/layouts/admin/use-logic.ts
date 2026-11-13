@@ -1,22 +1,20 @@
 import { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { useTranslate } from '@admin-web/locale';
 import { ROUTE } from '@admin-web/routes/constants';
 import { useServicesAccountLogout } from '@admin-web/services/account/logout';
 import { useServicesAccountRead } from '@admin-web/services/account/read';
-import { useServicesCompanySearch } from '@admin-web/services/company/search';
 
 import type * as Types from './type';
 
-export function useLogic() {
+export function useLogic(userMenuRef: React.RefObject<HTMLDivElement | null>) {
    const router = useRouter();
-   const pathname = usePathname();
 
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
    const [isLoggingOut, setIsLoggingOut] = useState(false);
    const [account, setAccount] = useState<Types.Account | null>(null);
-   const [companies, setCompanies] = useState<Types.Company[]>([]);
 
    const { translate } = useTranslate({
       prefix: 'layouts.admin',
@@ -33,16 +31,6 @@ export function useLogic() {
          }
 
          setAccount(serviceAccount.data);
-
-         if (serviceAccount.data.role !== 'SUPER_ADMIN') {
-            return;
-         }
-
-         const serviceCompanies = await useServicesCompanySearch();
-
-         if (active && !serviceCompanies.error) {
-            setCompanies(serviceCompanies.data.companies);
-         }
       })();
 
       return () => {
@@ -50,15 +38,34 @@ export function useLogic() {
       };
    }, []);
 
-   const isSuperAdmin = account?.role === 'SUPER_ADMIN';
-   const currentCompanyId = pathname.match(/^\/admin\/([^/]+)/)?.[1] ?? '';
-
-   const handleCompanyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const companyId = event.target.value;
-
-      if (companyId) {
-         router.push(ROUTE.ADMIN.HOME(companyId));
+   useEffect(() => {
+      if (!isUserMenuOpen) {
+         return;
       }
+
+      const handlePointerDown = (event: MouseEvent) => {
+         if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+            setIsUserMenuOpen(false);
+         }
+      };
+
+      const handleKeyDown = (event: KeyboardEvent) => {
+         if (event.key === 'Escape') {
+            setIsUserMenuOpen(false);
+         }
+      };
+
+      document.addEventListener('mousedown', handlePointerDown);
+      document.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+         document.removeEventListener('mousedown', handlePointerDown);
+         document.removeEventListener('keydown', handleKeyDown);
+      };
+   }, [isUserMenuOpen, userMenuRef]);
+
+   const handleToggleUserMenu = () => {
+      setIsUserMenuOpen((prev) => !prev);
    };
 
    const handleLogout = async () => {
@@ -75,16 +82,15 @@ export function useLogic() {
    return {
       param: {
          isSidebarOpen,
+         isUserMenuOpen,
          isLoggingOut,
          account,
-         companies,
-         isSuperAdmin,
-         currentCompanyId,
       },
       func: {
          translate,
          setIsSidebarOpen,
-         handleCompanyChange,
+         setIsUserMenuOpen,
+         handleToggleUserMenu,
          handleLogout,
       },
    };

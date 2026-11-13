@@ -10,6 +10,7 @@ import {
    Keyboard,
    QrCode,
    RefreshCw,
+   RotateCcw,
    Search,
    UserCheck,
    Users,
@@ -147,7 +148,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                  type="text"
                                  autoFocus
                                  value={state.qrInput}
-                                 disabled={state.isQrSubmitting}
+                                 readOnly={state.isQrSubmitting}
                                  placeholder={func.translate('qr.scanner_placeholder')}
                                  onChange={(event) => func.setState(event.target.value, 'qrInput')}
                                  className={qr.input}
@@ -167,6 +168,9 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                               disabled={param.isQrSubmitDisabled}
                               className={qr.submit({ disabled: param.isQrSubmitDisabled })}
                            >
+                              {state.isQrSubmitting && (
+                                 <RefreshCw className={stats.refresh_icon({ loading: true })} />
+                              )}
                               {func.translate(`qr.submit_scanning_${state.isQrSubmitting}`)}
                            </button>
                         </div>
@@ -174,7 +178,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                      </form>
                   ) : (
                      <div className={qr.camera.wrapper}>
-                        <div className={qr.camera.viewport}>
+                        <div className={qr.camera.viewport({ status: param.cameraStatus })}>
                            <video
                               ref={videoRef}
                               playsInline
@@ -186,7 +190,58 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                               className={qr.camera.hidden_canvas}
                            />
                            {state.isCameraActive ? (
-                              <div className={qr.camera.overlay} />
+                              <>
+                                 <div className={qr.camera.overlay({ status: param.cameraStatus })} />
+                                 <div className={qr.camera.hud({ status: param.cameraStatus })}>
+                                    {param.cameraStatus === 'VERIFYING' ? (
+                                       <div className={qr.camera.hud_left}>
+                                          <RefreshCw className={stats.refresh_icon({ loading: true })} />
+                                          <span className={qr.camera.hud_text}>
+                                             {func.translate('qr.status_verifying')}
+                                          </span>
+                                       </div>
+                                    ) : param.cameraStatus === 'SUCCESS' &&
+                                      state.lastResult?.kind === 'SUCCESS' ? (
+                                       <>
+                                          <div className={qr.camera.hud_left}>
+                                             <CheckCircle2 className={qr.camera.hud_icon} />
+                                             <span className={qr.camera.hud_text}>
+                                                {state.lastResult.attendant.full_name}
+                                             </span>
+                                          </div>
+                                          <span className={qr.camera.hud_ticket}>
+                                             {state.lastResult.attendant.ticket_code}
+                                          </span>
+                                       </>
+                                    ) : param.cameraStatus === 'ALREADY' &&
+                                      state.lastResult?.kind === 'ALREADY' ? (
+                                       <>
+                                          <div className={qr.camera.hud_left}>
+                                             <AlertTriangle className={qr.camera.hud_icon} />
+                                             <span className={qr.camera.hud_text}>
+                                                {state.lastResult.attendant.full_name}
+                                             </span>
+                                          </div>
+                                          <span className={qr.camera.hud_ticket}>
+                                             {state.lastResult.attendant.ticket_code}
+                                          </span>
+                                       </>
+                                    ) : param.cameraStatus === 'ERROR' &&
+                                      state.lastResult?.kind === 'ERROR' ? (
+                                       <div className={qr.camera.hud_left}>
+                                          <XCircle className={qr.camera.hud_icon} />
+                                          <span className={qr.camera.hud_text}>{state.lastResult.message}</span>
+                                       </div>
+                                    ) : (
+                                       <div className={qr.camera.hud_left}>
+                                          <QrCode className={qr.camera.hud_icon} />
+                                          <span className={qr.camera.hud_text}>
+                                             {func.translate('qr.status_ready')}
+                                          </span>
+                                       </div>
+                                    )}
+                                 </div>
+                              </>
                            ) : (
                               <div className={qr.camera.placeholder}>
                                  <Camera size={32} />
@@ -203,26 +258,38 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
 
                         <div className={qr.camera.controls}>
                            <span className={qr.hint}>{func.translate('qr.camera_active_hint')}</span>
-                           {state.isCameraActive ? (
-                              <button
-                                 type="button"
-                                 onClick={func.stopCamera}
-                                 className={qr.camera.button({ active: true })}
-                              >
-                                 <CameraOff size={15} />
-                                 {func.translate('qr.camera_stop')}
-                              </button>
-                           ) : (
-                              <button
-                                 type="button"
-                                 disabled={state.isCameraStarting}
-                                 onClick={func.startCamera}
-                                 className={qr.camera.button({ active: false })}
-                              >
-                                 <Camera size={15} />
-                                 {func.translate('qr.camera_start')}
-                              </button>
-                           )}
+                           <div className={qr.camera.controls_actions}>
+                              {param.canResetScan && (
+                                 <button
+                                    type="button"
+                                    onClick={func.handleResetScan}
+                                    className={qr.reset_button}
+                                 >
+                                    <RotateCcw size={14} />
+                                    {func.translate('qr.reset_scan')}
+                                 </button>
+                              )}
+                              {state.isCameraActive ? (
+                                 <button
+                                    type="button"
+                                    onClick={func.stopCamera}
+                                    className={qr.camera.button({ active: true })}
+                                 >
+                                    <CameraOff size={15} />
+                                    {func.translate('qr.camera_stop')}
+                                 </button>
+                              ) : (
+                                 <button
+                                    type="button"
+                                    disabled={state.isCameraStarting}
+                                    onClick={func.startCamera}
+                                    className={qr.camera.button({ active: false })}
+                                 >
+                                    <Camera size={15} />
+                                    {func.translate('qr.camera_start')}
+                                 </button>
+                              )}
+                           </div>
                         </div>
                      </div>
                   )}
@@ -230,10 +297,36 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
 
                <div className={card.wrapper}>
                   <div className={card.header}>
-                     <h3 className={card.title}>{func.translate('feedback.title')}</h3>
+                     <div className={card.title_row}>
+                        <h3 className={card.title}>{func.translate('feedback.title')}</h3>
+                        {param.canResetScan && (
+                           <button
+                              type="button"
+                              onClick={func.handleResetScan}
+                              className={qr.reset_button}
+                           >
+                              <RotateCcw size={14} />
+                              {func.translate('qr.reset_scan')}
+                           </button>
+                        )}
+                     </div>
                   </div>
 
-                  {!state.lastResult ? (
+                  {state.isQrSubmitting ? (
+                     <div className={feedback.verifying_banner}>
+                        <div className={feedback.verifying_icon_box}>
+                           <RefreshCw className={stats.refresh_icon({ loading: true })} />
+                        </div>
+                        <div className={feedback.verifying_content}>
+                           <span className={feedback.verifying_title}>
+                              {func.translate('feedback.verifying_title')}
+                           </span>
+                           <span className={feedback.verifying_description}>
+                              {func.translate('feedback.verifying_description')}
+                           </span>
+                        </div>
+                     </div>
+                  ) : !state.lastResult ? (
                      <div className={feedback.empty}>{func.translate('feedback.empty')}</div>
                   ) : state.lastResult.kind === 'ERROR' ? (
                      <div className={feedback.banner({ kind: 'ERROR' })}>

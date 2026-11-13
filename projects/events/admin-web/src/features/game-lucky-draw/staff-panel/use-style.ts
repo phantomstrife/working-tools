@@ -24,7 +24,7 @@ export const useStyle = {
       info: 'min-w-0',
       name_row: 'flex items-center gap-1.5 text-13 font-bold text-neutral-900',
       inactive_dot: 'size-2 rounded-full bg-error-600 shrink-0',
-      email: 'text-12 text-neutral-500 truncate max-w-45',
+      email: 'text-12 text-neutral-500 truncate max-w-36 sm:max-w-45',
    },
    role_badge: themes.role_badge,
 };

@@ -8,7 +8,6 @@ import { useStyle } from './use-style';
 export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
    const { param, func } = useLogic();
    const {
-      fullscreenBtn,
       stageWrapper,
       boardCanvas,
       winnersOverlay,
@@ -44,16 +43,6 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
 
    return (
       <div className={stageWrapper()}>
-         <button
-            type="button"
-            onClick={func.handleToggleFullscreen}
-            title={param.isFullscreen ? 'Exit Fullscreen (F)' : 'Enter Fullscreen (F)'}
-            aria-label={param.isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-            className={fullscreenBtn()}
-         >
-            {param.isFullscreen ? '⤢' : '⛶'}
-         </button>
-
          {param.showWinners && param.currentPrize && (
             <div className={winnersOverlay()}>
                <div className={winnersHeader()}>

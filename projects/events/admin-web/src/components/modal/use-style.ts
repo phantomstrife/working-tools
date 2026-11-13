@@ -6,7 +6,7 @@ import type * as Types from './type';
 
 const themes = {
    container: tv({
-      base: 'fixed inset-0 flex items-center justify-center p-primary bg-neutral-950/60 backdrop-blur-xs overflow-y-auto ',
+      base: 'fixed inset-0 flex items-center justify-center p-3 sm:p-primary bg-neutral-950/60 backdrop-blur-xs overflow-y-auto ',
       variants: {
          isOpen: {
             true: 'z-50 opacity-100 pointer-events-auto',
@@ -15,7 +15,7 @@ const themes = {
       },
    }),
    wrapper: tv({
-      base: 'relative flex flex-col max-w-full max-h-[90vh] bg-neutral-50 border border-utility-200 shadow-xl overflow-hidden transition-all duration-300',
+      base: 'relative flex flex-col max-w-full max-h-[92dvh] bg-neutral-50 border border-utility-200 shadow-xl overflow-hidden transition-all duration-300',
       variants: {
          isOpen: {
             true: 'scale-100 opacity-100',
@@ -24,7 +24,7 @@ const themes = {
       },
    }),
    header: tv({
-      base: 'flex items-start justify-between gap-primary px-secondary py-primary bg-neutral-50 border-b border-utility-200',
+      base: 'flex items-start justify-between gap-primary px-primary sm:px-secondary py-primary bg-neutral-50 border-b border-utility-200',
    }),
    close: tv({
       base: 'shrink-0 p-[calc(var(--spacing-primary)*3/8)] text-neutral-500 rounded-primary transition-colors cursor-pointer hover:text-neutral-900 hover:bg-neutral-100',
@@ -39,7 +39,7 @@ const themes = {
       },
    }),
    footer: tv({
-      base: 'flex items-center justify-end gap-x-[calc(var(--spacing-primary)/2)] px-secondary py-primary bg-neutral-100/50 border-t border-utility-200',
+      base: 'flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 px-primary sm:px-secondary py-primary bg-neutral-100/50 border-t border-utility-200',
    }),
 };
 
@@ -48,7 +48,7 @@ export function useStyle(properties: Types.Properties, state: Types.State) {
 
    const {
       className,
-      bodyClass = 'p-secondary',
+      bodyClass = 'p-primary sm:p-secondary',
       closeButtonClass,
       headerClass,
       footerClass,

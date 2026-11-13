@@ -5,6 +5,17 @@
       'logo industry tax';
 }
 
+@media (max-width: 639px) {
+   .header_wrapper {
+      grid-template-areas:
+         'logo status'
+         'name name'
+         'industry industry'
+         'tax tax';
+      grid-template-columns: auto 1fr;
+   }
+}
+
 .header_logo_wrapper {
    grid-area: logo;
 }

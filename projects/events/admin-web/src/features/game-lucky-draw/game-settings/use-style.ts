@@ -2,10 +2,10 @@ import { tv } from 'tailwind-variants';
 
 export const useStyle = {
    collapsedContainer: tv({
-      base: 'fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2 select-none',
+      base: 'fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-50 max-w-[calc(100vw-1.5rem)] flex flex-col items-end gap-2 select-none',
    }),
    expandedContainer: tv({
-      base: 'fixed w-88 bottom-5 right-5 flex flex-col gap-3 z-50 select-none',
+      base: 'fixed inset-x-3 bottom-3 sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-88 max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2.5rem)] flex flex-col gap-2.5 z-50 select-none',
    }),
    noticeBanner: tv({
       base: [
@@ -25,7 +25,7 @@ export const useStyle = {
    }),
    collapsedPill: tv({
       base: [
-         'flex items-center gap-2 p-1.5 rounded-primary bg-neutral-900/90',
+         'flex flex-wrap items-center justify-end gap-2 p-1.5 rounded-primary bg-neutral-900/90',
          'border border-neutral-700/80 shadow-2xl backdrop-blur-md text-neutral-100',
       ],
    }),
@@ -55,11 +55,11 @@ export const useStyle = {
    operatorCard: tv({
       base: [
          'flex flex-col gap-3.5 p-4 bg-neutral-900/95 border border-neutral-700/80',
-         'rounded-secondary text-neutral-100 shadow-2xl backdrop-blur-md',
+         'rounded-secondary text-neutral-100 shadow-2xl backdrop-blur-md overflow-y-auto',
       ],
    }),
    cardHeader: tv({
-      base: 'flex items-center justify-between border-b border-neutral-800 pb-2.5',
+      base: 'flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-2.5',
    }),
    cardHeaderTitleGroup: tv({
       base: 'flex items-center gap-2',
@@ -97,13 +97,13 @@ export const useStyle = {
       ],
    }),
    accountRow: tv({
-      base: 'flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-primary bg-neutral-950/70 border border-neutral-800 text-11',
+      base: 'flex flex-wrap items-center justify-between gap-2 px-2.5 py-1.5 rounded-primary bg-neutral-950/70 border border-neutral-800 text-11',
    }),
    accountName: tv({
-      base: 'font-semibold text-neutral-200 truncate',
+      base: 'font-semibold text-neutral-200 truncate min-w-0',
    }),
    accountActions: tv({
-      base: 'flex items-center gap-1.5 shrink-0',
+      base: 'flex flex-wrap items-center gap-1.5 shrink-0',
    }),
    guardSwitchBtn: tv({
       base: [

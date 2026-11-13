@@ -95,7 +95,7 @@ export const useStyle = {
       }),
    },
    header: {
-      wrapper: `flex flex-wrap items-center justify-between gap-primary px-[calc(var(--spacing-primary)*5/4)] py-primary bg-neutral-100/30 border-b border-utility-300`,
+      wrapper: `flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-primary px-primary sm:px-[calc(var(--spacing-primary)*5/4)] py-primary bg-neutral-100/30 border-b border-utility-300`,
       title: {
          wrapper: 'flex flex-wrap items-center gap-[calc(var(--spacing-primary)*5/8)]',
          text: 'text-neutral-900 text-16 font-bold',
@@ -112,15 +112,15 @@ export const useStyle = {
       },
    },
    toolbar: {
-      wrapper: `flex items-center px-[calc(var(--spacing-primary)*5/4)] py-primary bg-neutral-50 border-b border-utility-300`,
+      wrapper: `flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-primary sm:px-[calc(var(--spacing-primary)*5/4)] py-primary bg-neutral-50 border-b border-utility-300`,
       search: {
          wrapper: 'relative flex-1 min-w-0',
          icon: 'absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-neutral-400 pointer-events-none',
          input: 'pl-[calc(var(--spacing-primary)*2.5)] pr-[calc(var(--spacing-primary)*2)] w-full h-10 text-neutral-950 text-13 bg-neutral-100 border border-utility-300 rounded-primary transition-all focus:outline-none focus:border-primary-500 focus:bg-neutral-50 focus:ring-2 focus:ring-primary-500/20',
       },
       filter: {
-         wrapper: 'flex items-center gap-[calc(var(--spacing-primary)*3/4)]',
-         select: `px-[calc(var(--spacing-primary)*3/4)] ml-primary h-10 text-13 font-medium bg-neutral-50 border border-utility-300 rounded-primary appearance-none cursor-pointer focus:outline-none`,
+         wrapper: 'flex flex-wrap items-center gap-[calc(var(--spacing-primary)*3/4)] w-full sm:w-auto',
+         select: `w-full sm:w-auto px-[calc(var(--spacing-primary)*3/4)] h-10 text-13 font-medium bg-neutral-50 border border-utility-300 rounded-primary appearance-none cursor-pointer focus:outline-none`,
       },
    },
    table: {
@@ -128,8 +128,8 @@ export const useStyle = {
          base: 'overflow-x-auto',
          variants: {
             compact: {
-               true: 'min-h-135',
-               false: 'min-h-135',
+               true: 'min-h-64 sm:min-h-105',
+               false: 'min-h-80 sm:min-h-135',
             },
          },
          defaultVariants: {
@@ -156,8 +156,8 @@ export const useStyle = {
          base: 'text-center align-middle',
          variants: {
             compact: {
-               true: 'py-20 text-14 text-neutral-500 font-medium',
-               false: 'pt-75 text-18! text-neutral-950 font-semibold',
+               true: 'py-14 sm:py-20 text-14 text-neutral-500 font-medium',
+               false: 'py-14 sm:py-24 text-16 sm:text-18! text-neutral-950 font-semibold',
             },
          },
          defaultVariants: {
@@ -166,10 +166,10 @@ export const useStyle = {
       }),
    },
    pagination: {
-      wrapper: `flex flex-wrap items-center justify-between px-[calc(var(--spacing-primary)*5/4)] py-[calc(var(--spacing-primary)*3/4)] bg-neutral-100/60 border-t border-utility-300`,
-      summary: 'text-neutral-500 text-13',
+      wrapper: `flex flex-col sm:flex-row items-center justify-between gap-2.5 px-primary sm:px-[calc(var(--spacing-primary)*5/4)] py-[calc(var(--spacing-primary)*3/4)] bg-neutral-100/60 border-t border-utility-300`,
+      summary: 'text-neutral-500 text-13 text-center sm:text-left',
       control: {
-         wrapper: `flex items-center gap-[calc(var(--spacing-primary)*3/4)] mt-[calc(var(--spacing-primary)*3/4)] sm:mt-0`,
+         wrapper: `flex flex-wrap items-center justify-center gap-[calc(var(--spacing-primary)*3/4)]`,
          limit_select: `px-[calc(var(--spacing-primary)*3/4)] py-[calc(var(--spacing-primary)*3/8)] text-12 font-medium bg-neutral-50 border border-utility-300 rounded-primary appearance-none cursor-pointer focus:outline-none`,
          nav_wrapper: 'flex items-center gap-[calc(var(--spacing-primary)/4)]',
          page_button: themes.page_button,

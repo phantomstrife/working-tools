@@ -20,9 +20,7 @@ export async function proxy(request: AdminWeb.Router.Proxy_Request) {
       return NextResponse.next();
    }
 
-   const response = NextResponse.next({
-      request,
-   });
+   const response = NextResponse.next();
 
    const serviceUserRead = await useServicesUserRead();
    let redirectUrl: string | null = null;

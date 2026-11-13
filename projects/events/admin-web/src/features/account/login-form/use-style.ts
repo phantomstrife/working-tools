@@ -21,7 +21,7 @@ export const useStyle = {
    top: {
       wrapper: 'flex flex-col items-center gap-y-1 text-center',
       icon: 'p-primary mb-primary bg-neutral-50 text-neutral-950 rounded-primary shadow-xl',
-      header: 'text-30! font-semibold text-neutral-950',
+      header: 'text-22! sm:text-30! font-semibold text-neutral-950',
       description: 'text-neutral-500 text-center',
    },
    form: {

@@ -2,7 +2,7 @@ import { tv } from 'tailwind-variants';
 
 const themes = {
    dropzone: tv({
-      base: 'flex flex-col items-center justify-center gap-[calc(var(--spacing-primary)/2)] p-secondary border-2 border-dashed rounded-secondary transition-colors cursor-pointer text-center',
+      base: 'flex flex-col items-center justify-center gap-[calc(var(--spacing-primary)/2)] p-primary sm:p-secondary border-2 border-dashed rounded-secondary transition-colors cursor-pointer text-center',
       variants: {
          isDragOver: {
             true: 'border-primary-500 bg-primary-100/30',
@@ -15,7 +15,7 @@ const themes = {
    }),
    submit_button: tv({
       base: [
-         'inline-flex items-center gap-[calc(var(--spacing-primary)*3/8)] px-primary py-[calc(var(--spacing-primary)/2)] text-13 font-semibold text-neutral-50',
+         'inline-flex items-center justify-center gap-[calc(var(--spacing-primary)*3/8)] px-primary py-[calc(var(--spacing-primary)/2)] text-13 font-semibold text-neutral-50',
          'bg-neutral-900 rounded-primary hover:bg-neutral-950 transition-colors cursor-pointer',
       ],
       variants: {
@@ -32,7 +32,7 @@ const themes = {
 
 export const useStyle = {
    root: 'flex flex-col',
-   content: 'flex flex-col gap-primary p-secondary',
+   content: 'flex flex-col gap-primary p-primary sm:p-secondary',
    guide: {
       wrapper: 'flex flex-wrap items-center justify-between gap-primary p-primary bg-neutral-100 border border-utility-200 rounded-primary',
       text: 'text-neutral-600 text-12',
@@ -48,7 +48,7 @@ export const useStyle = {
       subtitle: 'text-neutral-500 text-12',
    },
    file_bar: {
-      wrapper: 'flex items-center justify-between gap-primary px-primary py-[calc(var(--spacing-primary)*5/8)] bg-neutral-100 border border-utility-200 rounded-primary',
+      wrapper: 'flex flex-wrap items-center justify-between gap-primary px-primary py-[calc(var(--spacing-primary)*5/8)] bg-neutral-100 border border-utility-200 rounded-primary',
       info: 'flex items-center gap-[calc(var(--spacing-primary)/2)] min-w-0',
       icon: 'size-4 text-primary-600 shrink-0',
       name: 'text-neutral-900 text-13 font-semibold truncate',
@@ -69,8 +69,8 @@ export const useStyle = {
       error_list: 'max-h-36 overflow-y-auto flex flex-col gap-1 text-warning-800 text-12',
    },
    footer: {
-      wrapper: `flex items-center justify-end gap-x-[calc(var(--spacing-primary)/2)] px-secondary py-primary bg-neutral-100/50 border-t border-utility-200`,
-      cancel_button: `px-primary py-[calc(var(--spacing-primary)/2)] text-neutral-700 text-13 font-medium bg-neutral-50 border border-utility-300 rounded-primary transition-colors cursor-pointer hover:bg-neutral-100`,
+      wrapper: `flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 px-primary sm:px-secondary py-primary bg-neutral-100/50 border-t border-utility-200`,
+      cancel_button: `px-primary py-[calc(var(--spacing-primary)/2)] text-center text-neutral-700 text-13 font-medium bg-neutral-50 border border-utility-300 rounded-primary transition-colors cursor-pointer hover:bg-neutral-100`,
       submit_button: themes.submit_button,
    },
 };

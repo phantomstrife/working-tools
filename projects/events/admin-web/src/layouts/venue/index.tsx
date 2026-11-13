@@ -1,15 +1,14 @@
 'use client';
 
+import { useRef } from 'react';
 import {
-   Calendar,
-   Gamepad2,
    LayoutDashboard,
    LogOut,
-   RefreshCw,
    ShieldCheck,
    Sparkles,
 } from 'lucide-react';
 
+import defaultAvatar from '@admin-web/assets/svg/default-avatar.svg';
 import { ROUTE } from '@admin-web/routes/constants';
 
 import { useLogic } from './use-logic';
@@ -17,7 +16,9 @@ import { useStyle } from './use-style';
 
 export const LayoutVenue: AdminWeb.Router.Layout = (properties) => {
    const { children } = properties;
-   const { param, func } = useLogic();
+   const userMenuRef = useRef<HTMLDivElement>(null);
+
+   const { param, func } = useLogic(userMenuRef);
    const { root, header } = useStyle;
 
    return (
@@ -37,127 +38,132 @@ export const LayoutVenue: AdminWeb.Router.Layout = (properties) => {
                </div>
             </div>
 
-            {param.canSwitchModes && (
-               <div className={header.modes.wrapper}>
-                  {param.dashboardPath && (
+            <div className={header.right}>
+               {param.canSwitchModes && (
+                  <div className={header.modes.wrapper}>
+                     {param.dashboardPath && (
+                        <button
+                           type="button"
+                           className={header.modes.button({ active: false })}
+                           onClick={() => func.handleNavigateMode(param.dashboardPath)}
+                        >
+                           <LayoutDashboard size={14} />
+                           {func.translate('modes.dashboard')}
+                        </button>
+                     )}
                      <button
                         type="button"
-                        className={header.modes.button({ active: false })}
-                        onClick={() => func.handleNavigateMode(param.dashboardPath)}
+                        className={header.modes.button({
+                           active: param.currentPath.startsWith(ROUTE.GUARD.HOME),
+                        })}
+                        onClick={() => func.handleNavigateMode(ROUTE.GUARD.HOME)}
                      >
-                        <LayoutDashboard size={14} />
-                        {func.translate('modes.dashboard')}
+                        <ShieldCheck size={14} />
+                        {func.translate('modes.guard')}
                      </button>
-                  )}
-                  <button
-                     type="button"
-                     className={header.modes.button({
-                        active: param.currentPath.startsWith(ROUTE.GUARD.HOME),
-                     })}
-                     onClick={() => func.handleNavigateMode(ROUTE.GUARD.HOME)}
-                  >
-                     <ShieldCheck size={14} />
-                     {func.translate('modes.guard')}
-                  </button>
-                  <button
-                     type="button"
-                     className={header.modes.button({
-                        active: param.currentPath.startsWith(ROUTE.OPERATOR.HOME),
-                     })}
-                     onClick={() => func.handleNavigateMode(ROUTE.OPERATOR.HOME)}
-                  >
-                     <Sparkles size={14} />
-                     {func.translate('modes.operator')}
-                  </button>
-               </div>
-            )}
-
-            <div className={header.selector.wrapper}>
-               <div className={header.selector.field}>
-                  <Calendar className={header.selector.icon} />
-                  <span className={header.selector.label}>{func.translate('event_label')}:</span>
-                  <select
-                     value={param.selectedEventId}
-                     disabled={param.isLoadingAssignments || param.events.length === 0}
-                     onChange={func.handleEventChange}
-                     className={header.selector.select}
-                  >
-                     {param.events.length === 0 ? (
-                        <option value="">{func.translate('no_events')}</option>
-                     ) : (
-                        param.events.map((event) => (
-                           <option
-                              key={event.id}
-                              value={event.id}
-                           >
-                              {event.name}
-                           </option>
-                        ))
-                     )}
-                  </select>
-               </div>
-
-               <div className={header.selector.field}>
-                  <Gamepad2 className={header.selector.icon} />
-                  <span className={header.selector.label}>{func.translate('game_label')}:</span>
-                  <select
-                     value={param.selectedGameId}
-                     disabled={param.isLoadingAssignments || param.games.length === 0}
-                     onChange={func.handleGameChange}
-                     className={header.selector.select}
-                  >
-                     {param.games.length === 0 ? (
-                        <option value="">{func.translate('no_games')}</option>
-                     ) : (
-                        param.games.map((game) => (
-                           <option
-                              key={game.id}
-                              value={game.id}
-                           >
-                              {game.name}
-                           </option>
-                        ))
-                     )}
-                  </select>
-                  {param.selectedGame && (
-                     <span className={header.selector.status({ status: param.selectedGame.status })}>
-                        {func.translate(`game_status.${param.selectedGame.status}`)}
-                     </span>
-                  )}
-               </div>
-
-               <button
-                  type="button"
-                  title={func.translate('refresh_assignments')}
-                  disabled={param.isLoadingAssignments}
-                  onClick={func.fetchAssignments}
-                  className={header.selector.refresh_button}
-               >
-                  <RefreshCw className={header.selector.refresh_icon({ loading: param.isLoadingAssignments })} />
-               </button>
-            </div>
-
-            {param.account && (
-               <div className={header.user.wrapper}>
-                  <div className={header.user.info}>
-                     <div className={header.user.name_row}>
-                        <span className={header.user.name}>{param.account.full_name}</span>
-                        <span className={header.user.role_badge({ role: param.account.role })}>
-                           {func.translate(`roles.${param.account.role}`)}
-                        </span>
-                     </div>
-                     <span className={header.user.email}>{param.account.email}</span>
+                     <button
+                        type="button"
+                        className={header.modes.button({
+                           active: param.currentPath.startsWith(ROUTE.OPERATOR.HOME),
+                        })}
+                        onClick={() => func.handleNavigateMode(ROUTE.OPERATOR.HOME)}
+                     >
+                        <Sparkles size={14} />
+                        {func.translate('modes.operator')}
+                     </button>
                   </div>
-                  <button
-                     type="button"
-                     onClick={func.handleLogout}
-                     className={header.user.logout_button}
+               )}
+
+               {param.account && (
+                  <div
+                     ref={userMenuRef}
+                     className={header.user.wrapper}
                   >
-                     <LogOut className={header.user.logout_icon} />
-                     {func.translate('logout')}
-                  </button>
-               </div>
-            )}
+                     <button
+                        type="button"
+                        onClick={func.handleToggleUserMenu}
+                        aria-expanded={param.isUserMenuOpen}
+                        aria-haspopup="menu"
+                        className={header.user.trigger({ isOpen: param.isUserMenuOpen })}
+                     >
+                        <img
+                           src={defaultAvatar.src}
+                           className={header.user.avatar}
+                           alt="Profile"
+                        />
+                     </button>
+
+                     {param.isUserMenuOpen && (
+                        <div
+                           role="menu"
+                           className={header.user.dropdown}
+                        >
+                           <div className={header.user.dropdown_header}>
+                              <span className={header.user.dropdown_name}>
+                                 {param.account.full_name}
+                              </span>
+                              <span className={header.user.dropdown_email}>
+                                 {param.account.email}
+                              </span>
+                              <span className={header.user.dropdown_role({ role: param.account.role })}>
+                                 {func.translate(`roles.${param.account.role}`)}
+                              </span>
+                           </div>
+
+                           {param.canSwitchModes && (
+                              <div className={header.user.dropdown_modes}>
+                                 {param.dashboardPath && (
+                                    <button
+                                       type="button"
+                                       role="menuitem"
+                                       className={header.user.dropdown_mode_btn({ active: false })}
+                                       onClick={() => func.handleNavigateMode(param.dashboardPath)}
+                                    >
+                                       <LayoutDashboard size={15} />
+                                       {func.translate('modes.dashboard')}
+                                    </button>
+                                 )}
+                                 <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={header.user.dropdown_mode_btn({
+                                       active: param.currentPath.startsWith(ROUTE.GUARD.HOME),
+                                    })}
+                                    onClick={() => func.handleNavigateMode(ROUTE.GUARD.HOME)}
+                                 >
+                                    <ShieldCheck size={15} />
+                                    {func.translate('modes.guard')}
+                                 </button>
+                                 <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={header.user.dropdown_mode_btn({
+                                       active: param.currentPath.startsWith(ROUTE.OPERATOR.HOME),
+                                    })}
+                                    onClick={() => func.handleNavigateMode(ROUTE.OPERATOR.HOME)}
+                                 >
+                                    <Sparkles size={15} />
+                                    {func.translate('modes.operator')}
+                                 </button>
+                              </div>
+                           )}
+
+                           <div className={header.user.dropdown_body}>
+                              <button
+                                 type="button"
+                                 role="menuitem"
+                                 onClick={func.handleLogout}
+                                 className={header.user.logout_button}
+                              >
+                                 <LogOut className={header.user.logout_icon} />
+                                 {func.translate('logout')}
+                              </button>
+                           </div>
+                        </div>
+                     )}
+                  </div>
+               )}
+            </div>
          </header>
 
          <main className={root.main}>{children}</main>

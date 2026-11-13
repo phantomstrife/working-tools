@@ -51,31 +51,31 @@ export const useStyle = {
    },
    header: {
       wrapper: cx(
-         'relative grid items-center justify-start justify-items-start gap-x-primary p-[calc(var(--spacing-primary)*2)] border-b border-utility-200',
+         'relative grid items-center justify-start justify-items-start gap-x-primary gap-y-2 p-primary sm:p-[calc(var(--spacing-primary)*2)] border-b border-utility-200',
          css.header_wrapper,
       ),
       logo: {
          wrapper: cx(
-            'group relative flex size-30 shrink-0 items-center justify-center rounded-primary bg-linear-to-br from-neutral-50 to-neutral-100 border border-utility-200 shadow-inner overflow-hidden',
+            'group relative flex size-16 sm:size-24 md:size-30 shrink-0 items-center justify-center rounded-primary bg-linear-to-br from-neutral-50 to-neutral-100 border border-utility-200 shadow-inner overflow-hidden',
             css.header_logo_wrapper,
          ),
          image: 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105',
          icon: 'size-6 text-neutral-400',
       },
-      name: cx('text-28 font-medium tracking-tight text-neutral-950 truncate', css.header_name),
+      name: cx('text-20 sm:text-28 pr-10 font-medium tracking-tight text-neutral-950 truncate max-w-full', css.header_name),
       badge: css.header_status,
       industry: css.header_industry,
       tax: css.header_tax,
       action: `absolute top-4 right-4`,
    },
    body: {
-      wrapper: 'grid grid-cols-2 gap-primary p-[calc(var(--spacing-primary)*2)]',
+      wrapper: 'grid grid-cols-1 md:grid-cols-2 gap-primary p-primary sm:p-[calc(var(--spacing-primary)*2)]',
       item: {
          wrapper: `group relative flex items-start gap-primary min-w-0 p-primary bg-neutral-50 border border-utility-300 rounded-primary transition-all duration-150 hover:border-primary-200 hover:shadow-lg`,
          icon: themes.icon_tone,
       },
       content: {
-         wrapper: 'flex flex-col justify-center h-full',
+         wrapper: 'flex flex-col justify-center h-full min-w-0',
          label: 'flex items-center justify-between mb-1 text-neutral-600/50 text-12 font-semibold uppercase',
          value: themes.detail_value,
       },

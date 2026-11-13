@@ -9,13 +9,70 @@ import { useServicesGameLuckyDrawCheckInStats } from '@admin-web/services/game-l
 import { useServicesGameLuckyDrawGuardAttendantSearch } from '@admin-web/services/game-lucky-draw/guard-attendant-search';
 
 import {
-   CAMERA_DUPLICATE_COOLDOWN_MS,
    CAMERA_SCAN_INTERVAL_MS,
    RECENT_HISTORY_LIMIT,
    SEARCH_DEBOUNCE_MS,
 } from './constants';
 
 import type * as Types from './type';
+
+function playFeedbackTone(kind: 'SUCCESS' | 'ALREADY' | 'ERROR') {
+   try {
+      if (typeof window === 'undefined') {
+         return;
+      }
+
+      const AudioContextClass =
+         window.AudioContext ||
+         (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+
+      if (!AudioContextClass) {
+         return;
+      }
+
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+
+      const scheduleTone = (
+         frequency: number,
+         startOffset: number,
+         duration: number,
+         type: OscillatorType = 'sine',
+         gainPeak = 0.18,
+      ) => {
+         const osc = ctx.createOscillator();
+         const gain = ctx.createGain();
+
+         osc.type = type;
+         osc.frequency.setValueAtTime(frequency, now + startOffset);
+
+         gain.gain.setValueAtTime(0.0001, now + startOffset);
+         gain.gain.exponentialRampToValueAtTime(gainPeak, now + startOffset + 0.015);
+         gain.gain.exponentialRampToValueAtTime(0.0001, now + startOffset + duration);
+
+         osc.connect(gain);
+         gain.connect(ctx.destination);
+
+         osc.start(now + startOffset);
+         osc.stop(now + startOffset + duration);
+      };
+
+      if (kind === 'SUCCESS') {
+         scheduleTone(880, 0, 0.08, 'sine', 0.18);
+         scheduleTone(1320, 0.08, 0.08, 'sine', 0.2);
+         window.setTimeout(() => void ctx.close().catch(() => undefined), 250);
+      } else if (kind === 'ALREADY') {
+         scheduleTone(440, 0, 0.08, 'square', 0.12);
+         scheduleTone(440, 0.12, 0.08, 'square', 0.12);
+         window.setTimeout(() => void ctx.close().catch(() => undefined), 300);
+      } else {
+         scheduleTone(220, 0, 0.24, 'triangle', 0.22);
+         window.setTimeout(() => void ctx.close().catch(() => undefined), 320);
+      }
+   } catch {
+      // Ignore Web Audio API errors in restricted environments
+   }
+}
 
 export function useLogic(
    properties: Types.Properties,
@@ -40,6 +97,7 @@ export function useLogic(
       qrMode: 'SCANNER',
       qrInput: '',
       isQrSubmitting: false,
+      lastScannedPayload: '',
       isCameraActive: false,
       isCameraStarting: false,
       cameraError: '',
@@ -53,7 +111,7 @@ export function useLogic(
 
    const mediaStreamRef = useRef<MediaStream | null>(null);
    const scanIntervalRef = useRef<number | null>(null);
-   const lastScannedRef = useRef<{ payload: string; at: number }>({ payload: '', at: 0 });
+   const lastScannedRef = useRef<string>('');
    const isSubmittingRef = useRef(false);
 
    const localizeError = useCallback(
@@ -103,9 +161,12 @@ export function useLogic(
          videoRef.current.srcObject = null;
       }
 
+      lastScannedRef.current = '';
+
       setState({
          isCameraActive: false,
          isCameraStarting: false,
+         lastScannedPayload: '',
       });
    }, [setState, videoRef]);
 
@@ -122,6 +183,7 @@ export function useLogic(
       }) => {
          const now = Date.now();
          const isFirstCheckIn = response.status === 'CHECKED_IN';
+         const kind = isFirstCheckIn ? 'SUCCESS' : 'ALREADY';
 
          const updatedResults = state.searchResults.map((item) =>
             item.id === response.attendant.id ? response.attendant : item,
@@ -140,12 +202,14 @@ export function useLogic(
             checkedInCount: isFirstCheckIn ? state.checkedInCount + 1 : state.checkedInCount,
             searchResults: updatedResults,
             lastResult: {
-               kind: isFirstCheckIn ? 'SUCCESS' : 'ALREADY',
+               kind,
                attendant: response.attendant,
                at: now,
             },
             recentHistory: nextRecent,
          });
+
+         playFeedbackTone(kind);
 
          if (isFirstCheckIn) {
             toast.success(
@@ -175,7 +239,10 @@ export function useLogic(
          }
 
          isSubmittingRef.current = true;
-         setState(true, 'isQrSubmitting');
+         setState({
+            isQrSubmitting: true,
+            lastScannedPayload: payload,
+         });
 
          const serviceCheckIn = await useServicesGameLuckyDrawAttendantCheckInBrowser({
             gameId,
@@ -198,6 +265,7 @@ export function useLogic(
                },
             });
 
+            playFeedbackTone('ERROR');
             toast.error(errorMessage);
             scannerInputRef.current?.focus();
             return;
@@ -218,6 +286,19 @@ export function useLogic(
       event.preventDefault();
       void submitQrPayload(state.qrInput);
    };
+
+   const handleResetScan = useCallback(() => {
+      lastScannedRef.current = '';
+      setState({
+         lastScannedPayload: '',
+         lastResult: null,
+         qrInput: '',
+      });
+
+      if (state.qrMode === 'SCANNER') {
+         scannerInputRef.current?.focus();
+      }
+   }, [scannerInputRef, setState, state.qrMode]);
 
    const startCamera = useCallback(async () => {
       if (state.isCameraActive || state.isCameraStarting) {
@@ -279,19 +360,12 @@ export function useLogic(
             });
 
             const detectedPayload = qrCode?.data?.trim() ?? '';
-            if (!detectedPayload) {
+            if (!detectedPayload || detectedPayload === lastScannedRef.current) {
                return;
             }
 
-            const now = Date.now();
-            if (
-               lastScannedRef.current.payload === detectedPayload &&
-               now - lastScannedRef.current.at < CAMERA_DUPLICATE_COOLDOWN_MS
-            ) {
-               return;
-            }
-
-            lastScannedRef.current = { payload: detectedPayload, at: now };
+            lastScannedRef.current = detectedPayload;
+            setState(detectedPayload, 'lastScannedPayload');
             void submitQrPayload(detectedPayload);
          }, CAMERA_SCAN_INTERVAL_MS);
       } catch {
@@ -390,6 +464,7 @@ export function useLogic(
             },
          });
 
+         playFeedbackTone('ERROR');
          toast.error(errorMessage);
          return;
       }
@@ -402,6 +477,11 @@ export function useLogic(
       state.totalCount > 0
          ? Math.min(100, Math.round((state.checkedInCount / state.totalCount) * 100))
          : 0;
+   const cameraStatus: Types.Camera_Hud_Status = state.isQrSubmitting
+      ? 'VERIFYING'
+      : state.lastResult
+        ? state.lastResult.kind
+        : 'IDLE';
 
    return {
       state,
@@ -409,12 +489,15 @@ export function useLogic(
          remainingCount,
          attendanceRate,
          isQrSubmitDisabled: state.isQrSubmitting || !state.qrInput.trim(),
+         cameraStatus,
+         canResetScan: Boolean(state.lastResult || state.lastScannedPayload),
       },
       func: {
          translate,
          setState,
          fetchStats,
          handleQrFormSubmit,
+         handleResetScan,
          handleSelectQrMode,
          startCamera,
          stopCamera,

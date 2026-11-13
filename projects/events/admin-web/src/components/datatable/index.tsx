@@ -77,32 +77,34 @@ export const DataTable = <T,>(properties: Types.Properties<T>) => {
                   />
                </div>
             )}
-            <div className={toolbar.filter.wrapper}>
-               {filterTools.map((tool, index) => (
-                  <select
-                     key={`datatable-filter-${index}`}
-                     className={toolbar.filter.select}
-                     onChange={tool.onChange}
-                  >
-                     <option value="">{func.translate('all_records')}</option>
-                     {tool.options.map((item) => (
-                        <optgroup
-                           key={`datable-option-group-${item.label}`}
-                           label={item.label}
-                        >
-                           {item.options.map((option) => (
-                              <option
-                                 key={option.value}
-                                 value={option.value}
-                              >
-                                 {option.label}
-                              </option>
-                           ))}
-                        </optgroup>
-                     ))}
-                  </select>
-               ))}
-            </div>
+            {filterTools.length > 0 && (
+               <div className={toolbar.filter.wrapper}>
+                  {filterTools.map((tool, index) => (
+                     <select
+                        key={`datatable-filter-${index}`}
+                        className={toolbar.filter.select}
+                        onChange={tool.onChange}
+                     >
+                        <option value="">{func.translate('all_records')}</option>
+                        {tool.options.map((item) => (
+                           <optgroup
+                              key={`datable-option-group-${item.label}`}
+                              label={item.label}
+                           >
+                              {item.options.map((option) => (
+                                 <option
+                                    key={option.value}
+                                    value={option.value}
+                                 >
+                                    {option.label}
+                                 </option>
+                              ))}
+                           </optgroup>
+                        ))}
+                     </select>
+                  ))}
+               </div>
+            )}
          </div>
 
          <div className={table.scroll_wrapper({ compact })}>

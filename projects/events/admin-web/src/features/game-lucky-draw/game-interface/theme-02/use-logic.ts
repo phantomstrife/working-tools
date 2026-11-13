@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslate } from '@admin-web/locale';
 import { useStoreLuckyDraw } from '@admin-web/stores/lucky-draw';
 
@@ -9,9 +9,6 @@ export function useLogic() {
    const { translate } = useTranslate({
       prefix: 'features.operator.board',
    });
-
-   const stageRef = useRef<HTMLDivElement | null>(null);
-   const [isFullscreen, setIsFullscreen] = useState(false);
 
    const prizes = useStoreLuckyDraw((s) => s.prizes);
    const participants = useStoreLuckyDraw((s) => s.participants);
@@ -55,28 +52,6 @@ export function useLogic() {
                ? translate('prize_exhausted')
                : translate('ready');
 
-   const handleToggleFullscreen = useCallback(async () => {
-      try {
-         if (!document.fullscreenElement) {
-            const target = stageRef.current ?? document.documentElement;
-            await target.requestFullscreen();
-         } else {
-            await document.exitFullscreen();
-         }
-      } catch {
-         // Ignore browser fullscreen permission errors
-      }
-   }, []);
-
-   useEffect(() => {
-      const handleFullscreenChange = () => {
-         setIsFullscreen(Boolean(document.fullscreenElement));
-      };
-
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
-      return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-   }, []);
-
    useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
          const target = e.target;
@@ -93,15 +68,12 @@ export function useLogic() {
             setShowWinners((v) => !v);
          } else if (e.code === 'KeyH') {
             setHideHud((v) => !v);
-         } else if (e.code === 'KeyF') {
-            e.preventDefault();
-            void handleToggleFullscreen();
          }
       };
 
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
-   }, [handleManualStop, setShowWinners, setHideHud, handleToggleFullscreen]);
+   }, [handleManualStop, setShowWinners, setHideHud]);
 
    function handleCloseWinners() {
       setShowWinners(false);
@@ -109,8 +81,6 @@ export function useLogic() {
 
    return {
       param: {
-         stageRef,
-         isFullscreen,
          backgroundImage,
          resultBar,
          currentPrize,
@@ -127,7 +97,6 @@ export function useLogic() {
       func: {
          translate,
          handleCloseWinners,
-         handleToggleFullscreen,
       },
    };
 }
