@@ -18,7 +18,6 @@ export function useLogic() {
    const isSpinning = useStoreLuckyDraw((s) => s.isSpinning);
    const isDrawingRequest = useStoreLuckyDraw((s) => s.isDrawingRequest);
    const stoppedReels = useStoreLuckyDraw((s) => s.stoppedReels);
-   const handleManualStop = useStoreLuckyDraw((s) => s.handleManualStop);
    const showWinners = useStoreLuckyDraw((s) => s.showWinners);
    const setShowWinners = useStoreLuckyDraw((s) => s.setShowWinners);
    const setHideHud = useStoreLuckyDraw((s) => s.setHideHud);
@@ -58,13 +57,24 @@ export function useLogic() {
          const target = e.target;
          if (
             target instanceof HTMLElement &&
-            (target.tagName === 'SELECT' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
+            (target.tagName === 'SELECT' ||
+               target.tagName === 'INPUT' ||
+               target.tagName === 'TEXTAREA' ||
+               target.isContentEditable)
          ) {
             return;
          }
          if (e.code === 'Space') {
+            if (e.repeat) {
+               return;
+            }
             e.preventDefault();
-            handleManualStop();
+            const storeState = useStoreLuckyDraw.getState();
+            if (storeState.isSpinning) {
+               storeState.handleManualStop();
+            } else if (!storeState.isDrawingRequest) {
+               void storeState.startDraw();
+            }
          } else if (e.code === 'KeyW') {
             setShowWinners((v) => !v);
          } else if (e.code === 'KeyH') {
@@ -74,7 +84,7 @@ export function useLogic() {
 
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
-   }, [handleManualStop, setShowWinners, setHideHud]);
+   }, [setShowWinners, setHideHud]);
 
    function handleCloseWinners() {
       setShowWinners(false);

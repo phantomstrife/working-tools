@@ -189,14 +189,17 @@ export function useLogic() {
 
    function handleEventChange(e: React.ChangeEvent<HTMLSelectElement>) {
       selectEvent(e.target.value);
+      e.currentTarget.blur();
    }
 
    function handleGameChange(e: React.ChangeEvent<HTMLSelectElement>) {
       selectGame(e.target.value);
+      e.currentTarget.blur();
    }
 
    function handlePrizeChange(e: React.ChangeEvent<HTMLSelectElement>) {
       setCurrentPrize(Number(e.target.value));
+      e.currentTarget.blur();
    }
 
    function handleSyncGame() {

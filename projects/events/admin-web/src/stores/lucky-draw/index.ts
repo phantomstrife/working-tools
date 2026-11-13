@@ -83,7 +83,11 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       const state = get();
       const currentPrize = state.prizes[state.currentPrizeIndex] ?? null;
 
-      if (!state.gameId || !currentPrize || state.isDrawingRequest) {
+      if (!state.gameId || !currentPrize || state.isDrawingRequest || state.isLoadingGame) {
+         return;
+      }
+
+      if (!revokeWinnerRecordId && currentPrize.remainingQuantity <= 0) {
          return;
       }
 

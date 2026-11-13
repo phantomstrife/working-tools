@@ -74,7 +74,7 @@ export const useStyle = {
       ],
    }),
    infoWrapper: tv({
-      base: 'grid grid-cols-1 absolute left-3 right-3 sm:left-4 sm:right-4 bottom-12 sm:bottom-20 gap-y-3 sm:gap-y-6 info_wrapper',
+      base: 'flex flex-col absolute left-3 right-3 sm:left-4 sm:right-4 bottom-12 sm:bottom-20 gap-y-3 sm:gap-y-6 info_wrapper',
    }),
    winnerBanner: tv({
       base: 'flex flex-col items-center text-center gap-y-1 sm:gap-y-1.5 winner',
