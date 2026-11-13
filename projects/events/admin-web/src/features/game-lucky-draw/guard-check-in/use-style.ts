@@ -1,5 +1,7 @@
 import { tv } from 'tailwind-variants';
 
+import { modalFormStyle } from '@admin-web/components/modal/form-style';
+
 const themes = {
    mode_tab: tv({
       base: 'flex-1 flex items-center justify-center gap-x-2 py-2 px-3 text-13 font-semibold rounded-primary transition-colors cursor-pointer',
@@ -160,7 +162,7 @@ export const useStyle = {
       progress_track: 'w-full h-2 bg-neutral-200 rounded-full overflow-hidden',
       progress_fill: 'h-full bg-success-500 transition-all duration-300',
       refresh_btn:
-         'inline-flex items-center gap-x-1.5 px-2.5 py-1 text-11 font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 border border-utility-300 rounded-primary transition-colors cursor-pointer',
+         'inline-flex items-center gap-x-1.5 px-2.5 py-1 text-11 font-semibold text-neutral-700 bg-neutral-50 hover:bg-neutral-200 border border-utility-300 rounded-primary transition-colors cursor-pointer',
       refresh_icon: themes.refresh_icon,
    },
    card: {
@@ -254,7 +256,23 @@ export const useStyle = {
       attendant_sub: 'text-12 text-neutral-500',
       ticket_badge:
          'inline-flex px-2 py-0.5 font-mono text-12 font-semibold bg-neutral-100 border border-utility-300 rounded-primary whitespace-nowrap',
+      representative_text: 'text-13 font-medium text-neutral-900',
+      representative_empty: 'text-13 text-neutral-400',
       status_badge: themes.status_badge,
+      action_group: 'inline-flex items-center justify-end gap-1.5',
+      edit_btn:
+         'inline-flex items-center gap-x-1 px-2.5 py-1.5 text-12 font-semibold text-neutral-700 bg-neutral-50 hover:bg-neutral-100 border border-utility-300 rounded-primary transition-colors cursor-pointer whitespace-nowrap',
       action_btn: themes.check_in_action,
+   },
+   edit_modal: {
+      form: modalFormStyle.form,
+      body: 'flex flex-col gap-y-primary p-primary sm:p-secondary',
+      summary: 'flex flex-col gap-y-1 p-primary bg-neutral-100 border border-utility-200 rounded-primary',
+      summary_top: 'flex flex-wrap items-center justify-between gap-2',
+      summary_name: 'text-14 font-bold text-neutral-950',
+      summary_ticket:
+         'inline-flex px-2 py-0.5 font-mono text-11 font-semibold bg-neutral-50 border border-utility-300 rounded-primary shrink-0',
+      summary_company: 'text-12 text-neutral-600',
+      footer: modalFormStyle.footer,
    },
 };

@@ -21,6 +21,7 @@ CREATE TABLE public.lucky_draw_attendants (
     ticket_code TEXT NOT NULL,
     company_name TEXT,
     department TEXT,
+    representative TEXT,
     custom_metadata JSONB DEFAULT '{}'::jsonb,
     qr_code_payload TEXT UNIQUE NOT NULL,
     email_status email_status_type DEFAULT 'NOT_SENT',
@@ -38,15 +39,63 @@ CREATE TABLE public.lucky_draw_attendants (
         COALESCE(email, '') || ' ' || 
         COALESCE(phone, '') || ' ' || 
         COALESCE(ticket_code, '') || ' ' || 
-        COALESCE(company_name, '')
+        COALESCE(company_name, '') || ' ' || 
+        COALESCE(representative, '')
     ) STORED,
 
     UNIQUE (game_id, ticket_code)
 );
 
 -- 3.1 Functions
+CREATE OR REPLACE FUNCTION public.enforce_guard_attendant_update()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    IF public.get_caller_role() = 'GUARD' THEN
+        IF (
+            NEW.id IS DISTINCT FROM OLD.id OR
+            NEW.game_id IS DISTINCT FROM OLD.game_id OR
+            NEW.full_name IS DISTINCT FROM OLD.full_name OR
+            NEW.email IS DISTINCT FROM OLD.email OR
+            NEW.phone IS DISTINCT FROM OLD.phone OR
+            NEW.ticket_code IS DISTINCT FROM OLD.ticket_code OR
+            NEW.company_name IS DISTINCT FROM OLD.company_name OR
+            NEW.department IS DISTINCT FROM OLD.department OR
+            NEW.custom_metadata IS DISTINCT FROM OLD.custom_metadata OR
+            NEW.qr_code_payload IS DISTINCT FROM OLD.qr_code_payload OR
+            NEW.email_status IS DISTINCT FROM OLD.email_status OR
+            NEW.email_sent_at IS DISTINCT FROM OLD.email_sent_at OR
+            NEW.has_won IS DISTINCT FROM OLD.has_won OR
+            NEW.created_at IS DISTINCT FROM OLD.created_at
+        ) THEN
+            RAISE EXCEPTION 'GUARD can only update representative or check-in fields on lucky_draw_attendants';
+        END IF;
+
+        IF (
+            NEW.is_checked_in IS DISTINCT FROM OLD.is_checked_in OR
+            NEW.checked_in_at IS DISTINCT FROM OLD.checked_in_at OR
+            NEW.checked_in_by IS DISTINCT FROM OLD.checked_in_by OR
+            NEW.check_in_method IS DISTINCT FROM OLD.check_in_method
+        ) THEN
+            IF NEW.checked_in_by IS DISTINCT FROM auth.uid() THEN
+                RAISE EXCEPTION 'GUARD can only attribute check-in updates to themselves';
+            END IF;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
 
 -- 3.2 Triggers
+CREATE TRIGGER enforce_guard_lucky_draw_attendant_update
+BEFORE UPDATE ON public.lucky_draw_attendants
+FOR EACH ROW
+EXECUTE FUNCTION public.enforce_guard_attendant_update();
+
 CREATE TRIGGER set_timestamp_lucky_draw_attendants
 BEFORE UPDATE ON public.lucky_draw_attendants
 FOR EACH ROW
@@ -78,9 +127,29 @@ USING (
     game_id IN (SELECT game_id FROM public.game_accounts WHERE account_id = auth.uid())
 );
 
-CREATE POLICY "Staff can update assigned game attendants" ON public.lucky_draw_attendants
+CREATE POLICY "FIELD_STAFF can update assigned game attendants" ON public.lucky_draw_attendants
 FOR UPDATE
 USING (
+    public.get_caller_role() = 'FIELD_STAFF'
+    AND
+    game_id IN (SELECT game_id FROM public.game_accounts WHERE account_id = auth.uid())
+)
+WITH CHECK (
+    public.get_caller_role() = 'FIELD_STAFF'
+    AND
+    game_id IN (SELECT game_id FROM public.game_accounts WHERE account_id = auth.uid())
+);
+
+CREATE POLICY "GUARD can update assigned game attendants representative" ON public.lucky_draw_attendants
+FOR UPDATE
+USING (
+    public.get_caller_role() = 'GUARD'
+    AND
+    game_id IN (SELECT game_id FROM public.game_accounts WHERE account_id = auth.uid())
+)
+WITH CHECK (
+    public.get_caller_role() = 'GUARD'
+    AND
     game_id IN (SELECT game_id FROM public.game_accounts WHERE account_id = auth.uid())
 );
 

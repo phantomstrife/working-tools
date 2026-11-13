@@ -8,16 +8,22 @@ import {
    CheckCircle2,
    Clock,
    Keyboard,
+   Pencil,
    QrCode,
    RefreshCw,
    RotateCcw,
    Search,
+   User,
    UserCheck,
    Users,
    X,
    XCircle,
 } from 'lucide-react';
 
+import { FormField } from '@admin-web/components/form-field';
+import { Modal } from '@admin-web/components/modal';
+
+import { MODAL_ID } from './constants';
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
@@ -29,7 +35,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
    const canvasRef = useRef<HTMLCanvasElement>(null);
 
    const { state, param, func } = useLogic(properties, scannerInputRef, videoRef, canvasRef);
-   const { root, stats, card, qr, feedback, manual } = useStyle;
+   const { root, stats, card, qr, feedback, manual, edit_modal } = useStyle;
 
    const formatDateTime = (isoOrEpoch: string | number | null) => {
       if (!isoOrEpoch) {
@@ -45,6 +51,17 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
 
    return (
       <div className={root.wrapper}>
+         <div className="flex items-center justify-end">
+            <button
+               type="button"
+               disabled={state.isStatsLoading}
+               onClick={func.fetchStats}
+               className={stats.refresh_btn}
+            >
+               <RefreshCw className={stats.refresh_icon({ loading: state.isStatsLoading })} />
+               {func.translate('stats.refresh')}
+            </button>
+         </div>
          <div className={stats.wrapper}>
             <div className={stats.card}>
                <div className={stats.header}>
@@ -73,15 +90,6 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                </div>
                <div className={stats.value_row}>
                   <span className={stats.value}>{state.totalCount}</span>
-                  <button
-                     type="button"
-                     disabled={state.isStatsLoading}
-                     onClick={func.fetchStats}
-                     className={stats.refresh_btn}
-                  >
-                     <RefreshCw className={stats.refresh_icon({ loading: state.isStatsLoading })} />
-                     {func.translate('stats.refresh')}
-                  </button>
                </div>
             </div>
 
@@ -168,9 +176,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                               disabled={param.isQrSubmitDisabled}
                               className={qr.submit({ disabled: param.isQrSubmitDisabled })}
                            >
-                              {state.isQrSubmitting && (
-                                 <RefreshCw className={stats.refresh_icon({ loading: true })} />
-                              )}
+                              {state.isQrSubmitting && <RefreshCw className={stats.refresh_icon({ loading: true })} />}
                               {func.translate(`qr.submit_scanning_${state.isQrSubmitting}`)}
                            </button>
                         </div>
@@ -200,8 +206,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                              {func.translate('qr.status_verifying')}
                                           </span>
                                        </div>
-                                    ) : param.cameraStatus === 'SUCCESS' &&
-                                      state.lastResult?.kind === 'SUCCESS' ? (
+                                    ) : param.cameraStatus === 'SUCCESS' && state.lastResult?.kind === 'SUCCESS' ? (
                                        <>
                                           <div className={qr.camera.hud_left}>
                                              <CheckCircle2 className={qr.camera.hud_icon} />
@@ -213,8 +218,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                              {state.lastResult.attendant.ticket_code}
                                           </span>
                                        </>
-                                    ) : param.cameraStatus === 'ALREADY' &&
-                                      state.lastResult?.kind === 'ALREADY' ? (
+                                    ) : param.cameraStatus === 'ALREADY' && state.lastResult?.kind === 'ALREADY' ? (
                                        <>
                                           <div className={qr.camera.hud_left}>
                                              <AlertTriangle className={qr.camera.hud_icon} />
@@ -226,8 +230,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                              {state.lastResult.attendant.ticket_code}
                                           </span>
                                        </>
-                                    ) : param.cameraStatus === 'ERROR' &&
-                                      state.lastResult?.kind === 'ERROR' ? (
+                                    ) : param.cameraStatus === 'ERROR' && state.lastResult?.kind === 'ERROR' ? (
                                        <div className={qr.camera.hud_left}>
                                           <XCircle className={qr.camera.hud_icon} />
                                           <span className={qr.camera.hud_text}>{state.lastResult.message}</span>
@@ -389,6 +392,16 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                     : ''}
                               </span>
                            </div>
+                           {state.lastResult.attendant.representative && (
+                              <div className={feedback.meta_item}>
+                                 <span className={feedback.meta_label}>
+                                    {func.translate('feedback.representative_label')}
+                                 </span>
+                                 <span className={feedback.meta_value}>
+                                    {state.lastResult.attendant.representative}
+                                 </span>
+                              </div>
+                           )}
                         </div>
                      </div>
                   )}
@@ -459,6 +472,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                  <th className={manual.th}>{func.translate('manual.columns.attendant')}</th>
                                  <th className={manual.th}>{func.translate('manual.columns.ticket')}</th>
                                  <th className={manual.th}>{func.translate('manual.columns.company')}</th>
+                                 <th className={manual.th}>{func.translate('manual.columns.representative')}</th>
                                  <th className={manual.th}>{func.translate('manual.columns.status')}</th>
                                  <th className={manual.th_right}>{func.translate('manual.columns.action')}</th>
                               </tr>
@@ -488,6 +502,13 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                           )}
                                        </td>
                                        <td className={manual.td}>
+                                          {row.representative ? (
+                                             <span className={manual.representative_text}>{row.representative}</span>
+                                          ) : (
+                                             <span className={manual.representative_empty}>—</span>
+                                          )}
+                                       </td>
+                                       <td className={manual.td}>
                                           <span className={manual.status_badge({ checkedIn: !!row.is_checked_in })}>
                                              {row.is_checked_in
                                                 ? func.translate('manual.badges.checked_in')
@@ -495,20 +516,31 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                           </span>
                                        </td>
                                        <td className={manual.td_right}>
-                                          <button
-                                             type="button"
-                                             disabled={Boolean(state.checkingInAttendantId)}
-                                             onClick={() => func.handleManualCheckIn(row)}
-                                             className={manual.action_btn({
-                                                checkedIn: !!row.is_checked_in,
-                                                disabled: Boolean(state.checkingInAttendantId),
-                                             })}
-                                          >
-                                             <UserCheck size={14} />
-                                             {isRowLoading
-                                                ? func.translate('manual.checking_in_btn')
-                                                : func.translate('manual.check_in_btn')}
-                                          </button>
+                                          <div className={manual.action_group}>
+                                             <button
+                                                type="button"
+                                                title={func.translate('manual.edit_representative_title')}
+                                                onClick={() => func.handleOpenEditRepresentative(row)}
+                                                className={manual.edit_btn}
+                                             >
+                                                <Pencil size={13} />
+                                                {func.translate('manual.edit_btn')}
+                                             </button>
+                                             <button
+                                                type="button"
+                                                disabled={Boolean(state.checkingInAttendantId)}
+                                                onClick={() => func.handleManualCheckIn(row)}
+                                                className={manual.action_btn({
+                                                   checkedIn: !!row.is_checked_in,
+                                                   disabled: Boolean(state.checkingInAttendantId),
+                                                })}
+                                             >
+                                                <UserCheck size={14} />
+                                                {isRowLoading
+                                                   ? func.translate('manual.checking_in_btn')
+                                                   : func.translate('manual.check_in_btn')}
+                                             </button>
+                                          </div>
                                        </td>
                                     </tr>
                                  );
@@ -520,7 +552,74 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                </div>
             </div>
          </div>
+
+         <Modal
+            id={MODAL_ID.EDIT_REPRESENTATIVE}
+            title={func.translate('edit_modal.title')}
+            description={func.translate('edit_modal.description')}
+            style={{ width: '32rem', bodyClass: 'p-0' }}
+         >
+            {() => (
+               <form
+                  className={edit_modal.form}
+                  onSubmit={func.handleSaveRepresentative}
+               >
+                  <div className={edit_modal.body}>
+                     {state.editingAttendant && (
+                        <div className={edit_modal.summary}>
+                           <div className={edit_modal.summary_top}>
+                              <span className={edit_modal.summary_name}>{state.editingAttendant.full_name}</span>
+                              <span className={edit_modal.summary_ticket}>{state.editingAttendant.ticket_code}</span>
+                           </div>
+                           {(state.editingAttendant.company_name || state.editingAttendant.department) && (
+                              <span className={edit_modal.summary_company}>
+                                 {[state.editingAttendant.company_name, state.editingAttendant.department]
+                                    .filter(Boolean)
+                                    .join(' • ')}
+                              </span>
+                           )}
+                        </div>
+                     )}
+
+                     <FormField
+                        id="guard-edit-representative"
+                        Icon={User}
+                        label={func.translate('edit_modal.field_label')}
+                     >
+                        <input
+                           id="guard-edit-representative"
+                           type="text"
+                           autoFocus
+                           value={state.representativeInput}
+                           placeholder={func.translate('edit_modal.field_placeholder')}
+                           onChange={(event) => func.setState(event.target.value, 'representativeInput')}
+                        />
+                     </FormField>
+                  </div>
+
+                  <div className={edit_modal.footer.wrapper}>
+                     <button
+                        type="button"
+                        onClick={func.handleCloseEditRepresentative}
+                        className={edit_modal.footer.cancel_button}
+                     >
+                        {func.translate('edit_modal.cancel_btn')}
+                     </button>
+                     <button
+                        type="submit"
+                        disabled={param.isSaveRepresentativeDisabled}
+                        className={edit_modal.footer.submit_button({
+                           disabled: param.isSaveRepresentativeDisabled,
+                        })}
+                     >
+                        {state.isSavingRepresentative
+                           ? func.translate('edit_modal.saving_btn')
+                           : func.translate('edit_modal.save_btn')}
+                     </button>
+                  </div>
+               </form>
+            )}
+         </Modal>
       </div>
    );
 };
-

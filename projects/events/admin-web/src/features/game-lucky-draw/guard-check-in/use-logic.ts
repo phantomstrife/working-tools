@@ -2,14 +2,17 @@ import { useCallback, useEffect, useRef } from 'react';
 import jsQR from 'jsqr';
 import { toast } from 'sonner';
 
+import { useStoreModal } from '@admin-web/components/modal';
 import { useDeepState } from '@admin-web/hooks/deep-state';
 import { useTranslate } from '@admin-web/locale';
 import { useServicesGameLuckyDrawAttendantCheckInBrowser } from '@admin-web/services/game-lucky-draw/attendant-check-in/browser';
 import { useServicesGameLuckyDrawCheckInStats } from '@admin-web/services/game-lucky-draw/check-in-stats';
 import { useServicesGameLuckyDrawGuardAttendantSearch } from '@admin-web/services/game-lucky-draw/guard-attendant-search';
+import { useServicesGameLuckyDrawGuardAttendantUpdateRepresentative } from '@admin-web/services/game-lucky-draw/guard-attendant-update-representative';
 
 import {
    CAMERA_SCAN_INTERVAL_MS,
+   MODAL_ID,
    RECENT_HISTORY_LIMIT,
    SEARCH_DEBOUNCE_MS,
 } from './constants';
@@ -82,6 +85,8 @@ export function useLogic(
 ) {
    const { gameId } = properties;
 
+   const modalActions = useStoreModal((store) => store.actions);
+
    const { translate } = useTranslate({
       prefix: 'features.guard.check_in',
    });
@@ -105,6 +110,9 @@ export function useLogic(
       isSearching: false,
       searchResults: [],
       checkingInAttendantId: '',
+      editingAttendant: null,
+      representativeInput: '',
+      isSavingRepresentative: false,
       lastResult: null,
       recentHistory: [],
    });
@@ -472,6 +480,80 @@ export function useLogic(
       applyCheckInOutcome(serviceCheckIn.data);
    };
 
+   const handleOpenEditRepresentative = (attendant: Types.Attendant) => {
+      setState({
+         editingAttendant: attendant,
+         representativeInput: attendant.representative ?? '',
+      });
+      modalActions.openModal(MODAL_ID.EDIT_REPRESENTATIVE);
+   };
+
+   const handleCloseEditRepresentative = () => {
+      modalActions.closeModal(MODAL_ID.EDIT_REPRESENTATIVE);
+      setState({
+         editingAttendant: null,
+         representativeInput: '',
+      });
+   };
+
+   const handleSaveRepresentative = async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      if (!gameId || !state.editingAttendant || state.isSavingRepresentative) {
+         return;
+      }
+
+      const targetAttendant = state.editingAttendant;
+      setState(true, 'isSavingRepresentative');
+
+      const serviceUpdate = await useServicesGameLuckyDrawGuardAttendantUpdateRepresentative({
+         gameId,
+         attendantId: targetAttendant.id,
+         representative: state.representativeInput.trim() || null,
+      });
+
+      setState(false, 'isSavingRepresentative');
+
+      if (serviceUpdate.error) {
+         toast.error(localizeError(serviceUpdate.message));
+         return;
+      }
+
+      const updatedAttendant = serviceUpdate.data;
+
+      setState({
+         searchResults: state.searchResults.map((item) =>
+            item.id === updatedAttendant.id ? updatedAttendant : item,
+         ),
+         lastResult:
+            state.lastResult &&
+            state.lastResult.kind !== 'ERROR' &&
+            state.lastResult.attendant.id === updatedAttendant.id
+               ? {
+                    ...state.lastResult,
+                    attendant: updatedAttendant,
+                 }
+               : state.lastResult,
+         recentHistory: state.recentHistory.map((entry) =>
+            entry.attendant.id === updatedAttendant.id
+               ? {
+                    ...entry,
+                    attendant: updatedAttendant,
+                 }
+               : entry,
+         ),
+      });
+
+      toast.success(
+         translate('toast.representative_updated', {
+            name: updatedAttendant.full_name,
+            ticket: updatedAttendant.ticket_code,
+         }),
+      );
+
+      handleCloseEditRepresentative();
+   };
+
    const remainingCount = Math.max(0, state.totalCount - state.checkedInCount);
    const attendanceRate =
       state.totalCount > 0
@@ -482,6 +564,10 @@ export function useLogic(
       : state.lastResult
         ? state.lastResult.kind
         : 'IDLE';
+   const isSaveRepresentativeDisabled =
+      state.isSavingRepresentative ||
+      !state.editingAttendant ||
+      state.representativeInput.trim() === (state.editingAttendant.representative ?? '').trim();
 
    return {
       state,
@@ -491,6 +577,7 @@ export function useLogic(
          isQrSubmitDisabled: state.isQrSubmitting || !state.qrInput.trim(),
          cameraStatus,
          canResetScan: Boolean(state.lastResult || state.lastScannedPayload),
+         isSaveRepresentativeDisabled,
       },
       func: {
          translate,
@@ -502,6 +589,9 @@ export function useLogic(
          startCamera,
          stopCamera,
          handleManualCheckIn,
+         handleOpenEditRepresentative,
+         handleCloseEditRepresentative,
+         handleSaveRepresentative,
       },
    };
 }

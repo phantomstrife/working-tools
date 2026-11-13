@@ -1,18 +1,6 @@
 export type Check_In_Method = AdminWeb.Database.Check_In_Method;
 export type Account_Role = AdminWeb.Database.Account_Role;
-export type Attendant = Pick<
-   AdminWeb.Database.GameLuckyDrawAttendant,
-   | 'id'
-   | 'full_name'
-   | 'ticket_code'
-   | 'email'
-   | 'phone'
-   | 'company_name'
-   | 'department'
-   | 'is_checked_in'
-   | 'checked_in_at'
-   | 'check_in_method'
->;
+export type Attendant = AdminWeb.Features.GameLuckyDraw.CheckIn.Attendant;
 
 export interface Request {
    accessToken: string;

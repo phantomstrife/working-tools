@@ -28,6 +28,9 @@ export interface State {
    isSearching: boolean;
    searchResults: Attendant[];
    checkingInAttendantId: string;
+   editingAttendant: Attendant | null;
+   representativeInput: string;
+   isSavingRepresentative: boolean;
    lastResult: Check_In_Result | null;
    recentHistory: Recent_Entry[];
 }

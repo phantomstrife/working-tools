@@ -342,6 +342,7 @@ export type Database = {
                is_checked_in: boolean | null;
                phone: string | null;
                qr_code_payload: string;
+               representative: string | null;
                ticket_code: string;
                updated_at: string | null;
             };
@@ -363,6 +364,7 @@ export type Database = {
                is_checked_in?: boolean | null;
                phone?: string | null;
                qr_code_payload: string;
+               representative?: string | null;
                ticket_code: string;
                updated_at?: string | null;
             };
@@ -384,6 +386,7 @@ export type Database = {
                is_checked_in?: boolean | null;
                phone?: string | null;
                qr_code_payload?: string;
+               representative?: string | null;
                ticket_code?: string;
                updated_at?: string | null;
             };

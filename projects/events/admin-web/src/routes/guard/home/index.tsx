@@ -65,7 +65,7 @@ export const PageGuardHome: AdminWeb.Router.Page = () => {
             </div>
 
             <div className={selector.actions}>
-               {param.selectedGame && (
+               {/* {param.selectedGame && (
                   <span className={selector.status({ status: param.selectedGame.status })}>
                      {func.translateVenue(`game_status.${param.selectedGame.status}`)}
                   </span>
@@ -79,7 +79,7 @@ export const PageGuardHome: AdminWeb.Router.Page = () => {
                >
                   <RefreshCw className={selector.refresh_icon({ loading: param.isLoading })} />
                   <span>{func.translateVenue('refresh_assignments')}</span>
-               </button>
+               </button> */}
             </div>
          </div>
 
