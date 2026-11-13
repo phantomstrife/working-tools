@@ -216,7 +216,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       isRealtimeConnected: false,
       stoppedReels: 0,
       drawMode: 'auto',
-      showWinners: false,
+      showWinners: true,
       hideHud: false,
       notice: null,
 
@@ -404,4 +404,3 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       },
    };
 });
-

@@ -1,6 +1,17 @@
 import { tv } from 'tailwind-variants';
 
 const themes = {
+   prize_image: tv({
+      base: 'size-full object-cover',
+      variants: {
+         depleted: {
+            true: 'opacity-60 grayscale',
+         },
+      },
+      defaultVariants: {
+         depleted: false,
+      },
+   }),
    stock_bar_fill: tv({
       base: 'h-full rounded-full transition-all',
       variants: {
@@ -33,8 +44,8 @@ export const useStyle = {
    tier_badge: `inline-flex items-center px-[calc(var(--spacing-primary)*5/8)] py-[2px] rounded-primary text-12 font-bold uppercase border bg-primary-100 text-primary-800 border-primary-300`,
    prize: {
       wrapper: 'flex items-center gap-[calc(var(--spacing-primary)*3/4)]',
-      thumb: 'size-10 rounded-primary border border-utility-300 bg-neutral-100 flex items-center justify-center shrink-0 text-neutral-500 shadow-xs overflow-hidden',
-      image: 'size-full object-cover',
+      thumb: 'relative size-10 rounded-primary border border-utility-300 bg-neutral-100 flex items-center justify-center shrink-0 text-neutral-500 shadow-xs overflow-hidden',
+      image: themes.prize_image,
       icon: 'size-5',
       info: 'min-w-0',
       name: 'text-14 font-bold text-neutral-900 truncate max-w-36 sm:max-w-50',

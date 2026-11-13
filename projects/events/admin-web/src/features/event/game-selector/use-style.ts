@@ -3,7 +3,7 @@ import { tv } from 'tailwind-variants';
 const themes = {
    action_button: tv({
       base: [
-         'inline-flex items-center justify-center gap-x-1.5 h-7 px-2.5 text-12 font-semibold',
+         'inline-flex items-center justify-center gap-x-1.5 h-7 px-2.5 text-14! font-semibold',
          'rounded-primary transition-colors cursor-pointer shrink-0',
       ],
       variants: {

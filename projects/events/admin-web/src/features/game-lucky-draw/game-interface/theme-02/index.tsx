@@ -1,5 +1,6 @@
 'use client';
 
+import { SoldOutStamp } from '@admin-web/components/sold-out-stamp';
 import { SlotReel } from '@admin-web/features/game-lucky-draw/game-interface/slot-reel';
 
 import { useLogic } from './use-logic';
@@ -35,6 +36,7 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
       companySubLabel,
       reelContainer,
       prizeContainer,
+      prizeImageWrapper,
       prizeImage,
       prizeTextBox,
       prizeTitle,
@@ -126,11 +128,14 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
                {param.currentPrize && (
                   <div className={prizeContainer()}>
                      {param.currentPrize.imageUrl ? (
-                        <img
-                           src={param.currentPrize.imageUrl}
-                           alt={param.currentPrize.name}
-                           className={prizeImage({ exhausted: param.prizeDone && !param.isSpinning })}
-                        />
+                        <div className={prizeImageWrapper()}>
+                           <img
+                              src={param.currentPrize.imageUrl}
+                              alt={param.currentPrize.name}
+                              className={prizeImage({ exhausted: param.isPrizeSoldOut })}
+                           />
+                           {param.isPrizeSoldOut && <SoldOutStamp size="lg" />}
+                        </div>
                      ) : (
                         <div />
                      )}

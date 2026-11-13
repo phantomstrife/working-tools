@@ -38,6 +38,7 @@ export function useLogic() {
          : currentPrize.remainingQuantity
       : 0;
    const prizeDone = Boolean(currentPrize && remaining === 0);
+   const isPrizeSoldOut = prizeDone && !isSpinning;
 
    const winningParticipant = participants.find((p) => p.ticketCode === winnerId || p.id === winnerId) ?? null;
 
@@ -87,6 +88,7 @@ export function useLogic() {
          prizeWinners,
          remaining,
          prizeDone,
+         isPrizeSoldOut,
          winningParticipant,
          displayName,
          winnerChars: winnerId.split(''),

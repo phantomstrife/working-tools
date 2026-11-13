@@ -2,7 +2,7 @@ import { tv } from 'tailwind-variants';
 
 const themes = {
    game_status_badge: tv({
-      base: 'px-2.5 py-0.5 text-11 font-bold uppercase tracking-wider rounded-primary border shrink-0',
+      base: 'px-3 py-1.5 text-12! font-bold uppercase tracking-wider rounded-primary border shrink-0',
       variants: {
          status: {
             PENDING: 'bg-neutral-100 text-neutral-600 border-utility-300',
@@ -36,12 +36,10 @@ export const useStyle = {
       wrapper:
          'flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 p-3 sm:p-primary bg-neutral-50 border border-utility-200 rounded-secondary shadow-2xs',
       fields: 'grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 flex-1 min-w-0',
-      field:
-         'flex items-center gap-x-2.5 px-3 py-2 bg-neutral-100 border border-utility-300 rounded-primary min-w-0 focus-within:border-primary-500 focus-within:bg-neutral-50 transition-colors',
+      field: 'flex items-center gap-x-2.5 px-3 py-2 bg-neutral-100 border border-utility-300 rounded-primary min-w-0 focus-within:border-primary-500 focus-within:bg-neutral-50 transition-colors',
       icon: 'w-4 h-4 text-neutral-500 shrink-0',
       label: 'text-11 font-semibold uppercase tracking-wider text-neutral-500 shrink-0',
-      select:
-         'flex-1 text-13 font-semibold text-neutral-950 bg-transparent cursor-pointer min-w-0 truncate',
+      select: 'flex-1 text-13 font-semibold text-neutral-950 bg-transparent cursor-pointer min-w-0 truncate',
       actions: 'flex items-center justify-between sm:justify-end gap-2 shrink-0',
       status: themes.game_status_badge,
       refresh_button:

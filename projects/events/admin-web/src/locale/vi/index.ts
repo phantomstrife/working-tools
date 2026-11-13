@@ -10,6 +10,9 @@ export const vi = {
          per_page: 'Bản ghi trên mỗi trang',
          page: 'Trang {{current}} / {{total}}',
       },
+      sold_out_stamp: {
+         label: 'Đã hết',
+      },
       not_found: {
          description: `Không có dữ liệu nào phù hợp với tiêu chí tìm kiếm của bạn. Vui lòng thử lại với các tiêu chí khác.`,
          retry: 'Thử lại',
@@ -678,7 +681,7 @@ export const vi = {
             show_winners: 'Hiện DS trúng (W)',
             hide_winners: 'Ẩn DS trúng (W)',
             telemetry: {
-               checked_in: 'Đã Check-in',
+               checked_in: 'Checked in',
                eligible: 'Hợp lệ',
                drawn: 'Đã trao',
             },

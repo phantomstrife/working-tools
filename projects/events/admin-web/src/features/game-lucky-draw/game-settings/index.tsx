@@ -56,9 +56,7 @@ export const GameSettings: AdminWeb.Component<object> = () => {
 
    if (param.collapsed) {
       const isDrawDisabled =
-         param.isDrawingRequest ||
-         (param.isSpinning && param.drawMode !== 'instant') ||
-         param.currentPrizeDone;
+         param.isDrawingRequest || (param.isSpinning && param.drawMode !== 'instant') || param.currentPrizeDone;
       return (
          <div className={collapsedContainer()}>
             {param.notice && (
@@ -78,9 +76,7 @@ export const GameSettings: AdminWeb.Component<object> = () => {
                      disabled={isDrawDisabled}
                      className={collapsedDrawBtn({ disabled: isDrawDisabled })}
                   >
-                     {(param.isDrawingRequest || param.isSpinning) && (
-                        <Loader2 className={spinnerIcon()} />
-                     )}
+                     {(param.isDrawingRequest || param.isSpinning) && <Loader2 className={spinnerIcon()} />}
                      <span>
                         {param.isDrawingRequest
                            ? func.translate('preparing_short')
@@ -172,7 +168,7 @@ export const GameSettings: AdminWeb.Component<object> = () => {
 
             {param.account && (
                <div className={accountRow()}>
-                  <span className={accountName()}>{param.account.full_name}</span>
+                  {/* <span className={accountName()}>{param.account.full_name}</span> */}
                   <div className={accountActions()}>
                      {param.canSwitchModes && param.dashboardPath && (
                         <button
@@ -254,9 +250,7 @@ export const GameSettings: AdminWeb.Component<object> = () => {
                               onClick={func.handleToggleWinners}
                               className={winnersToggleBtn()}
                            >
-                              {param.showWinners
-                                 ? func.translate('hide_winners')
-                                 : func.translate('show_winners')}
+                              {param.showWinners ? func.translate('hide_winners') : func.translate('show_winners')}
                            </button>
                         )}
                      </div>
@@ -338,9 +332,7 @@ export const GameSettings: AdminWeb.Component<object> = () => {
                         disabled={isStartDisabled}
                         className={startDrawBtn({ disabled: isStartDisabled })}
                      >
-                        {(param.isDrawingRequest || param.isSpinning) && (
-                           <Loader2 className={spinnerIcon()} />
-                        )}
+                        {(param.isDrawingRequest || param.isSpinning) && <Loader2 className={spinnerIcon()} />}
                         <span>
                            {param.isDrawingRequest
                               ? func.translate('preparing_draw')
@@ -385,4 +377,3 @@ export const GameSettings: AdminWeb.Component<object> = () => {
 };
 
 export const EventLoader = GameSettings;
-

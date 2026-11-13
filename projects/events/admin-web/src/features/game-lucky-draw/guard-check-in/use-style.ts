@@ -196,7 +196,8 @@ export const useStyle = {
          hud_text: 'truncate',
          hud_ticket:
             'px-2 py-0.5 font-mono text-11 font-bold bg-neutral-950/60 text-neutral-50 rounded-primary shrink-0',
-         placeholder: 'flex flex-col items-center justify-center gap-y-2 p-secondary text-center text-neutral-400',
+         placeholder:
+            'absolute flex flex-col items-center justify-center gap-y-2 p-secondary text-center text-neutral-400',
          controls: 'flex flex-wrap items-center justify-between gap-2',
          controls_actions: 'flex flex-wrap items-center gap-2',
          button: themes.camera_button,
@@ -257,4 +258,3 @@ export const useStyle = {
       action_btn: themes.check_in_action,
    },
 };
-

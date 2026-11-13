@@ -81,7 +81,7 @@ export const useStyle = {
    }),
    syncBtn: tv({
       base: [
-         'px-2 py-1 text-11 font-semibold rounded-primary bg-neutral-800 text-neutral-300',
+         'px-2 py-1 text-14! font-semibold rounded-primary bg-neutral-800 text-neutral-300',
          'hover:text-neutral-50 hover:bg-neutral-700 border border-neutral-700 transition-colors cursor-pointer',
       ],
       variants: {
@@ -92,7 +92,7 @@ export const useStyle = {
    }),
    minimizeBtn: tv({
       base: [
-         'px-2 py-1 text-11 font-semibold text-neutral-400 hover:text-neutral-50',
+         'px-2 py-1 text-14! font-semibold text-neutral-400 hover:text-neutral-50',
          'rounded-primary hover:bg-neutral-800 transition-colors cursor-pointer',
       ],
    }),
@@ -127,7 +127,7 @@ export const useStyle = {
       base: 'flex items-center justify-between',
    }),
    fieldLabel: tv({
-      base: 'block text-11 font-semibold uppercase tracking-wider text-neutral-400',
+      base: 'block text-12! font-semibold uppercase tracking-wider text-neutral-400',
    }),
    winnersToggleBtn: tv({
       base: 'text-11 font-semibold text-warning-400 hover:text-warning-300 transition-colors cursor-pointer',
@@ -150,7 +150,7 @@ export const useStyle = {
       base: 'p-2 rounded-primary bg-neutral-950/70 border border-neutral-800 text-center',
    }),
    telemetryLabel: tv({
-      base: 'text-10 font-semibold uppercase tracking-wider text-neutral-400',
+      base: 'text-12! font-semibold uppercase tracking-wider text-neutral-400',
    }),
    telemetryValue: tv({
       base: 'text-16 font-bold tabular-nums mt-0.5',
@@ -169,7 +169,7 @@ export const useStyle = {
       base: 'grid grid-cols-3 gap-1 p-1 rounded-primary bg-neutral-950 border border-neutral-800',
    }),
    modeTabBtn: tv({
-      base: 'py-1.5 text-12 font-semibold capitalize rounded-primary transition-colors cursor-pointer',
+      base: 'py-1.5 text-14! font-semibold capitalize rounded-primary transition-colors cursor-pointer',
       variants: {
          active: {
             true: 'bg-warning-500 text-neutral-950 shadow-xs',
@@ -185,7 +185,7 @@ export const useStyle = {
    }),
    startDrawBtn: tv({
       base: [
-         'inline-flex items-center justify-center gap-2 w-full px-4 py-3 font-bold text-13 tracking-wider uppercase text-neutral-950',
+         'inline-flex items-center justify-center gap-2 w-full px-4 py-3 font-bold text-14! tracking-wider uppercase text-neutral-950',
          'transition-all bg-warning-500 rounded-primary shadow-lg hover:bg-warning-400 cursor-pointer',
       ],
       variants: {
@@ -210,7 +210,6 @@ export const useStyle = {
       ],
    }),
    shortcutHint: tv({
-      base: 'text-10 text-center text-neutral-500 pt-1',
+      base: 'text-11! text-center text-neutral-500 pt-1',
    }),
 };
-

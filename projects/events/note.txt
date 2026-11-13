@@ -1,0 +1,3 @@
+Change the flow
++ Event slug must combine with company name to prevent duplication
++ 

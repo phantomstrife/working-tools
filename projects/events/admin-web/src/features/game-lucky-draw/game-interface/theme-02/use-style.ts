@@ -5,11 +5,11 @@ export const useStyle = {
       base: 'relative w-full min-h-screen bg-neutral-950 flex items-center justify-center overflow-hidden',
    }),
    boardCanvas: tv({
-      base: 'relative flex flex-col items-center justify-center max-w-full min-h-screen aspect-1/2 bg-contain bg-center bg-no-repeat',
+      base: 'relative flex flex-col items-center justify-center max-w-full min-h-screen aspect-1/2 bg-cover bg-center bg-no-repeat',
    }),
    winnersOverlay: tv({
       base: [
-         'fixed inset-x-3 top-3 sm:inset-x-auto sm:top-5 sm:right-5 z-30 sm:w-80 max-h-[70dvh] flex flex-col rounded-secondary',
+         'fixed inset-4 right-auto  z-30 sm:w-80 flex flex-col rounded-secondary',
          'bg-neutral-900/95 border border-neutral-700/80 text-neutral-100 shadow-2xl backdrop-blur-md overflow-hidden',
       ],
    }),
@@ -93,6 +93,9 @@ export const useStyle = {
    }),
    prizeContainer: tv({
       base: 'grid grid-cols-[1fr_2fr] items-center justify-between gap-2 sm:gap-3 prize',
+   }),
+   prizeImageWrapper: tv({
+      base: 'relative flex items-center justify-center w-full',
    }),
    prizeImage: tv({
       base: 'object-contain w-full max-h-20 sm:max-h-36',

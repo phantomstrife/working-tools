@@ -6,6 +6,7 @@ import { ConfirmModal } from '@admin-web/components/confirm-modal';
 import { DataTable } from '@admin-web/components/datatable';
 import { Modal } from '@admin-web/components/modal';
 import { RowActions } from '@admin-web/components/row-actions';
+import { SoldOutStamp } from '@admin-web/components/sold-out-stamp';
 import { PrizeForm } from '@admin-web/features/game-lucky-draw/prize-form';
 
 import { MODAL_ID, getPrizeStockStatus } from './constants';
@@ -79,11 +80,12 @@ export const PrizePanel: AdminWeb.Component<Types.Properties> = (properties) => 
                               <img
                                  src={row.image_url}
                                  alt={row.name}
-                                 className={prize.image}
+                                 className={prize.image({ depleted: row.remaining_quantity <= 0 })}
                               />
                            ) : (
                               <Gift className={prize.icon} />
                            )}
+                           {row.remaining_quantity <= 0 && <SoldOutStamp size="sm" />}
                         </div>
                         <div className={prize.info}>
                            <p className={prize.name}>{row.name}</p>
