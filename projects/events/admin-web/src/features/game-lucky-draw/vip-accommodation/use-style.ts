@@ -46,6 +46,8 @@ export const useStyle = {
    },
    actions: {
       confirm_footer: 'flex justify-center pt-1',
+      expired_notice:
+         'text-13 font-medium text-warning-700 bg-warning-50 border border-warning-200 rounded-primary px-primary py-2 text-center w-full',
       primary_btn: tv({
          base: [
             'inline-flex items-center justify-center gap-x-2 px-secondary py-2.5 rounded-primary',

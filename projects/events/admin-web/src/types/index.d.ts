@@ -112,7 +112,7 @@ declare global {
    }
 
    declare namespace AdminWeb.Features.GameLuckyDraw.CheckIn {
-      type Status = 'CHECKED_IN' | 'ALREADY_CHECKED_IN';
+      type Status = 'PENDING_CONFIRMATION' | 'CHECKED_IN' | 'ALREADY_CHECKED_IN';
 
       type Attendant = Pick<
          Database.GameLuckyDrawAttendant,
@@ -130,7 +130,7 @@ declare global {
       >;
 
       type Result =
-         | { kind: 'SUCCESS' | 'ALREADY'; attendant: Attendant; at: number }
+         | { kind: 'PREVIEW' | 'SUCCESS' | 'ALREADY'; attendant: Attendant; qrCodePayload?: string; at: number }
          | { kind: 'ERROR'; message: string; at: number };
    }
 

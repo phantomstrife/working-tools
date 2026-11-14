@@ -50,9 +50,7 @@ export const VipAccommodation: AdminWeb.Component<Types.Properties> = (propertie
                      <CheckCircle2 size={28} />
                   </div>
                   <h1 className={status.title}>
-                     {param.wasUpdated
-                        ? func.translate('confirmed.updated_title')
-                        : func.translate('confirmed.title')}
+                     {param.wasUpdated ? func.translate('confirmed.updated_title') : func.translate('confirmed.title')}
                   </h1>
                   <p className={status.description}>
                      {param.wasUpdated
@@ -90,14 +88,18 @@ export const VipAccommodation: AdminWeb.Component<Types.Properties> = (propertie
                </div>
 
                <div className={actions.confirm_footer}>
-                  <button
-                     type="button"
-                     onClick={func.handleSwitchToEdit}
-                     className={actions.secondary_btn}
-                  >
-                     <PencilLine size={16} />
-                     <span>{func.translate('confirmed.edit_button')}</span>
-                  </button>
+                  {param.attendant.isEditExpired ? (
+                     <p className={actions.expired_notice}>{func.translate('confirmed.edit_expired_notice')}</p>
+                  ) : (
+                     <button
+                        type="button"
+                        onClick={func.handleSwitchToEdit}
+                        className={actions.secondary_btn}
+                     >
+                        <PencilLine size={16} />
+                        <span>{func.translate('confirmed.edit_button')}</span>
+                     </button>
+                  )}
                </div>
             </>
          )}

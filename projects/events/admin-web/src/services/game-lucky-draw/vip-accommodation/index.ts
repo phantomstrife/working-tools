@@ -1,5 +1,6 @@
 'use server';
 
+import { getAdminClient } from '@admin-web/adapters/supabase/admin';
 import { getAttendantClient } from '@admin-web/adapters/supabase/attendant';
 import { EMAIL_REGEX } from '@admin-web/services/game-lucky-draw/attendant-import-csv/constants';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
@@ -48,6 +49,21 @@ const getMetadataObject = (
    return {};
 };
 
+const isEventEditExpired = (startTime: string | null): boolean => {
+   console.log(startTime);
+
+   if (!startTime) {
+      return false;
+   }
+
+   const startTimestamp = Date.parse(startTime);
+   if (Number.isNaN(startTimestamp)) {
+      return false;
+   }
+
+   return Date.now() >= startTimestamp;
+};
+
 const toVipAttendantInfo = (
    row: AttendantRow,
    eventMeta: { eventName: string; gameName: string; locationName: string | null; startTime: string | null },
@@ -66,6 +82,7 @@ const toVipAttendantInfo = (
       locationName: eventMeta.locationName,
       startTime: eventMeta.startTime,
       accommodationConfirmed: metadata.accommodation_confirmed === true,
+      isEditExpired: isEventEditExpired(eventMeta.startTime),
    };
 };
 
@@ -77,6 +94,7 @@ const resolveVerifiedVipAttendant = async (token: string) => {
    }
 
    const anonClient = getAttendantClient(verified.attendantId);
+   const adminClient = getAdminClient();
 
    const [attendantQuery, gameQuery] = await Promise.all([
       anonClient
@@ -85,7 +103,7 @@ const resolveVerifiedVipAttendant = async (token: string) => {
          .eq('id', verified.attendantId)
          .eq('game_id', verified.gameId)
          .maybeSingle<AttendantRow>(),
-      anonClient
+      adminClient
          .from('games')
          .select(
             `
@@ -106,10 +124,6 @@ const resolveVerifiedVipAttendant = async (token: string) => {
       throw new Error('services.game_lucky_draw.attendant.not_found');
    }
 
-   if (attendantQuery.data.accommodation !== true) {
-      throw new Error('services.game_lucky_draw.attendant.vip_not_eligible');
-   }
-
    const eventData = Array.isArray(gameQuery.data?.event) ? gameQuery.data?.event[0] : gameQuery.data?.event;
 
    return {
@@ -125,7 +139,7 @@ const resolveVerifiedVipAttendant = async (token: string) => {
 };
 
 /**
- * Reads public-safe VIP accommodation details using a signed link token and anon RLS.
+ * Reads public-safe attendant details using a signed link token and anon RLS.
  */
 export const useServicesGameLuckyDrawVipAccommodationRead: Types.ReadService = async (request) => {
    return trycatchAsync(async () => {
@@ -138,15 +152,51 @@ export const useServicesGameLuckyDrawVipAccommodationRead: Types.ReadService = a
 };
 
 /**
- * Verifies and confirms the VIP attendant's existing accommodation details via anon RLS.
+ * Verifies and confirms the attendant's existing details via anon RLS.
  */
 export const useServicesGameLuckyDrawVipAccommodationConfirm: Types.ConfirmService = async (request) => {
    return trycatchAsync(async () => {
-      const { attendant, eventMeta } = await resolveVerifiedVipAttendant(request.token);
+      const { anonClient, attendant, eventMeta } = await resolveVerifiedVipAttendant(request.token);
+
+      if (isEventEditExpired(eventMeta.startTime)) {
+         return {
+            attendant: toVipAttendantInfo(attendant, eventMeta),
+         };
+      }
+
+      const nowIso = new Date().toISOString();
+      const baseMetadata = getMetadataObject(attendant.custom_metadata);
+      const existingHistory = Array.isArray(baseMetadata.self_service_history) ? baseMetadata.self_service_history : [];
+      const nextMetadata = {
+         ...baseMetadata,
+         accommodation_confirmed: true,
+         confirmed_at: nowIso,
+         self_service_history: [
+            ...existingHistory,
+            {
+               action: 'CONFIRM',
+               at: nowIso,
+            },
+         ],
+      };
+
+      const confirmed = await anonClient
+         .from('lucky_draw_attendants')
+         .update({
+            custom_metadata: nextMetadata as AdminWeb.Database.GameLuckyDrawAttendant['custom_metadata'],
+         })
+         .eq('id', attendant.id)
+         .eq('game_id', attendant.game_id)
+         .select(VIP_ATTENDANT_COLUMNS)
+         .single<AttendantRow>();
+
+      if (confirmed.error || !confirmed.data) {
+         throw new Error(confirmed.error?.message || 'services.game_lucky_draw.attendant.save_failed');
+      }
 
       return {
          attendant: {
-            ...toVipAttendantInfo(attendant, eventMeta),
+            ...toVipAttendantInfo(confirmed.data, eventMeta),
             accommodationConfirmed: true,
          },
       };
@@ -154,11 +204,15 @@ export const useServicesGameLuckyDrawVipAccommodationConfirm: Types.ConfirmServi
 };
 
 /**
- * Updates only citizen_id, full_name, email, and phone via anon RLS and database trigger.
+ * Updates citizen_id, full_name, email, phone, and custom_metadata via anon RLS and database trigger.
  */
 export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService = async (request) => {
    return trycatchAsync(async () => {
       const { anonClient, attendant, eventMeta } = await resolveVerifiedVipAttendant(request.token);
+
+      if (isEventEditExpired(eventMeta.startTime)) {
+         throw new Error('services.game_lucky_draw.attendant.vip_edit_expired');
+      }
 
       const trimmedFullName = request.full_name.trim();
       if (!trimmedFullName) {
@@ -173,6 +227,37 @@ export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService
       const normalizedCitizenId = request.citizen_id?.trim() || null;
       const normalizedPhone = request.phone?.trim() || null;
 
+      const changes: Record<string, { from: string | null; to: string | null }> = {};
+      if (attendant.full_name !== trimmedFullName) {
+         changes.full_name = { from: attendant.full_name, to: trimmedFullName };
+      }
+      if ((attendant.citizen_id ?? null) !== normalizedCitizenId) {
+         changes.citizen_id = { from: attendant.citizen_id ?? null, to: normalizedCitizenId };
+      }
+      if ((attendant.email ?? null) !== normalizedEmail) {
+         changes.email = { from: attendant.email ?? null, to: normalizedEmail };
+      }
+      if ((attendant.phone ?? null) !== normalizedPhone) {
+         changes.phone = { from: attendant.phone ?? null, to: normalizedPhone };
+      }
+
+      const nowIso = new Date().toISOString();
+      const baseMetadata = getMetadataObject(attendant.custom_metadata);
+      const existingHistory = Array.isArray(baseMetadata.self_service_history) ? baseMetadata.self_service_history : [];
+      const nextMetadata = {
+         ...baseMetadata,
+         accommodation_confirmed: true,
+         confirmed_at: nowIso,
+         self_service_history: [
+            ...existingHistory,
+            {
+               action: 'UPDATE',
+               at: nowIso,
+               changes,
+            },
+         ],
+      };
+
       // Enforce allowed column updates through anon RLS (`x-attendant-id`) and BEFORE UPDATE trigger.
       const updated = await anonClient
          .from('lucky_draw_attendants')
@@ -181,6 +266,7 @@ export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService
             citizen_id: normalizedCitizenId,
             email: normalizedEmail,
             phone: normalizedPhone,
+            custom_metadata: nextMetadata as AdminWeb.Database.GameLuckyDrawAttendant['custom_metadata'],
          })
          .eq('id', attendant.id)
          .eq('game_id', attendant.game_id)

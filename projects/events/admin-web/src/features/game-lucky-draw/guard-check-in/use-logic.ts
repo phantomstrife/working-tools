@@ -113,6 +113,9 @@ export function useLogic(
       editingAttendant: null,
       representativeInput: '',
       isSavingRepresentative: false,
+      previewRepresentativeInput: '',
+      isConfirmingCheckIn: false,
+      isSavingInlineRepresentative: false,
       lastResult: null,
       recentHistory: [],
    });
@@ -185,11 +188,30 @@ export function useLogic(
    }, [stopCamera]);
 
    const applyCheckInOutcome = useCallback(
-      (response: {
-         status: AdminWeb.Features.GameLuckyDraw.CheckIn.Status;
-         attendant: Types.Attendant;
-      }) => {
+      (
+         response: {
+            status: AdminWeb.Features.GameLuckyDraw.CheckIn.Status;
+            attendant: Types.Attendant;
+         },
+         qrCodePayload?: string,
+      ) => {
          const now = Date.now();
+
+         if (response.status === 'PENDING_CONFIRMATION') {
+            setState({
+               lastResult: {
+                  kind: 'PREVIEW',
+                  attendant: response.attendant,
+                  qrCodePayload,
+                  at: now,
+               },
+               previewRepresentativeInput: response.attendant.representative ?? '',
+            });
+
+            playFeedbackTone('SUCCESS');
+            return;
+         }
+
          const isFirstCheckIn = response.status === 'CHECKED_IN';
          const kind = isFirstCheckIn ? 'SUCCESS' : 'ALREADY';
 
@@ -209,9 +231,11 @@ export function useLogic(
          setState({
             checkedInCount: isFirstCheckIn ? state.checkedInCount + 1 : state.checkedInCount,
             searchResults: updatedResults,
+            previewRepresentativeInput: response.attendant.representative ?? '',
             lastResult: {
                kind,
                attendant: response.attendant,
+               qrCodePayload,
                at: now,
             },
             recentHistory: nextRecent,
@@ -255,6 +279,7 @@ export function useLogic(
          const serviceCheckIn = await useServicesGameLuckyDrawAttendantCheckInBrowser({
             gameId,
             method: 'QR_SCAN',
+            action: 'LOOKUP',
             qrCodePayload: payload,
          });
 
@@ -266,6 +291,7 @@ export function useLogic(
             setState({
                isQrSubmitting: false,
                qrInput: '',
+               previewRepresentativeInput: '',
                lastResult: {
                   kind: 'ERROR',
                   message: errorMessage,
@@ -284,7 +310,7 @@ export function useLogic(
             qrInput: '',
          });
 
-         applyCheckInOutcome(serviceCheckIn.data);
+         applyCheckInOutcome(serviceCheckIn.data, payload);
          scannerInputRef.current?.focus();
       },
       [applyCheckInOutcome, gameId, localizeError, scannerInputRef, setState],
@@ -301,12 +327,127 @@ export function useLogic(
          lastScannedPayload: '',
          lastResult: null,
          qrInput: '',
+         previewRepresentativeInput: '',
       });
 
       if (state.qrMode === 'SCANNER') {
          scannerInputRef.current?.focus();
       }
    }, [scannerInputRef, setState, state.qrMode]);
+
+   const handleConfirmQrCheckIn = useCallback(async () => {
+      if (!gameId || !state.lastResult || state.lastResult.kind !== 'PREVIEW' || state.isConfirmingCheckIn) {
+         return;
+      }
+
+      const targetResult = state.lastResult;
+      setState(true, 'isConfirmingCheckIn');
+
+      const serviceCheckIn = await useServicesGameLuckyDrawAttendantCheckInBrowser({
+         gameId,
+         method: 'QR_SCAN',
+         action: 'CONFIRM',
+         qrCodePayload: targetResult.qrCodePayload,
+         attendantId: targetResult.attendant.id,
+         representative: state.previewRepresentativeInput.trim() || null,
+      });
+
+      setState(false, 'isConfirmingCheckIn');
+
+      if (serviceCheckIn.error) {
+         const errorMessage = localizeError(serviceCheckIn.message);
+
+         setState({
+            lastResult: {
+               kind: 'ERROR',
+               message: errorMessage,
+               at: Date.now(),
+            },
+         });
+
+         playFeedbackTone('ERROR');
+         toast.error(errorMessage);
+         scannerInputRef.current?.focus();
+         return;
+      }
+
+      applyCheckInOutcome(serviceCheckIn.data, targetResult.qrCodePayload);
+      scannerInputRef.current?.focus();
+   }, [
+      applyCheckInOutcome,
+      gameId,
+      localizeError,
+      scannerInputRef,
+      setState,
+      state.isConfirmingCheckIn,
+      state.lastResult,
+      state.previewRepresentativeInput,
+   ]);
+
+   const handleSaveInlineRepresentative = useCallback(async () => {
+      if (
+         !gameId ||
+         !state.lastResult ||
+         (state.lastResult.kind !== 'SUCCESS' && state.lastResult.kind !== 'ALREADY') ||
+         state.isSavingInlineRepresentative
+      ) {
+         return;
+      }
+
+      const targetResult = state.lastResult;
+      setState(true, 'isSavingInlineRepresentative');
+
+      const serviceUpdate = await useServicesGameLuckyDrawGuardAttendantUpdateRepresentative({
+         gameId,
+         attendantId: targetResult.attendant.id,
+         representative: state.previewRepresentativeInput.trim() || null,
+      });
+
+      setState(false, 'isSavingInlineRepresentative');
+
+      if (serviceUpdate.error) {
+         toast.error(localizeError(serviceUpdate.message));
+         return;
+      }
+
+      const updatedAttendant = serviceUpdate.data;
+
+      setState({
+         searchResults: state.searchResults.map((item) =>
+            item.id === updatedAttendant.id ? updatedAttendant : item,
+         ),
+         previewRepresentativeInput: updatedAttendant.representative ?? '',
+         lastResult: {
+            ...targetResult,
+            attendant: updatedAttendant,
+         },
+         recentHistory: state.recentHistory.map((entry) =>
+            entry.attendant.id === updatedAttendant.id
+               ? {
+                    ...entry,
+                    attendant: updatedAttendant,
+                 }
+               : entry,
+         ),
+      });
+
+      toast.success(
+         translate('toast.representative_updated', {
+            name: updatedAttendant.full_name,
+            ticket: updatedAttendant.ticket_code,
+         }),
+      );
+   }, [
+      gameId,
+      localizeError,
+      setState,
+      state.isSavingInlineRepresentative,
+      state.lastResult,
+      state.previewRepresentativeInput,
+      state.recentHistory,
+      state.searchResults,
+      translate,
+   ]);
 
    const startCamera = useCallback(async () => {
       if (state.isCameraActive || state.isCameraStarting) {
@@ -568,6 +709,12 @@ export function useLogic(
       state.isSavingRepresentative ||
       !state.editingAttendant ||
       state.representativeInput.trim() === (state.editingAttendant.representative ?? '').trim();
+   const isInlineRepresentativeDirty =
+      state.lastResult && state.lastResult.kind !== 'ERROR'
+         ? state.previewRepresentativeInput.trim() !== (state.lastResult.attendant.representative ?? '').trim()
+         : false;
+   const isSaveInlineRepresentativeDisabled =
+      state.isSavingInlineRepresentative || !isInlineRepresentativeDirty;
 
    return {
       state,
@@ -578,6 +725,7 @@ export function useLogic(
          cameraStatus,
          canResetScan: Boolean(state.lastResult || state.lastScannedPayload),
          isSaveRepresentativeDisabled,
+         isSaveInlineRepresentativeDisabled,
       },
       func: {
          translate,
@@ -585,6 +733,8 @@ export function useLogic(
          fetchStats,
          handleQrFormSubmit,
          handleResetScan,
+         handleConfirmQrCheckIn,
+         handleSaveInlineRepresentative,
          handleSelectQrMode,
          startCamera,
          stopCamera,

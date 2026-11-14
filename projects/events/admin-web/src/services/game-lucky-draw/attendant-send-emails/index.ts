@@ -153,19 +153,13 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
             const vipBasePath = `${baseUrl}${ROUTE.PUBLIC.VIP_ACCOMMODATION}`;
 
             const messages = sendableAttendants.map((attendant) => {
-               const isVip = attendant.accommodation === true;
-               let confirmUrl: string | undefined;
-               let editUrl: string | undefined;
-
-               if (isVip) {
-                  const token = signVipAccommodationToken({
-                     attendantId: attendant.id,
-                     gameId: request.gameId,
-                  });
-                  const encodedToken = encodeURIComponent(token);
-                  confirmUrl = `${vipBasePath}?token=${encodedToken}&action=confirm`;
-                  editUrl = `${vipBasePath}?token=${encodedToken}&action=edit`;
-               }
+               const token = signVipAccommodationToken({
+                  attendantId: attendant.id,
+                  gameId: request.gameId,
+               });
+               const encodedToken = encodeURIComponent(token);
+               const confirmUrl = `${vipBasePath}?token=${encodedToken}&action=confirm`;
+               const editUrl = `${vipBasePath}?token=${encodedToken}&action=edit`;
 
                const content = buildAttendantTicketEmail({
                   fullName: attendant.full_name,
@@ -178,7 +172,6 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
                   gameName: game.name,
                   locationName: event.location_name,
                   startTime: event.start_time,
-                  isVip,
                   confirmUrl,
                   editUrl,
                });

@@ -10,6 +10,7 @@ export interface VipAttendantInfo {
    locationName: string | null;
    startTime: string | null;
    accommodationConfirmed: boolean;
+   isEditExpired: boolean;
 }
 
 export interface ReadRequest {

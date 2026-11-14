@@ -105,10 +105,6 @@ SET search_path = public
 AS $$
 BEGIN
     IF auth.role() = 'anon' THEN
-        IF OLD.accommodation IS DISTINCT FROM true THEN
-            RAISE EXCEPTION 'Only VIP accommodation attendants can self-update';
-        END IF;
-
         IF (
             NEW.id IS DISTINCT FROM OLD.id OR
             NEW.game_id IS DISTINCT FROM OLD.game_id OR
@@ -117,7 +113,6 @@ BEGIN
             NEW.department IS DISTINCT FROM OLD.department OR
             NEW.representative IS DISTINCT FROM OLD.representative OR
             NEW.accommodation IS DISTINCT FROM OLD.accommodation OR
-            NEW.custom_metadata IS DISTINCT FROM OLD.custom_metadata OR
             NEW.qr_code_payload IS DISTINCT FROM OLD.qr_code_payload OR
             NEW.email_status IS DISTINCT FROM OLD.email_status OR
             NEW.email_sent_at IS DISTINCT FROM OLD.email_sent_at OR

@@ -4,6 +4,13 @@ export const useStyle = {
    stageWrapper: tv({
       base: 'relative w-full min-h-screen bg-neutral-950 flex items-center justify-center overflow-hidden',
    }),
+   fullscreenBtn: tv({
+      base: [
+         'fixed top-4 right-4 z-30 size-9 flex items-center justify-center rounded-primary',
+         'bg-neutral-900/80 text-neutral-300 hover:text-neutral-50 hover:bg-neutral-800',
+         'border border-neutral-700/80 shadow-lg backdrop-blur-md transition-colors cursor-pointer',
+      ],
+   }),
    boardCanvas: tv({
       base: 'relative flex flex-col items-center justify-center max-w-full min-h-screen aspect-1/2 bg-cover bg-center bg-no-repeat',
    }),

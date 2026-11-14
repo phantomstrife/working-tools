@@ -314,7 +314,8 @@ export const vi = {
                delete_message:
                   'Bạn có chắc chắn muốn xóa người tham dự "{{name}}" (Mã vé: {{ticket}}) khỏi trò chơi này không?',
                send_all_title: 'Xác nhận gửi Email cho tất cả',
-               send_all_description: 'Email vé tham dự và mã QR sẽ được gửi tới toàn bộ người tham dự hợp lệ trong trò chơi.',
+               send_all_description:
+                  'Email vé tham dự và mã QR sẽ được gửi tới toàn bộ người tham dự hợp lệ trong trò chơi.',
                send_all_message:
                   'Bạn có chắc chắn muốn gửi email tới tất cả người tham dự hiện có trong trò chơi này không?',
             },
@@ -415,8 +416,8 @@ export const vi = {
          vip_accommodation: {
             ticket_label: 'Mã vé: {{code}}',
             loading: {
-               confirming: 'Đang xác nhận thông tin lưu trú của bạn...',
-               loading_info: 'Đang tải thông tin khách mời VIP...',
+               confirming: 'Đang xác nhận thông tin tham dự của bạn...',
+               loading_info: 'Đang tải thông tin khách tham dự...',
             },
             error: {
                title: 'Không thể truy cập thông tin',
@@ -425,20 +426,21 @@ export const vi = {
             confirmed: {
                title: 'Xác nhận thông tin thành công',
                updated_title: 'Cập nhật thông tin thành công',
-               description: 'Cảm ơn Quý khách. Thông tin lưu trú VIP của Quý khách đã được ghi nhận trên hệ thống.',
-               updated_description: 'Thông tin cá nhân của Quý khách đã được cập nhật và lưu lại thành công.',
+               description: 'Cảm ơn Quý khách. Thông tin tham dự của Quý khách đã được ghi nhận trên hệ thống.',
+               updated_description: 'Thông tin của Quý khách đã được cập nhật mới thành công.',
                edit_button: 'Chỉnh sửa thông tin',
+               edit_expired_notice: 'Sự kiện đã bắt đầu. Thời hạn chỉnh sửa thông tin đã kết thúc.',
             },
             summary: {
-               title: 'Thông tin lưu trú hiện tại',
+               title: 'Thông tin khách tham dự',
                full_name: 'Họ và tên',
                citizen_id: 'Số CCCD / CMND',
                email: 'Email',
                phone: 'Số điện thoại',
             },
             edit: {
-               title: 'Cập nhật thông tin khách mời VIP',
-               description: 'Vui lòng kiểm tra và chỉnh sửa thông tin cá nhân dưới đây nếu có thay đổi.',
+               title: 'Cập nhật thông tin khách tham dự',
+               description: 'Vui lòng kiểm tra và chỉnh sửa thông tin cá nhân nếu có thay đổi.',
                fields: {
                   full_name: {
                      label: 'Họ và tên',
@@ -716,16 +718,24 @@ export const vi = {
                empty: 'Chưa có lượt check-in nào trong phiên làm việc này.',
                verifying_title: 'ĐANG KIỂM TRA VÉ...',
                verifying_description: 'Đang đối chiếu dữ liệu khách tham dự trên hệ thống.',
+               preview_title: 'XÁC NHẬN THÔNG TIN CHECK-IN',
                success_title: 'CHECK-IN THÀNH CÔNG',
                already_title: 'KHÁCH ĐÃ CHECK-IN TRƯỚC ĐÓ',
                error_title: 'KHÔNG THỂ CHECK-IN',
                ticket_label: 'Mã vé',
                company_label: 'Đơn vị',
                representative_label: 'Người đại diện',
-               contact_label: 'Liên hệ',
+               representative_placeholder: 'Nhập họ tên người đại diện (nếu có)...',
+               contact_email: 'Email',
+               contact_phone: 'Số điện thoại',
                time_label: 'Thời gian check-in',
                method_QR_SCAN: 'Quét mã QR',
                method_MANUAL_SEARCH: 'Tra cứu thủ công',
+               confirm_btn: 'Xác nhận Check-in',
+               confirming_btn: 'Đang xác nhận...',
+               cancel_btn: 'Hủy',
+               save_representative_btn: 'Lưu người đại diện',
+               saving_representative_btn: 'Đang lưu...',
                recent_title: 'Lịch sử vừa kiểm soát',
             },
             toast: {
@@ -736,9 +746,23 @@ export const vi = {
          },
       },
       operator: {
+         selector: {
+            loading: 'Đang tải danh sách trò chơi được phân công...',
+            empty_title: 'Chưa có trò chơi nào được phân công',
+            empty_description:
+               'Tài khoản của bạn hiện chưa được phân công vào trò chơi nào. Vui lòng liên hệ Quản trị viên sự kiện.',
+            title: 'Chọn màn hình trò chơi',
+            description: 'Chọn sự kiện và trò chơi bạn muốn vận hành trên màn hình trình chiếu.',
+            event_label: 'Sự kiện',
+            game_label: 'Trò chơi',
+            no_games: 'Không có trò chơi nào',
+            submit_btn: 'Mở màn hình trò chơi',
+         },
          board: {
             winners_title: 'Người trúng giải',
-            close_winners_shortcut: 'Đóng (W)',
+            close_winners_shortcut: 'Đóng (Ctrl + W)',
+            enter_fullscreen_shortcut: 'Toàn màn hình (Ctrl + F)',
+            exit_fullscreen_shortcut: 'Thoát toàn màn hình (Ctrl + F)',
             no_winners: 'Chưa có người trúng giải',
             congrats: 'Chúc mừng người chiến thắng',
             representative_label: 'Người đại diện: {{name}}',
@@ -769,8 +793,8 @@ export const vi = {
             game_placeholder: '-- Chọn trò chơi --',
             prize_label: 'Giải thưởng đang quay',
             prize_placeholder: '-- Chọn giải thưởng --',
-            show_winners: 'Hiện DS trúng (W)',
-            hide_winners: 'Ẩn DS trúng (W)',
+            show_winners: 'Hiện DS trúng (Ctrl + W)',
+            hide_winners: 'Ẩn DS trúng (Ctrl + W)',
             telemetry: {
                checked_in: 'Checked in',
                eligible: 'Hợp lệ',
@@ -782,17 +806,18 @@ export const vi = {
                manual: 'Thủ công',
                instant: 'Tức thì',
             },
-            start_draw: 'Bắt đầu quay số · Space',
+            start_draw: 'Bắt đầu quay số',
             preparing_draw: 'Đang quay số....',
             spinning_reels: 'Đang quay số...',
             prize_completed: 'Đã trao hết giải này',
-            stop_next_reel: 'Dừng ô tiếp theo ({{stopped}}/{{total}}) · Space',
+            stop_next_reel: 'Dừng cột tiếp theo ({{stopped}}/{{total}}) · Ctrl + Space',
             redraw_absent: 'Quay lại ({{ticket}} vắng mặt)',
-            draw_short: 'Quay số · Space',
+            draw_short: 'Quay số · Ctrl + Space',
             preparing_short: 'Đang xử lý...',
             spinning_short: 'Đang quay...',
             stop_short: 'Dừng',
-            shortcuts_hint: 'Phím tắt: [Space] Quay số / Dừng ô số • [W] DS trúng giải • [H] Ẩn/hiện bảng điều khiển',
+            shortcuts_hint:
+               'Phím tắt: [Shift + Space] Quay số / Dừng · [Shift + W] Ẩn/hiện DS trúng giải · [Shift + H] Ẩn/hiện bảng điều khiển · [Shift + F] Toàn màn hình',
          },
          placeholder: {
             badge: 'FIELD STAFF • EVENT GAME',
@@ -914,6 +939,7 @@ export const vi = {
             vip_not_eligible: 'Khách mời này không thuộc danh sách lưu trú VIP.',
             vip_invalid_email: 'Vui lòng nhập địa chỉ email hợp lệ.',
             vip_missing_full_name: 'Vui lòng nhập họ và tên.',
+            vip_edit_expired: 'Thời hạn chỉnh sửa thông tin đã kết thúc do sự kiện đã bắt đầu.',
          },
          check_in: {
             missing_fields: 'Thiếu thông tin check-in (trò chơi, mã QR hoặc người tham dự).',

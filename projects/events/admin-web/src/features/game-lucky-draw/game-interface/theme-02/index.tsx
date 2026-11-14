@@ -1,5 +1,7 @@
 'use client';
 
+import { Maximize2, Minimize2 } from 'lucide-react';
+
 import { SoldOutStamp } from '@admin-web/components/sold-out-stamp';
 import { SlotReel } from '@admin-web/features/game-lucky-draw/game-interface/slot-reel';
 
@@ -7,9 +9,10 @@ import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
 export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
-   const { param, func } = useLogic();
+   const { stageRef, param, func } = useLogic();
    const {
       stageWrapper,
+      fullscreenBtn,
       boardCanvas,
       winnersOverlay,
       winnersHeader,
@@ -44,7 +47,22 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
    } = useStyle;
 
    return (
-      <div className={stageWrapper()}>
+      <div
+         ref={stageRef}
+         className={stageWrapper()}
+      >
+         <button
+            type="button"
+            onClick={() => void func.handleToggleFullscreen()}
+            title={
+               param.isFullscreen
+                  ? func.translate('exit_fullscreen_shortcut')
+                  : func.translate('enter_fullscreen_shortcut')
+            }
+            className={fullscreenBtn()}
+         >
+            {param.isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+         </button>
          {param.showWinners && param.currentPrize && (
             <div className={winnersOverlay()}>
                <div className={winnersHeader()}>

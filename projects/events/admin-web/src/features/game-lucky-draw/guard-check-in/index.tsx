@@ -206,6 +206,18 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                              {func.translate('qr.status_verifying')}
                                           </span>
                                        </div>
+                                    ) : param.cameraStatus === 'PREVIEW' && state.lastResult?.kind === 'PREVIEW' ? (
+                                       <>
+                                          <div className={qr.camera.hud_left}>
+                                             <UserCheck className={qr.camera.hud_icon} />
+                                             <span className={qr.camera.hud_text}>
+                                                {state.lastResult.attendant.full_name}
+                                             </span>
+                                          </div>
+                                          <span className={qr.camera.hud_ticket}>
+                                             {state.lastResult.attendant.ticket_code}
+                                          </span>
+                                       </>
                                     ) : param.cameraStatus === 'SUCCESS' && state.lastResult?.kind === 'SUCCESS' ? (
                                        <>
                                           <div className={qr.camera.hud_left}>
@@ -262,16 +274,6 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                         <div className={qr.camera.controls}>
                            <span className={qr.hint}>{func.translate('qr.camera_active_hint')}</span>
                            <div className={qr.camera.controls_actions}>
-                              {param.canResetScan && (
-                                 <button
-                                    type="button"
-                                    onClick={func.handleResetScan}
-                                    className={qr.reset_button}
-                                 >
-                                    <RotateCcw size={14} />
-                                    {func.translate('qr.reset_scan')}
-                                 </button>
-                              )}
                               {state.isCameraActive ? (
                                  <button
                                     type="button"
@@ -346,42 +348,43 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                      <div className={feedback.banner({ kind: state.lastResult.kind })}>
                         <div className={feedback.top_row}>
                            <span className={feedback.badge({ kind: state.lastResult.kind })}>
-                              {state.lastResult.kind === 'SUCCESS' ? (
+                              {state.lastResult.kind === 'PREVIEW' ? (
+                                 <UserCheck size={14} />
+                              ) : state.lastResult.kind === 'SUCCESS' ? (
                                  <CheckCircle2 size={14} />
                               ) : (
                                  <AlertTriangle size={14} />
                               )}
-                              {state.lastResult.kind === 'SUCCESS'
-                                 ? func.translate('feedback.success_title')
-                                 : func.translate('feedback.already_title')}
+                              {state.lastResult.kind === 'PREVIEW'
+                                 ? func.translate('feedback.preview_title')
+                                 : state.lastResult.kind === 'SUCCESS'
+                                   ? func.translate('feedback.success_title')
+                                   : func.translate('feedback.already_title')}
                            </span>
-                           <span className={feedback.recent.time}>
-                              {formatDateTime(state.lastResult.attendant.checked_in_at ?? state.lastResult.at)}
-                           </span>
+                           {state.lastResult.attendant.checked_in_at && (
+                              <span className={feedback.recent.time}>
+                                 {formatDateTime(state.lastResult.attendant.checked_in_at ?? state.lastResult.at)}
+                              </span>
+                           )}
                         </div>
 
-                        <span className={feedback.name}>{state.lastResult.attendant.full_name}</span>
+                        <span className={feedback.name}>
+                           {state.lastResult.attendant.full_name}
+                           <span className={feedback.ticket_code}>{state.lastResult.attendant.ticket_code}</span>
+                        </span>
 
                         <div className={feedback.meta_grid}>
                            <div className={feedback.meta_item}>
-                              <span className={feedback.meta_label}>{func.translate('feedback.ticket_label')}</span>
-                              <span className={feedback.ticket_code}>{state.lastResult.attendant.ticket_code}</span>
-                           </div>
-                           <div className={feedback.meta_item}>
                               <span className={feedback.meta_label}>{func.translate('feedback.company_label')}</span>
-                              <span className={feedback.meta_value}>
-                                 {[state.lastResult.attendant.company_name, state.lastResult.attendant.department]
-                                    .filter(Boolean)
-                                    .join(' • ') || '—'}
-                              </span>
+                              <span className={feedback.meta_value}>{state.lastResult.attendant.company_name}</span>
                            </div>
                            <div className={feedback.meta_item}>
-                              <span className={feedback.meta_label}>{func.translate('feedback.contact_label')}</span>
-                              <span className={feedback.meta_value}>
-                                 {[state.lastResult.attendant.phone, state.lastResult.attendant.email]
-                                    .filter(Boolean)
-                                    .join(' • ') || '—'}
-                              </span>
+                              <span className={feedback.meta_label}>{func.translate('feedback.contact_phone')}</span>
+                              <span className={feedback.meta_value}>{state.lastResult.attendant.phone}</span>
+                           </div>
+                           <div className={feedback.meta_item}>
+                              <span className={feedback.meta_label}>{func.translate('feedback.contact_email')}</span>
+                              <span className={feedback.meta_value}>{state.lastResult.attendant.email}</span>
                            </div>
                            <div className={feedback.meta_item}>
                               <span className={feedback.meta_label}>{func.translate('feedback.time_label')}</span>
@@ -392,17 +395,76 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                     : ''}
                               </span>
                            </div>
-                           {state.lastResult.attendant.representative && (
-                              <div className={feedback.meta_item}>
-                                 <span className={feedback.meta_label}>
-                                    {func.translate('feedback.representative_label')}
-                                 </span>
-                                 <span className={feedback.meta_value}>
-                                    {state.lastResult.attendant.representative}
-                                 </span>
-                              </div>
-                           )}
                         </div>
+
+                        <div className={feedback.inline_rep_box}>
+                           <label
+                              htmlFor="guard-inline-representative"
+                              className={feedback.inline_rep_label}
+                           >
+                              {func.translate('feedback.representative_label')}
+                           </label>
+                           <div className={feedback.inline_rep_row}>
+                              <div className={feedback.inline_rep_input_wrapper}>
+                                 <User size={15} />
+                                 <input
+                                    id="guard-inline-representative"
+                                    type="text"
+                                    value={state.previewRepresentativeInput}
+                                    placeholder={func.translate('feedback.representative_placeholder')}
+                                    onChange={(event) =>
+                                       func.setState(event.target.value, 'previewRepresentativeInput')
+                                    }
+                                    className={feedback.inline_rep_input}
+                                 />
+                              </div>
+                              {state.lastResult.kind !== 'PREVIEW' && (
+                                 <button
+                                    type="button"
+                                    disabled={param.isSaveInlineRepresentativeDisabled}
+                                    onClick={func.handleSaveInlineRepresentative}
+                                    className={feedback.inline_action_btn({
+                                       tone: 'primary',
+                                       disabled: param.isSaveInlineRepresentativeDisabled,
+                                    })}
+                                 >
+                                    {state.isSavingInlineRepresentative
+                                       ? func.translate('feedback.saving_representative_btn')
+                                       : func.translate('feedback.save_representative_btn')}
+                                 </button>
+                              )}
+                           </div>
+                        </div>
+
+                        {state.lastResult.kind === 'PREVIEW' && (
+                           <div className={feedback.inline_actions}>
+                              <button
+                                 type="button"
+                                 disabled={state.isConfirmingCheckIn}
+                                 onClick={func.handleConfirmQrCheckIn}
+                                 className={feedback.inline_action_btn({
+                                    tone: 'primary',
+                                    disabled: state.isConfirmingCheckIn,
+                                 })}
+                              >
+                                 <UserCheck size={15} />
+                                 {state.isConfirmingCheckIn
+                                    ? func.translate('feedback.confirming_btn')
+                                    : func.translate('feedback.confirm_btn')}
+                              </button>
+                              <button
+                                 type="button"
+                                 disabled={state.isConfirmingCheckIn}
+                                 onClick={func.handleResetScan}
+                                 className={feedback.inline_action_btn({
+                                    tone: 'secondary',
+                                    disabled: state.isConfirmingCheckIn,
+                                 })}
+                              >
+                                 {func.translate('feedback.cancel_btn')}
+                              </button>
+                           </div>
+                        )}
                      </div>
                   )}
 
@@ -417,7 +479,9 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                               >
                                  <div className={feedback.recent.left}>
                                     <span className={feedback.recent.ticket}>{entry.attendant.ticket_code}</span>
-                                    <span className={feedback.recent.name}>{entry.attendant.full_name}</span>
+                                    <span className={feedback.recent.name}>
+                                       {entry.attendant.representative || entry.attendant.full_name}
+                                    </span>
                                  </div>
                                  <span className={feedback.recent.time}>{formatDateTime(entry.at)}</span>
                               </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslate } from '@admin-web/locale';
 import { useStoreLuckyDraw } from '@admin-web/stores/lucky-draw';
 
@@ -9,6 +9,9 @@ export function useLogic() {
    const { translate } = useTranslate({
       prefix: 'features.operator.board',
    });
+
+   const stageRef = useRef<HTMLDivElement | null>(null);
+   const [isFullscreen, setIsFullscreen] = useState(false);
 
    const prizes = useStoreLuckyDraw((s) => s.prizes);
    const participants = useStoreLuckyDraw((s) => s.participants);
@@ -54,6 +57,28 @@ export function useLogic() {
                ? translate('prize_exhausted')
                : translate('ready');
 
+   const handleToggleFullscreen = useCallback(async () => {
+      try {
+         if (document.fullscreenElement) {
+            await document.exitFullscreen();
+         } else {
+            await document.documentElement.requestFullscreen();
+         }
+      } catch {
+         // Ignore fullscreen errors in restricted browser contexts
+      }
+   }, []);
+
+   useEffect(() => {
+      const handleFullscreenChange = () => {
+         setIsFullscreen(Boolean(document.fullscreenElement));
+      };
+
+      handleFullscreenChange();
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+   }, []);
+
    useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
          const target = e.target;
@@ -66,7 +91,8 @@ export function useLogic() {
          ) {
             return;
          }
-         if (e.code === 'Space') {
+
+         if ((e.shiftKey || e.metaKey) && e.code === 'Space') {
             if (e.repeat) {
                return;
             }
@@ -77,22 +103,28 @@ export function useLogic() {
             } else if (!storeState.isDrawingRequest) {
                void storeState.startDraw();
             }
-         } else if (e.code === 'KeyW') {
+         } else if ((e.shiftKey || e.metaKey) && e.code === 'KeyW') {
+            e.preventDefault();
             setShowWinners((v) => !v);
-         } else if (e.code === 'KeyH') {
+         } else if ((e.shiftKey || e.metaKey) && e.code === 'KeyH') {
+            e.preventDefault();
             setHideHud((v) => !v);
+         } else if ((e.shiftKey || e.metaKey) && e.code === 'KeyF') {
+            e.preventDefault();
+            void handleToggleFullscreen();
          }
       };
 
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
-   }, [setShowWinners, setHideHud]);
+   }, [handleToggleFullscreen, setShowWinners, setHideHud]);
 
    function handleCloseWinners() {
       setShowWinners(false);
    }
 
    return {
+      stageRef,
       param: {
          backgroundImage,
          resultBar,
@@ -107,10 +139,12 @@ export function useLogic() {
          isSpinning,
          stoppedReels,
          showWinners,
+         isFullscreen,
       },
       func: {
          translate,
          handleCloseWinners,
+         handleToggleFullscreen,
       },
    };
 }

@@ -1,9 +1,9 @@
 import { useRouter } from 'next/navigation';
-import { ROUTE } from '@admin-web/routes/constants';
-import { useTranslate } from '@admin-web/locale';
 import { useDeepState } from '@admin-web/hooks/deep-state';
-
+import { useTranslate } from '@admin-web/locale';
+import { ROUTE } from '@admin-web/routes/constants';
 import { useServiceAccountLogin } from '@admin-web/services/account/login';
+import { useServicesGameAssignmentSearch } from '@admin-web/services/game/assignment-search';
 
 import type * as Types from './type';
 
@@ -42,7 +42,7 @@ export function useLogic() {
          return;
       }
 
-      const { accountRole, companyId } = serviceAccountLogin.data;
+      const { accountRole, companyId, user } = serviceAccountLogin.data;
 
       switch (accountRole) {
          case 'SUPER_ADMIN':
@@ -51,9 +51,23 @@ export function useLogic() {
          case 'ADMIN':
             router.replace(companyId ? ROUTE.ADMIN.HOME(companyId) : ROUTE.AUTHORIZE.LOGIN);
             break;
-         case 'FIELD_STAFF':
-            router.replace(ROUTE.OPERATOR.HOME);
+         case 'FIELD_STAFF': {
+            const assignmentsResult = await useServicesGameAssignmentSearch({
+               accountId: user.id,
+               role: accountRole,
+               companyId,
+            });
+            const assignedGames = (assignmentsResult.error ? [] : assignmentsResult.data).flatMap(
+               (event) => event.games,
+            );
+
+            if (assignedGames.length === 1) {
+               router.replace(ROUTE.OPERATOR.GAME(assignedGames[0].id));
+            } else {
+               router.replace(ROUTE.OPERATOR.HOME);
+            }
             break;
+         }
          case 'GUARD':
          default:
             router.replace(ROUTE.GUARD.HOME);

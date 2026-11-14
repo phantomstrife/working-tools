@@ -97,6 +97,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
 
       clearAutoStopTimers();
       set({
+         isSpinning: true,
          isDrawingRequest: true,
          notice: null,
       });
@@ -224,7 +225,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       isRealtimeConnected: false,
       stoppedReels: 0,
       drawMode: 'auto',
-      showWinners: true,
+      showWinners: false,
       hideHud: false,
       notice: null,
 

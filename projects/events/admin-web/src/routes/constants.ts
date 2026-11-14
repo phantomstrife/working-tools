@@ -29,6 +29,7 @@ export const ROUTE = {
    },
    OPERATOR: {
       HOME: `${BASE.OPERATOR}`,
+      GAME: (gameId: string) => `${BASE.OPERATOR}/${gameId}`,
    },
    PUBLIC: {
       VIP_ACCOMMODATION: '/vip-accommodation',

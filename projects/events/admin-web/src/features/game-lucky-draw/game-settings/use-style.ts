@@ -1,9 +1,6 @@
 import { tv } from 'tailwind-variants';
 
 export const useStyle = {
-   collapsedContainer: tv({
-      base: 'fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-50 max-w-[calc(100vw-1.5rem)] flex flex-col items-end gap-2 select-none',
-   }),
    expandedContainer: tv({
       base: 'fixed inset-x-3 bottom-3 sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-88 max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2.5rem)] flex flex-col gap-2.5 z-50 select-none',
    }),
@@ -23,118 +20,24 @@ export const useStyle = {
    noticeCloseBtn: tv({
       base: 'text-current opacity-70 hover:opacity-100 font-bold leading-none cursor-pointer',
    }),
-   collapsedPill: tv({
-      base: [
-         'flex flex-wrap items-center justify-end gap-2 p-1.5 rounded-primary bg-neutral-900/90',
-         'border border-neutral-700/80 shadow-2xl backdrop-blur-md text-neutral-100',
-      ],
-   }),
-   collapsedDrawBtn: tv({
-      base: [
-         'inline-flex items-center justify-center gap-1.5 px-4 py-1.5 text-12 font-bold tracking-wider uppercase rounded-primary',
-         'bg-warning-500 text-neutral-950 hover:bg-warning-400 transition-colors cursor-pointer',
-      ],
-      variants: {
-         disabled: {
-            true: 'opacity-50 pointer-events-none cursor-not-allowed',
-         },
-      },
-   }),
-   collapsedStopBtn: tv({
-      base: [
-         'px-3 py-1.5 text-12 font-bold tracking-wider uppercase rounded-primary',
-         'bg-error-600 text-neutral-50 hover:bg-error-500 transition-colors tabular-nums cursor-pointer',
-      ],
-   }),
-   collapsedExpandBtn: tv({
-      base: [
-         'px-3 py-1.5 text-12 font-semibold text-neutral-300 hover:text-neutral-50',
-         'rounded-primary hover:bg-neutral-800 transition-colors cursor-pointer',
-      ],
-   }),
    operatorCard: tv({
       base: [
          'flex flex-col gap-3.5 p-4 bg-neutral-900/95 border border-neutral-700/80',
          'rounded-secondary text-neutral-100 shadow-2xl backdrop-blur-md overflow-y-auto',
       ],
    }),
-   cardHeader: tv({
-      base: 'flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-2.5',
-   }),
-   cardHeaderTitleGroup: tv({
-      base: 'flex items-center gap-2',
-   }),
-   statusDot: tv({
-      base: 'w-2 h-2 rounded-full',
-      variants: {
-         live: {
-            true: 'bg-success-400 animate-pulse',
-            false: 'bg-warning-400',
-         },
-      },
-   }),
-   cardHeaderTitle: tv({
-      base: 'font-bold text-12 tracking-wider text-warning-400 uppercase',
-   }),
-   cardHeaderActions: tv({
-      base: 'flex items-center gap-1',
-   }),
-   syncBtn: tv({
-      base: [
-         'px-2 py-1 text-14! font-semibold rounded-primary bg-neutral-800 text-neutral-300',
-         'hover:text-neutral-50 hover:bg-neutral-700 border border-neutral-700 transition-colors cursor-pointer',
-      ],
-      variants: {
-         disabled: {
-            true: 'opacity-50 pointer-events-none cursor-not-allowed',
-         },
-      },
-   }),
-   minimizeBtn: tv({
-      base: [
-         'px-2 py-1 text-14! font-semibold text-neutral-400 hover:text-neutral-50',
-         'rounded-primary hover:bg-neutral-800 transition-colors cursor-pointer',
-      ],
-   }),
-   accountRow: tv({
-      base: 'flex flex-wrap items-center justify-between gap-2 px-2.5 py-1.5 rounded-primary bg-neutral-950/70 border border-neutral-800 text-11',
-   }),
-   accountName: tv({
-      base: 'font-semibold text-neutral-200 truncate min-w-0',
-   }),
-   accountActions: tv({
-      base: 'flex flex-wrap items-center gap-1.5 shrink-0',
-   }),
-   guardSwitchBtn: tv({
-      base: [
-         'px-2 py-0.5 text-11 font-semibold text-info-300 bg-info-950/70 hover:bg-info-900/80',
-         'border border-info-800/70 rounded-primary transition-colors cursor-pointer',
-      ],
-   }),
-   logoutBtn: tv({
-      base: [
-         'px-2 py-0.5 text-11 font-semibold text-error-300 bg-error-950/70 hover:bg-error-900/80',
-         'border border-error-800/70 rounded-primary transition-colors cursor-pointer',
-      ],
-   }),
-   selectorsGroup: tv({
-      base: 'flex flex-col gap-2.5',
-   }),
    fieldGroup: tv({
       base: 'flex flex-col gap-1',
-   }),
-   fieldHeaderRow: tv({
-      base: 'flex items-center justify-between',
    }),
    fieldLabel: tv({
       base: 'block text-12! font-semibold uppercase tracking-wider text-neutral-400',
    }),
-   winnersToggleBtn: tv({
-      base: 'text-11 font-semibold text-warning-400 hover:text-warning-300 transition-colors cursor-pointer',
+   prizeRow: tv({
+      base: 'flex items-center gap-2',
    }),
    selectInput: tv({
       base: [
-         'w-full px-3 py-2 text-13 text-neutral-50 bg-neutral-950 border border-neutral-700',
+         'flex-1 min-w-0 px-3 py-2 text-13 text-neutral-50 bg-neutral-950 border border-neutral-700',
          'rounded-primary focus:outline-none focus:border-warning-500 transition-colors cursor-pointer',
       ],
       variants: {
@@ -143,23 +46,26 @@ export const useStyle = {
          },
       },
    }),
-   telemetryGrid: tv({
-      base: 'grid grid-cols-3 gap-2 pt-1',
-   }),
-   telemetryBox: tv({
-      base: 'p-2 rounded-primary bg-neutral-950/70 border border-neutral-800 text-center',
-   }),
-   telemetryLabel: tv({
-      base: 'text-12! font-semibold uppercase tracking-wider text-neutral-400',
-   }),
-   telemetryValue: tv({
-      base: 'text-16 font-bold tabular-nums mt-0.5',
+   syncIconBtn: tv({
+      base: [
+         'size-9 shrink-0 flex items-center justify-center rounded-primary bg-neutral-800 text-neutral-300',
+         'hover:text-neutral-50 hover:bg-neutral-700 border border-neutral-700 transition-colors cursor-pointer',
+      ],
       variants: {
-         tone: {
-            white: 'text-neutral-50',
-            emerald: 'text-success-400',
-            yellow: 'text-warning-400',
+         disabled: {
+            true: 'opacity-50 pointer-events-none cursor-not-allowed',
          },
+      },
+   }),
+   syncIcon: tv({
+      base: 'w-4 h-4 shrink-0',
+      variants: {
+         loading: {
+            true: 'animate-spin',
+         },
+      },
+      defaultVariants: {
+         loading: false,
       },
    }),
    controlsSection: tv({
@@ -211,5 +117,11 @@ export const useStyle = {
    }),
    shortcutHint: tv({
       base: 'text-11! text-center text-neutral-500 pt-1',
+   }),
+   logoutWrapper: tv({
+      base: 'flex justify-center',
+   }),
+   logoutBtn: tv({
+      base: 'text-11 text-neutral-400 hover:text-error-400 underline-offset-2 hover:underline transition-colors cursor-pointer',
    }),
 };

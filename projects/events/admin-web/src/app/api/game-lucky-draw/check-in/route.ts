@@ -9,9 +9,11 @@ export async function POST(request: Request) {
    const body = (await request.json().catch(() => null)) as {
       gameId?: string;
       method?: AdminWeb.Database.Check_In_Method;
+      action?: 'LOOKUP' | 'CONFIRM';
       qrCodePayload?: string;
       attendantId?: string;
       searchQuery?: string;
+      representative?: string | null;
    } | null;
 
    const method = body?.method;
@@ -30,9 +32,11 @@ export async function POST(request: Request) {
       accessToken: readBearerToken(request),
       gameId: body.gameId,
       method,
+      action: body.action,
       qrCodePayload: body.qrCodePayload,
       attendantId: body.attendantId,
       searchQuery: body.searchQuery,
+      representative: body.representative,
    });
 
    if (result.error) {
@@ -50,4 +54,3 @@ export async function POST(request: Request) {
       data: result.data,
    });
 }
-

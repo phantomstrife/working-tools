@@ -103,6 +103,16 @@ export function useLogic(properties: Types.Properties) {
             return;
          }
 
+         if (initialAction === 'edit' && result.data.attendant.isEditExpired) {
+            setState({
+               mode: 'error',
+               attendant: result.data.attendant,
+               errorMessage: translateRoot('services.game_lucky_draw.attendant.vip_edit_expired'),
+               wasUpdated: false,
+            });
+            return;
+         }
+
          reset(getInitialValues(result.data.attendant));
          setState({
             mode: initialAction === 'edit' ? 'edit' : 'confirmed',
@@ -121,6 +131,11 @@ export function useLogic(properties: Types.Properties) {
 
    const handleSwitchToEdit = () => {
       if (!state.attendant) {
+         return;
+      }
+
+      if (state.attendant.isEditExpired) {
+         toast.error(translateRoot('services.game_lucky_draw.attendant.vip_edit_expired'));
          return;
       }
 
@@ -195,7 +210,8 @@ export function useLogic(properties: Types.Properties) {
          submitError: state.submitError,
          wasUpdated: state.wasUpdated,
          isPending,
-         canCancelEdit: initialAction !== 'edit' || Boolean(state.attendant?.accommodationConfirmed) || state.wasUpdated,
+         canCancelEdit:
+            initialAction !== 'edit' || Boolean(state.attendant?.accommodationConfirmed) || state.wasUpdated,
          isSubmitDisabled: isPending || !formState.isValid,
          errors: formState.errors,
       },

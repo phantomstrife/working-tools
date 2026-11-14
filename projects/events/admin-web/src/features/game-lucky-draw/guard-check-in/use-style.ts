@@ -33,6 +33,7 @@ const themes = {
          status: {
             IDLE: 'border-utility-300',
             VERIFYING: 'border-primary-500',
+            PREVIEW: 'border-info-500',
             SUCCESS: 'border-success-500',
             ALREADY: 'border-warning-500',
             ERROR: 'border-error-500',
@@ -48,6 +49,7 @@ const themes = {
          status: {
             IDLE: 'border-dashed border-success-400/80',
             VERIFYING: 'border-solid border-info-400 animate-pulse',
+            PREVIEW: 'border-solid border-info-500',
             SUCCESS: 'border-solid border-success-500',
             ALREADY: 'border-solid border-warning-500',
             ERROR: 'border-solid border-error-500',
@@ -63,6 +65,7 @@ const themes = {
          status: {
             IDLE: 'bg-neutral-900/85 border-neutral-700 text-neutral-200',
             VERIFYING: 'bg-primary-900/90 border-info-400 text-neutral-50',
+            PREVIEW: 'bg-info-900/95 border-info-400 text-neutral-50',
             SUCCESS: 'bg-success-900/95 border-success-400 text-neutral-50',
             ALREADY: 'bg-warning-900/95 border-warning-400 text-neutral-50',
             ERROR: 'bg-error-900/95 border-error-400 text-neutral-50',
@@ -73,7 +76,7 @@ const themes = {
       },
    }),
    camera_button: tv({
-      base: 'flex items-center justify-center gap-x-2 px-primary py-2 text-13 font-semibold rounded-primary border transition-colors cursor-pointer',
+      base: 'flex items-center justify-center w-full gap-x-2 px-primary py-2 text-13! font-semibold rounded-primary border transition-colors cursor-pointer',
       variants: {
          active: {
             true: 'bg-error-50 text-error-700 border-error-200 hover:bg-error-100',
@@ -88,6 +91,7 @@ const themes = {
       base: 'flex flex-col gap-y-3 p-primary rounded-secondary border',
       variants: {
          kind: {
+            PREVIEW: 'bg-info-50 border-info-300 text-info-950',
             SUCCESS: 'bg-success-50 border-success-300 text-success-950',
             ALREADY: 'bg-warning-50 border-warning-300 text-warning-950',
             ERROR: 'bg-error-50 border-error-300 text-error-950',
@@ -98,10 +102,28 @@ const themes = {
       base: 'inline-flex items-center gap-x-1.5 px-2.5 py-1 text-11 font-bold uppercase tracking-wider rounded-primary',
       variants: {
          kind: {
+            PREVIEW: 'bg-info-600 text-neutral-50',
             SUCCESS: 'bg-success-600 text-neutral-50',
             ALREADY: 'bg-warning-500 text-neutral-950',
             ERROR: 'bg-error-600 text-neutral-50',
          },
+      },
+   }),
+   inline_action_btn: tv({
+      base: 'inline-flex items-center justify-center gap-x-1.5 px-3.5 py-2 text-13 font-semibold rounded-primary transition-colors cursor-pointer',
+      variants: {
+         tone: {
+            primary: 'bg-neutral-900 text-neutral-50 hover:bg-neutral-950',
+            secondary: 'bg-neutral-50 text-neutral-700 border border-utility-300 hover:bg-neutral-100',
+         },
+         disabled: {
+            true: 'opacity-50 pointer-events-none cursor-not-allowed',
+            false: '',
+         },
+      },
+      defaultVariants: {
+         tone: 'primary',
+         disabled: false,
       },
    }),
    status_badge: tv({
@@ -217,13 +239,21 @@ export const useStyle = {
       banner: themes.feedback_banner,
       badge: themes.feedback_badge,
       top_row: 'flex flex-wrap items-center justify-between gap-2',
-      name: 'text-20 font-bold text-neutral-950 break-words',
+      name: 'flex items-center gap-x-2 text-20 font-bold text-neutral-950 break-words',
       meta_grid: 'grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-utility-300/60 text-13',
       meta_item: 'flex flex-col min-w-0',
       meta_label: 'text-11 font-medium text-neutral-500 uppercase tracking-wider',
       meta_value: 'font-semibold text-neutral-900 truncate',
       ticket_code:
          'inline-flex px-2 py-0.5 font-mono text-13 font-bold bg-neutral-900 text-neutral-50 rounded-primary w-fit',
+      inline_rep_box: 'flex flex-col gap-y-2 pt-3 border-t border-utility-300/60',
+      inline_rep_label: 'text-11 font-semibold uppercase tracking-wider text-neutral-600',
+      inline_rep_row: 'flex flex-col sm:flex-row items-stretch sm:items-center gap-2',
+      inline_rep_input_wrapper:
+         'flex-1 flex items-center gap-x-2 px-3 py-2 bg-neutral-50 border border-utility-300 rounded-primary focus-within:border-primary-500 transition-colors min-w-0',
+      inline_rep_input: 'w-full min-w-0 text-13 text-neutral-950 bg-transparent placeholder:text-neutral-400',
+      inline_actions: 'flex flex-wrap items-center gap-2 pt-1',
+      inline_action_btn: themes.inline_action_btn,
       empty: 'flex flex-col items-center justify-center gap-y-2 py-6 text-center text-13 text-neutral-500 bg-neutral-100/70 border border-dashed border-utility-300 rounded-secondary',
       recent: {
          wrapper: 'flex flex-col gap-y-2 pt-2 border-t border-utility-200',
