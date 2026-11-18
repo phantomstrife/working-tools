@@ -4,6 +4,7 @@ export interface Request {
    gameId: string;
    attendantId: string;
    representative: string | null;
+   representativePhone: string | null;
 }
 
 export type Response = Attendant;

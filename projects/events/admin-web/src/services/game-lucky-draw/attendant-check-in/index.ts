@@ -6,10 +6,6 @@ import { ALLOWED_ROLES, ATTENDANT_COLUMNS, LOG_ACTION } from './constants';
 
 import type * as Types from './type';
 
-type Attendant_With_Metadata = Types.Attendant & {
-   custom_metadata: AdminWeb.Database.GameLuckyDrawAttendant['custom_metadata'];
-};
-
 export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (request) => {
    const {
       accessToken,
@@ -20,6 +16,7 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
       attendantId = '',
       searchQuery = '',
       representative,
+      representativePhone,
    } = request;
 
    const result = await trycatchAsync(async () => {
@@ -125,19 +122,19 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
       const adminSupabase = getAdminClient();
       const lookupQuery = adminSupabase
          .from('lucky_draw_attendants')
-         .select(`${ATTENDANT_COLUMNS}, custom_metadata`)
+         .select(ATTENDANT_COLUMNS)
          .eq('game_id', gameId);
       const lookup = await (
          method === 'QR_SCAN' && payload
             ? lookupQuery.eq('qr_code_payload', payload)
             : lookupQuery.eq('id', attendantId)
-      ).maybeSingle<Attendant_With_Metadata>();
+      ).maybeSingle<Types.Attendant>();
 
       if (lookup.error || !lookup.data) {
          throw new Error('services.game_lucky_draw.check_in.attendant_not_found');
       }
 
-      const { custom_metadata: rawCustomMetadata, ...attendantData } = lookup.data;
+      const attendantData = lookup.data;
 
       if (action === 'LOOKUP') {
          if (attendantData.is_checked_in) {
@@ -162,33 +159,16 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
 
       const nowIso = new Date().toISOString();
       const hasRepresentativeField = representative !== undefined;
+      const hasRepresentativePhoneField = representativePhone !== undefined;
       const nextRepresentative = hasRepresentativeField
          ? representative?.trim() || null
          : attendantData.representative;
-      const representativeChanged = nextRepresentative !== attendantData.representative;
-
-      const existingMetadata =
-         rawCustomMetadata && typeof rawCustomMetadata === 'object' && !Array.isArray(rawCustomMetadata)
-            ? (rawCustomMetadata as Record<string, unknown>)
-            : {};
-      const existingHistory = Array.isArray(existingMetadata.representative_history)
-         ? existingMetadata.representative_history
-         : [];
-      const nextCustomMetadata = representativeChanged
-         ? {
-              ...existingMetadata,
-              representative_history: [
-                 ...existingHistory,
-                 {
-                    previous: attendantData.representative,
-                    next: nextRepresentative,
-                    updated_by: user.id,
-                    updated_at: nowIso,
-                    source: 'QR_CHECK_IN',
-                 },
-              ],
-           }
-         : rawCustomMetadata;
+      const nextRepresentativePhone = hasRepresentativePhoneField
+         ? representativePhone?.trim() || null
+         : attendantData.representative_phone;
+      const representativeChanged =
+         nextRepresentative !== attendantData.representative ||
+         nextRepresentativePhone !== attendantData.representative_phone;
 
       // Conditional update guards against two guards scanning the same ticket at the same time.
       const update = await adminSupabase
@@ -201,7 +181,7 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
             ...(representativeChanged
                ? {
                     representative: nextRepresentative,
-                    custom_metadata: nextCustomMetadata as AdminWeb.Database.GameLuckyDrawAttendant['custom_metadata'],
+                    representative_phone: nextRepresentativePhone,
                  }
                : {}),
          })
@@ -228,20 +208,58 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
          };
       }
 
-      await adminSupabase.from('logs').insert({
-         account_id: user.id,
-         event_id: game.data.event_id,
-         game_id: gameId,
-         action_type: LOG_ACTION[method],
-         target_entity: 'lucky_draw_attendants',
-         target_id: update.data.id,
-         metadata: {
-            ticket_code: update.data.ticket_code,
-            representative: nextRepresentative,
-            previous_representative: attendantData.representative,
-            ...(method === 'MANUAL_SEARCH' ? { search_query: searchQuery } : {}),
+      const logEntries: AdminWeb.Database.Instance['public']['Tables']['logs']['Insert'][] = [
+         {
+            account_id: user.id,
+            event_id: game.data.event_id,
+            game_id: gameId,
+            action_type: LOG_ACTION[method],
+            target_entity: 'lucky_draw_attendants',
+            target_id: update.data.id,
+            metadata: {
+               ticket_code: update.data.ticket_code,
+               representative: nextRepresentative,
+               previous_representative: attendantData.representative,
+               representative_phone: nextRepresentativePhone,
+               previous_representative_phone: attendantData.representative_phone,
+               ...(method === 'MANUAL_SEARCH' ? { search_query: searchQuery } : {}),
+            },
          },
-      });
+      ];
+
+      if (representativeChanged) {
+         const guardChanges: Record<string, { from: string | null; to: string | null }> = {};
+
+         if (nextRepresentative !== attendantData.representative) {
+            guardChanges.representative = {
+               from: attendantData.representative,
+               to: nextRepresentative,
+            };
+         }
+
+         if (nextRepresentativePhone !== attendantData.representative_phone) {
+            guardChanges.representative_phone = {
+               from: attendantData.representative_phone,
+               to: nextRepresentativePhone,
+            };
+         }
+
+         logEntries.push({
+            account_id: user.id,
+            event_id: game.data.event_id,
+            game_id: gameId,
+            action_type: 'ATTENDANT_GUARD_EDIT',
+            target_entity: 'lucky_draw_attendants',
+            target_id: update.data.id,
+            metadata: {
+               ticket_code: update.data.ticket_code,
+               source: 'QR_CHECK_IN',
+               changes: guardChanges,
+            },
+         });
+      }
+
+      await adminSupabase.from('logs').insert(logEntries);
 
       return {
          status: 'CHECKED_IN' as const,

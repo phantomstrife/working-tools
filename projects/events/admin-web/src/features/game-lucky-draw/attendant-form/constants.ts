@@ -8,6 +8,6 @@ export const schema = z.object({
    phone: z.string().trim().optional().or(z.literal('')).nullable(),
    company_name: z.string().trim().optional().or(z.literal('')).nullable(),
    department: z.string().trim().optional().or(z.literal('')).nullable(),
+   sale_in_charge: z.string().trim().optional().or(z.literal('')).nullable(),
    accommodation: z.boolean(),
 });
-

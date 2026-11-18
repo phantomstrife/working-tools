@@ -14,6 +14,7 @@ export async function POST(request: Request) {
       attendantId?: string;
       searchQuery?: string;
       representative?: string | null;
+      representativePhone?: string | null;
    } | null;
 
    const method = body?.method;
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
       attendantId: body.attendantId,
       searchQuery: body.searchQuery,
       representative: body.representative,
+      representativePhone: body.representativePhone,
    });
 
    if (result.error) {

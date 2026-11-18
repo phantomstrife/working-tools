@@ -7,6 +7,7 @@ export const SAMPLE_CSV_ROWS = [
       phone: '0901234567',
       company_name: 'Acme Corp',
       department: 'Engineering',
+      sale_in_charge: 'Le Van C',
       accommodation: 'true',
    },
    {
@@ -17,9 +18,9 @@ export const SAMPLE_CSV_ROWS = [
       phone: '0909876543',
       company_name: 'Acme Corp',
       department: 'Marketing',
+      sale_in_charge: 'Pham Thi D',
       accommodation: 'false',
    },
 ];
 
 export const PREVIEW_LIMIT = 5;
-

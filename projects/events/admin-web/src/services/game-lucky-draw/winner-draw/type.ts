@@ -8,6 +8,7 @@ export type Attendant = Pick<
    | 'id'
    | 'full_name'
    | 'representative'
+   | 'representative_phone'
    | 'ticket_code'
    | 'email'
    | 'phone'
@@ -43,4 +44,3 @@ export interface Response {
 }
 
 export type Service = (request: Request) => AdminWeb.Utilities.Trycatch.ResultAsync<Response>;
-

@@ -86,7 +86,9 @@ declare global {
          id: string;
          ticketCode: string;
          name: string;
+         phone: string | null;
          representative: string | null;
+         representativePhone: string | null;
          companyName: string | null;
          department: string | null;
          hasWon: boolean;
@@ -99,7 +101,9 @@ declare global {
          attendantId: string;
          ticketCode: string;
          name: string;
+         phone: string | null;
          representative: string | null;
+         representativePhone: string | null;
          companyName: string | null;
          department: string | null;
          wonAt: string | null;
@@ -123,7 +127,10 @@ declare global {
          | 'phone'
          | 'company_name'
          | 'department'
+         | 'sale_in_charge'
+         | 'accommodation'
          | 'representative'
+         | 'representative_phone'
          | 'is_checked_in'
          | 'checked_in_at'
          | 'check_in_method'

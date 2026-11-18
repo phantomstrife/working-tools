@@ -13,6 +13,7 @@ export interface Request {
    attendantId?: string;
    searchQuery?: string;
    representative?: string | null;
+   representativePhone?: string | null;
 }
 
 export interface Response {

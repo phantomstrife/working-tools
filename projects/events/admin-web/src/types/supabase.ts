@@ -267,7 +267,7 @@ export type Database = {
          };
          logs: {
             Row: {
-               account_id: string;
+               account_id: string | null;
                action_type: Database['public']['Enums']['log_action_type'];
                created_at: string | null;
                event_id: string | null;
@@ -278,7 +278,7 @@ export type Database = {
                target_id: string | null;
             };
             Insert: {
-               account_id: string;
+               account_id?: string | null;
                action_type: Database['public']['Enums']['log_action_type'];
                created_at?: string | null;
                event_id?: string | null;
@@ -289,7 +289,7 @@ export type Database = {
                target_id?: string | null;
             };
             Update: {
-               account_id?: string;
+               account_id?: string | null;
                action_type?: Database['public']['Enums']['log_action_type'];
                created_at?: string | null;
                event_id?: string | null;
@@ -345,6 +345,8 @@ export type Database = {
                phone: string | null;
                qr_code_payload: string;
                representative: string | null;
+               representative_phone: string | null;
+               sale_in_charge: string | null;
                ticket_code: string;
                updated_at: string | null;
             };
@@ -369,6 +371,8 @@ export type Database = {
                phone?: string | null;
                qr_code_payload: string;
                representative?: string | null;
+               representative_phone?: string | null;
+               sale_in_charge?: string | null;
                ticket_code: string;
                updated_at?: string | null;
             };
@@ -393,6 +397,8 @@ export type Database = {
                phone?: string | null;
                qr_code_payload?: string;
                representative?: string | null;
+               representative_phone?: string | null;
+               sale_in_charge?: string | null;
                ticket_code?: string;
                updated_at?: string | null;
             };
@@ -538,7 +544,10 @@ export type Database = {
             | 'CHECKIN_QR_SCAN'
             | 'CHECKIN_MANUAL_SEARCH'
             | 'PRIZE_DRAWN'
-            | 'REPORT_EXPORT';
+            | 'REPORT_EXPORT'
+            | 'ATTENDANT_GUARD_EDIT'
+            | 'ATTENDANT_SELF_SERVICE_CONFIRM'
+            | 'ATTENDANT_SELF_SERVICE_UPDATE';
       };
       CompositeTypes: {
          [_ in never]: never;
@@ -673,6 +682,9 @@ export const Constants = {
             'CHECKIN_MANUAL_SEARCH',
             'PRIZE_DRAWN',
             'REPORT_EXPORT',
+            'ATTENDANT_GUARD_EDIT',
+            'ATTENDANT_SELF_SERVICE_CONFIRM',
+            'ATTENDANT_SELF_SERVICE_UPDATE',
          ],
       },
    },

@@ -136,12 +136,20 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                   header: func.translate('table.headers.representative'),
                },
                {
+                  key: 'representative_phone',
+                  header: func.translate('table.headers.representative_phone'),
+               },
+               {
                   key: 'phone',
                   header: func.translate('table.headers.phone'),
                },
                {
                   key: 'email',
                   header: func.translate('table.headers.email'),
+               },
+               {
+                  key: 'sale_in_charge',
+                  header: func.translate('table.headers.sale_in_charge'),
                },
                {
                   key: 'accommodation',

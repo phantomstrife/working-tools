@@ -3,13 +3,16 @@ CREATE TYPE log_action_type AS ENUM (
     'EMAIL_BATCH_SEND', 
     'CHECKIN_QR_SCAN', 
     'CHECKIN_MANUAL_SEARCH', 
-    'PRIZE_DRAWN'
+    'PRIZE_DRAWN',
+    'ATTENDANT_GUARD_EDIT',
+    'ATTENDANT_SELF_SERVICE_CONFIRM',
+    'ATTENDANT_SELF_SERVICE_UPDATE'
 );
 
 -- 2. Table Definition
 CREATE TABLE public.logs (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    account_id UUID NOT NULL REFERENCES public.accounts(id) ON DELETE CASCADE,
+    account_id UUID REFERENCES public.accounts(id) ON DELETE CASCADE,
     event_id UUID REFERENCES public.events(id) ON DELETE CASCADE,
     game_id UUID REFERENCES public.games(id) ON DELETE CASCADE,
     action_type log_action_type NOT NULL,
@@ -67,3 +70,4 @@ WITH CHECK (
 CREATE INDEX idx_logs_search_trgm ON public.logs USING GIN (search_text gin_trgm_ops);
 CREATE INDEX idx_logs_metadata_gin ON public.logs USING GIN (metadata);
 CREATE INDEX idx_logs_search_filters ON public.logs (account_id, event_id, action_type, created_at DESC);
+CREATE INDEX idx_logs_target_entity_id_created ON public.logs (target_entity, target_id, created_at DESC);

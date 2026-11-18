@@ -123,6 +123,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
          const phone = normalizedRow.phone ?? '';
          const companyName = normalizedRow.company_name ?? '';
          const department = normalizedRow.department ?? '';
+         const saleInCharge = normalizedRow.sale_in_charge ?? '';
          const parsedAccommodation = parseAccommodationCell(normalizedRow.accommodation ?? '');
 
          if (!fullName || !ticketCode) {
@@ -183,6 +184,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
                phone: phone || null,
                company_name: companyName || null,
                department: department || null,
+               sale_in_charge: saleInCharge || null,
                ...(parsedAccommodation !== null ? { accommodation: parsedAccommodation } : {}),
                ...(hasCustomMetadata ? { custom_metadata: customMetadata } : {}),
                ...(emailChanged ? { email_status: 'NOT_SENT', email_sent_at: null } : {}),
@@ -201,6 +203,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
             phone: phone || null,
             company_name: companyName || null,
             department: department || null,
+            sale_in_charge: saleInCharge || null,
             accommodation: parsedAccommodation ?? false,
             custom_metadata: hasCustomMetadata ? customMetadata : null,
             email_status: 'NOT_SENT',

@@ -20,6 +20,7 @@ export const ATTENDANT_COLUMNS = [
    'id',
    'full_name',
    'representative',
+   'representative_phone',
    'ticket_code',
    'email',
    'phone',

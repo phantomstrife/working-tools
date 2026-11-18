@@ -50,6 +50,7 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
          phone: request.phone?.trim() || null,
          company_name: request.company_name?.trim() || null,
          department: request.department?.trim() || null,
+         sale_in_charge: request.sale_in_charge?.trim() || null,
          accommodation: Boolean(request.accommodation),
       };
 

@@ -1,9 +1,11 @@
-import { useEffect, useTransition } from 'react';
+import { useCallback, useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
+import { useDeepState } from '@admin-web/hooks/deep-state';
 import { useTranslate } from '@admin-web/locale';
+import { useServicesGameLuckyDrawAttendantHistorySearch } from '@admin-web/services/game-lucky-draw/attendant-history-search';
 import { useServicesGameLuckyDrawAttendantSave } from '@admin-web/services/game-lucky-draw/attendant-save';
 
 import { schema } from './constants';
@@ -18,6 +20,7 @@ const getInitialValues = (attendant?: Types.Attendant | null): Types.FormValues 
    phone: attendant?.phone ?? '',
    company_name: attendant?.company_name ?? '',
    department: attendant?.department ?? '',
+   sale_in_charge: attendant?.sale_in_charge ?? '',
    accommodation: Boolean(attendant?.accommodation),
 });
 
@@ -35,6 +38,14 @@ export function useLogic(properties: Types.Properties) {
       prefix: '',
    });
 
+   const [historyState, setHistoryState] = useDeepState<Types.HistoryState>({
+      activeTab: 'info',
+      isLoading: false,
+      entries: [],
+      loadedAttendantId: '',
+      error: '',
+   });
+
    const { formState, register, handleSubmit, reset } = useForm<Types.FormValues>({
       resolver: zodResolver(schema),
       defaultValues: getInitialValues(attendant),
@@ -43,7 +54,60 @@ export function useLogic(properties: Types.Properties) {
 
    useEffect(() => {
       reset(getInitialValues(attendant));
-   }, [attendant, reset]);
+      setHistoryState({
+         activeTab: 'info',
+         entries: [],
+         loadedAttendantId: '',
+         error: '',
+      });
+   }, [attendant, reset, setHistoryState]);
+
+   const fetchHistory = useCallback(async () => {
+      if (!gameId || !attendant?.id) {
+         return;
+      }
+
+      setHistoryState({
+         isLoading: true,
+         error: '',
+      });
+
+      const result = await useServicesGameLuckyDrawAttendantHistorySearch({
+         gameId,
+         attendantId: attendant.id,
+      });
+
+      if (result.error) {
+         const localizedError = result.message.startsWith('services.')
+            ? translateRoot(result.message)
+            : result.message;
+
+         setHistoryState({
+            isLoading: false,
+            error: localizedError,
+         });
+         return;
+      }
+
+      setHistoryState({
+         isLoading: false,
+         entries: result.data.entries,
+         loadedAttendantId: attendant.id,
+         error: '',
+      });
+   }, [attendant, gameId, setHistoryState, translateRoot]);
+
+   const handleSelectTab = (tab: Types.Tab) => {
+      if (tab === historyState.activeTab) {
+         return;
+      }
+
+      setHistoryState(tab, 'activeTab');
+
+      if (tab === 'history' && attendant?.id && historyState.loadedAttendantId !== attendant.id) {
+         void fetchHistory();
+      }
+   };
 
    const onSubmit = handleSubmit((values) => {
       startTransition(async () => {
@@ -57,6 +121,7 @@ export function useLogic(properties: Types.Properties) {
             phone: values.phone || null,
             company_name: values.company_name || null,
             department: values.department || null,
+            sale_in_charge: values.sale_in_charge || null,
             accommodation: Boolean(values.accommodation),
          });
 
@@ -82,13 +147,19 @@ export function useLogic(properties: Types.Properties) {
          isPending,
          isSubmitDisabled: isPending || (mode === 'edit' && !formState.isDirty),
          errors: formState.errors,
+         activeTab: mode === 'edit' ? historyState.activeTab : 'info',
+         historyEntries: historyState.entries,
+         isHistoryLoading: historyState.isLoading,
+         hasLoadedHistory: Boolean(attendant?.id && historyState.loadedAttendantId === attendant.id),
+         historyError: historyState.error,
       },
       func: {
          translate,
          register,
          onSubmit,
          onCancel,
+         handleSelectTab,
+         fetchHistory,
       },
    };
 }
-

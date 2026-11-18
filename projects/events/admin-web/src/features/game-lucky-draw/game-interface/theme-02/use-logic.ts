@@ -44,6 +44,12 @@ export function useLogic() {
 
    const winningParticipant = participants.find((p) => p.ticketCode === winnerId || p.id === winnerId) ?? null;
 
+   const winnerDisplayPhone = winningParticipant
+      ? winningParticipant.representative
+         ? winningParticipant.representativePhone || winningParticipant.phone
+         : winningParticipant.phone
+      : null;
+
    const displayName =
       isSpinning || isDrawingRequest
          ? translate('searching_winner')
@@ -134,6 +140,7 @@ export function useLogic() {
          prizeDone,
          isPrizeSoldOut,
          winningParticipant,
+         winnerDisplayPhone,
          displayName,
          winnerChars: winnerId.split(''),
          isSpinning,

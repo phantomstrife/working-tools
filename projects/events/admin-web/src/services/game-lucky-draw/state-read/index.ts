@@ -68,7 +68,9 @@ export const useServicesGameLuckyDrawStateRead: Types.Service = async (request) 
          id: row.id,
          ticketCode: row.ticket_code,
          name: row.full_name,
+         phone: row.phone?.trim() || null,
          representative: row.representative?.trim() || null,
+         representativePhone: row.representative_phone?.trim() || null,
          companyName: row.company_name,
          department: row.department,
          hasWon: Boolean(row.has_won),
@@ -89,7 +91,9 @@ export const useServicesGameLuckyDrawStateRead: Types.Service = async (request) 
                attendantId: row.attendant_id,
                ticketCode: attendant.ticket_code,
                name: attendant.full_name,
+               phone: attendant.phone?.trim() || null,
                representative: attendant.representative?.trim() || null,
+               representativePhone: attendant.representative_phone?.trim() || null,
                companyName: attendant.company_name,
                department: attendant.department,
                wonAt: row.won_at,
@@ -106,4 +110,3 @@ export const useServicesGameLuckyDrawStateRead: Types.Service = async (request) 
 
    return result;
 };
-

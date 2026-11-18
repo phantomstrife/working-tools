@@ -77,6 +77,9 @@ export const useStyle = {
    winnerOrgText: tv({
       base: 'truncate text-11 text-neutral-400',
    }),
+   winnerPhoneText: tv({
+      base: 'truncate text-11 font-mono text-warning-200',
+   }),
    winnerTicketBadge: tv({
       base: [
          'shrink-0 px-2 py-0.5 text-11 font-mono font-bold tracking-wider rounded-primary',
@@ -100,6 +103,9 @@ export const useStyle = {
    }),
    companySubLabel: tv({
       base: 'text-12 sm:text-14 font-semibold tracking-wide text-warning-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]',
+   }),
+   winnerMetaRow: tv({
+      base: 'flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-12 sm:text-14 font-bold tracking-wide text-neutral-100 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]',
    }),
    reelContainer: tv({
       base: 'flex justify-between items-center px-2 sm:px-3 aspect-4/1 bg-contain bg-center bg-no-repeat reel',

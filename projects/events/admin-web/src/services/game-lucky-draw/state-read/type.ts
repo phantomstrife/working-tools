@@ -15,7 +15,9 @@ export interface Prize_Row {
 export interface Participant_Row {
    id: string;
    full_name: string;
+   phone: string | null;
    representative: string | null;
+   representative_phone: string | null;
    ticket_code: string;
    company_name: string | null;
    department: string | null;
@@ -32,7 +34,9 @@ export interface Winner_Row {
       | {
            id: string;
            full_name: string;
+           phone: string | null;
            representative: string | null;
+           representative_phone: string | null;
            ticket_code: string;
            company_name: string | null;
            department: string | null;
@@ -40,7 +44,9 @@ export interface Winner_Row {
       | {
            id: string;
            full_name: string;
+           phone: string | null;
            representative: string | null;
+           representative_phone: string | null;
            ticket_code: string;
            company_name: string | null;
            department: string | null;
@@ -59,4 +65,3 @@ export interface Response {
 }
 
 export type Service = (request: Request) => AdminWeb.Utilities.Trycatch.ResultAsync<Response>;
-

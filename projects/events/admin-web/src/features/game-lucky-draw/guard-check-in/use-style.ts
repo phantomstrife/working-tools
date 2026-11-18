@@ -246,7 +246,9 @@ export const useStyle = {
       meta_value: 'font-semibold text-neutral-900 truncate',
       ticket_code:
          'inline-flex px-2 py-0.5 font-mono text-13 font-bold bg-neutral-900 text-neutral-50 rounded-primary w-fit',
-      inline_rep_box: 'flex flex-col gap-y-2 pt-3 border-t border-utility-300/60',
+      inline_rep_box: 'flex flex-col gap-y-2.5 pt-3 border-t border-utility-300/60',
+      inline_rep_grid: 'grid grid-cols-1 sm:grid-cols-2 gap-2.5',
+      inline_rep_field: 'flex flex-col gap-y-1 min-w-0',
       inline_rep_label: 'text-11 font-semibold uppercase tracking-wider text-neutral-600',
       inline_rep_row: 'flex flex-col sm:flex-row items-stretch sm:items-center gap-2',
       inline_rep_input_wrapper:

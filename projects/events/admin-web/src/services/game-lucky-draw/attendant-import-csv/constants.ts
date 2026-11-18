@@ -6,6 +6,7 @@ export const STANDARD_CSV_COLUMNS = [
    'phone',
    'company_name',
    'department',
+   'sale_in_charge',
    'accommodation',
 ] as const;
 
@@ -13,4 +14,3 @@ export const BATCH_CHUNK_SIZE = 200;
 export const FETCH_PAGE_SIZE = 1000;
 
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-

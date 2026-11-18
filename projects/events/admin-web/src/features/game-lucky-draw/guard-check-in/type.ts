@@ -30,8 +30,10 @@ export interface State {
    checkingInAttendantId: string;
    editingAttendant: Attendant | null;
    representativeInput: string;
+   representativePhoneInput: string;
    isSavingRepresentative: boolean;
    previewRepresentativeInput: string;
+   previewRepresentativePhoneInput: string;
    isConfirmingCheckIn: boolean;
    isSavingInlineRepresentative: boolean;
    lastResult: Check_In_Result | null;

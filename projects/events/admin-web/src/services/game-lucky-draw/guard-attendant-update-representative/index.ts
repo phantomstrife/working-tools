@@ -10,15 +10,12 @@ import type * as Types from './type';
 
 const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = ['GUARD', 'ADMIN', 'SUPER_ADMIN'];
 
-type Attendant_With_Metadata = Types.Attendant & {
-   custom_metadata: AdminWeb.Database.GameLuckyDrawAttendant['custom_metadata'];
-};
-
 export const useServicesGameLuckyDrawGuardAttendantUpdateRepresentative: Types.Service = async (request) => {
-   const { gameId, attendantId, representative } = request;
+   const { gameId, attendantId, representative, representativePhone } = request;
 
    const result = await trycatchAsync(async () => {
       const normalizedRepresentative = representative?.trim() || null;
+      const normalizedRepresentativePhone = representativePhone?.trim() || null;
 
       if (!gameId || !attendantId) {
          throw new Error('services.game_lucky_draw.attendant.not_found');
@@ -99,10 +96,10 @@ export const useServicesGameLuckyDrawGuardAttendantUpdateRepresentative: Types.S
       const adminSupabase = getAdminClient();
       const current = await adminSupabase
          .from('lucky_draw_attendants')
-         .select(`${ATTENDANT_COLUMNS}, custom_metadata`)
+         .select(ATTENDANT_COLUMNS)
          .eq('id', attendantId)
          .eq('game_id', gameId)
-         .maybeSingle<Attendant_With_Metadata>();
+         .maybeSingle<Types.Attendant>();
 
       if (current.error) {
          throw new Error(current.error.message);
@@ -112,53 +109,19 @@ export const useServicesGameLuckyDrawGuardAttendantUpdateRepresentative: Types.S
          throw new Error('services.game_lucky_draw.attendant.not_found');
       }
 
-      const representativeChanged = normalizedRepresentative !== current.data.representative;
+      const representativeChanged =
+         normalizedRepresentative !== current.data.representative ||
+         normalizedRepresentativePhone !== current.data.representative_phone;
 
       if (!representativeChanged) {
-         return {
-            id: current.data.id,
-            full_name: current.data.full_name,
-            ticket_code: current.data.ticket_code,
-            email: current.data.email,
-            phone: current.data.phone,
-            company_name: current.data.company_name,
-            department: current.data.department,
-            representative: current.data.representative,
-            is_checked_in: current.data.is_checked_in,
-            checked_in_at: current.data.checked_in_at,
-            check_in_method: current.data.check_in_method,
-         };
+         return current.data;
       }
-
-      const existingMetadata =
-         current.data.custom_metadata &&
-         typeof current.data.custom_metadata === 'object' &&
-         !Array.isArray(current.data.custom_metadata)
-            ? (current.data.custom_metadata as Record<string, unknown>)
-            : {};
-      const existingHistory = Array.isArray(existingMetadata.representative_history)
-         ? existingMetadata.representative_history
-         : [];
-
-      const nextCustomMetadata = {
-         ...existingMetadata,
-         representative_history: [
-            ...existingHistory,
-            {
-               previous: current.data.representative,
-               next: normalizedRepresentative,
-               updated_by: user.id,
-               updated_at: new Date().toISOString(),
-               source: 'GUARD_EDIT',
-            },
-         ],
-      };
 
       const query = await adminSupabase
          .from('lucky_draw_attendants')
          .update({
             representative: normalizedRepresentative,
-            custom_metadata: nextCustomMetadata as AdminWeb.Database.GameLuckyDrawAttendant['custom_metadata'],
+            representative_phone: normalizedRepresentativePhone,
          })
          .eq('id', attendantId)
          .eq('game_id', gameId)
@@ -172,6 +135,36 @@ export const useServicesGameLuckyDrawGuardAttendantUpdateRepresentative: Types.S
       if (!query.data) {
          throw new Error('services.game_lucky_draw.attendant.not_found');
       }
+
+      const changes: Record<string, { from: string | null; to: string | null }> = {};
+
+      if (normalizedRepresentative !== current.data.representative) {
+         changes.representative = {
+            from: current.data.representative,
+            to: normalizedRepresentative,
+         };
+      }
+
+      if (normalizedRepresentativePhone !== current.data.representative_phone) {
+         changes.representative_phone = {
+            from: current.data.representative_phone,
+            to: normalizedRepresentativePhone,
+         };
+      }
+
+      await adminSupabase.from('logs').insert({
+         account_id: user.id,
+         event_id: game.data.event_id,
+         game_id: gameId,
+         action_type: 'ATTENDANT_GUARD_EDIT',
+         target_entity: 'lucky_draw_attendants',
+         target_id: query.data.id,
+         metadata: {
+            ticket_code: query.data.ticket_code,
+            source: 'GUARD_EDIT',
+            changes,
+         },
+      });
 
       return query.data;
    });

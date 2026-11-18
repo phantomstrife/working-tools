@@ -59,7 +59,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-    IF auth.role() = 'anon' OR auth.uid() IS NULL THEN
+    IF auth.role() = 'anon' THEN
         IF (
             NEW.id IS DISTINCT FROM OLD.id OR
             NEW.game_id IS DISTINCT FROM OLD.game_id OR

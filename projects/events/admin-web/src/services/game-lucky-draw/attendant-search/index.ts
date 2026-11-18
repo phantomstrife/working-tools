@@ -17,7 +17,7 @@ export const useServicesGameLuckyDrawAttendantSearch: Types.Service = async (req
 
       if (trimmedSearch) {
          query = query.or(
-            `full_name.ilike.%${trimmedSearch}%,citizen_id.ilike.%${trimmedSearch}%,phone.ilike.%${trimmedSearch}%,email.ilike.%${trimmedSearch}%,ticket_code.ilike.%${trimmedSearch}%`,
+            `full_name.ilike.%${trimmedSearch}%,citizen_id.ilike.%${trimmedSearch}%,phone.ilike.%${trimmedSearch}%,email.ilike.%${trimmedSearch}%,ticket_code.ilike.%${trimmedSearch}%,representative.ilike.%${trimmedSearch}%,representative_phone.ilike.%${trimmedSearch}%,sale_in_charge.ilike.%${trimmedSearch}%`,
          );
       }
 

@@ -31,12 +31,14 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
       winnerNameBlock,
       winnerNameText,
       winnerOrgText,
+      winnerPhoneText,
       winnerTicketBadge,
       infoWrapper,
       winnerBanner,
       congratsLabel,
       displayNameHeading,
       companySubLabel,
+      winnerMetaRow,
       reelContainer,
       prizeContainer,
       prizeImageWrapper,
@@ -90,21 +92,28 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
                      <p className={winnersEmpty()}>{func.translate('no_winners')}</p>
                   ) : (
                      <ul className={winnersList()}>
-                        {param.prizeWinners.map((w, idx) => (
-                           <li
-                              key={w.id}
-                              className={winnerItem()}
-                           >
-                              <div className={winnerItemLeft()}>
-                                 <span className={winnerIndex()}>#{idx + 1}</span>
-                                 <div className={winnerNameBlock()}>
-                                    <span className={winnerNameText()}>{w.representative || w.name}</span>
-                                    {w.companyName && <span className={winnerOrgText()}>{w.companyName}</span>}
+                        {param.prizeWinners.map((w, idx) => {
+                           const resolvedPhone = w.representative
+                              ? w.representativePhone || w.phone
+                              : w.phone;
+
+                           return (
+                              <li
+                                 key={w.id}
+                                 className={winnerItem()}
+                              >
+                                 <div className={winnerItemLeft()}>
+                                    <span className={winnerIndex()}>#{idx + 1}</span>
+                                    <div className={winnerNameBlock()}>
+                                       <span className={winnerNameText()}>{w.representative || w.name}</span>
+                                       {w.companyName && <span className={winnerOrgText()}>{w.companyName}</span>}
+                                       {resolvedPhone && <span className={winnerPhoneText()}>{resolvedPhone}</span>}
+                                    </div>
                                  </div>
-                              </div>
-                              <span className={winnerTicketBadge()}>{w.ticketCode}</span>
-                           </li>
-                        ))}
+                                 <span className={winnerTicketBadge()}>{w.ticketCode}</span>
+                              </li>
+                           );
+                        })}
                      </ul>
                   )}
                </div>
@@ -121,12 +130,27 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
                      <span className={congratsLabel()}>{func.translate('congrats')}</span>
                   )}
                   <h2 className={displayNameHeading()}>{param.displayName}</h2>
-                  {!param.isSpinning && param.winningParticipant?.companyName && (
-                     <span className={companySubLabel()}>
-                        {[param.winningParticipant.companyName, param.winningParticipant.department]
-                           .filter(Boolean)
-                           .join(' • ')}
-                     </span>
+                  {!param.isSpinning && param.winningParticipant && (
+                     <>
+                        <span className={companySubLabel()}>
+                           {func.translate('winner_company', {
+                              company: param.winningParticipant.companyName || '—',
+                           })}
+                        </span>
+                        <div className={winnerMetaRow()}>
+                           <span>
+                              {func.translate('winner_ticket', {
+                                 ticket: param.winningParticipant.ticketCode,
+                              })}
+                           </span>
+                           <span>•</span>
+                           <span>
+                              {func.translate('winner_phone', {
+                                 phone: param.winnerDisplayPhone || '—',
+                              })}
+                           </span>
+                        </div>
+                     </>
                   )}
                </div>
 

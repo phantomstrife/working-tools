@@ -112,8 +112,10 @@ export function useLogic(
       checkingInAttendantId: '',
       editingAttendant: null,
       representativeInput: '',
+      representativePhoneInput: '',
       isSavingRepresentative: false,
       previewRepresentativeInput: '',
+      previewRepresentativePhoneInput: '',
       isConfirmingCheckIn: false,
       isSavingInlineRepresentative: false,
       lastResult: null,
@@ -206,6 +208,7 @@ export function useLogic(
                   at: now,
                },
                previewRepresentativeInput: response.attendant.representative ?? '',
+               previewRepresentativePhoneInput: response.attendant.representative_phone ?? '',
             });
 
             playFeedbackTone('SUCCESS');
@@ -232,6 +235,7 @@ export function useLogic(
             checkedInCount: isFirstCheckIn ? state.checkedInCount + 1 : state.checkedInCount,
             searchResults: updatedResults,
             previewRepresentativeInput: response.attendant.representative ?? '',
+            previewRepresentativePhoneInput: response.attendant.representative_phone ?? '',
             lastResult: {
                kind,
                attendant: response.attendant,
@@ -292,6 +296,7 @@ export function useLogic(
                isQrSubmitting: false,
                qrInput: '',
                previewRepresentativeInput: '',
+               previewRepresentativePhoneInput: '',
                lastResult: {
                   kind: 'ERROR',
                   message: errorMessage,
@@ -328,6 +333,7 @@ export function useLogic(
          lastResult: null,
          qrInput: '',
          previewRepresentativeInput: '',
+         previewRepresentativePhoneInput: '',
       });
 
       if (state.qrMode === 'SCANNER') {
@@ -350,6 +356,7 @@ export function useLogic(
          qrCodePayload: targetResult.qrCodePayload,
          attendantId: targetResult.attendant.id,
          representative: state.previewRepresentativeInput.trim() || null,
+         representativePhone: state.previewRepresentativePhoneInput.trim() || null,
       });
 
       setState(false, 'isConfirmingCheckIn');
@@ -382,6 +389,7 @@ export function useLogic(
       state.isConfirmingCheckIn,
       state.lastResult,
       state.previewRepresentativeInput,
+      state.previewRepresentativePhoneInput,
    ]);
 
    const handleSaveInlineRepresentative = useCallback(async () => {
@@ -401,6 +409,7 @@ export function useLogic(
          gameId,
          attendantId: targetResult.attendant.id,
          representative: state.previewRepresentativeInput.trim() || null,
+         representativePhone: state.previewRepresentativePhoneInput.trim() || null,
       });
 
       setState(false, 'isSavingInlineRepresentative');
@@ -417,6 +426,7 @@ export function useLogic(
             item.id === updatedAttendant.id ? updatedAttendant : item,
          ),
          previewRepresentativeInput: updatedAttendant.representative ?? '',
+         previewRepresentativePhoneInput: updatedAttendant.representative_phone ?? '',
          lastResult: {
             ...targetResult,
             attendant: updatedAttendant,
@@ -444,6 +454,7 @@ export function useLogic(
       state.isSavingInlineRepresentative,
       state.lastResult,
       state.previewRepresentativeInput,
+      state.previewRepresentativePhoneInput,
       state.recentHistory,
       state.searchResults,
       translate,
@@ -625,6 +636,7 @@ export function useLogic(
       setState({
          editingAttendant: attendant,
          representativeInput: attendant.representative ?? '',
+         representativePhoneInput: attendant.representative_phone ?? '',
       });
       modalActions.openModal(MODAL_ID.EDIT_REPRESENTATIVE);
    };
@@ -634,6 +646,7 @@ export function useLogic(
       setState({
          editingAttendant: null,
          representativeInput: '',
+         representativePhoneInput: '',
       });
    };
 
@@ -651,6 +664,7 @@ export function useLogic(
          gameId,
          attendantId: targetAttendant.id,
          representative: state.representativeInput.trim() || null,
+         representativePhone: state.representativePhoneInput.trim() || null,
       });
 
       setState(false, 'isSavingRepresentative');
@@ -661,15 +675,23 @@ export function useLogic(
       }
 
       const updatedAttendant = serviceUpdate.data;
+      const isMatchingLastResult =
+         state.lastResult &&
+         state.lastResult.kind !== 'ERROR' &&
+         state.lastResult.attendant.id === updatedAttendant.id;
 
       setState({
          searchResults: state.searchResults.map((item) =>
             item.id === updatedAttendant.id ? updatedAttendant : item,
          ),
+         ...(isMatchingLastResult
+            ? {
+                 previewRepresentativeInput: updatedAttendant.representative ?? '',
+                 previewRepresentativePhoneInput: updatedAttendant.representative_phone ?? '',
+              }
+            : {}),
          lastResult:
-            state.lastResult &&
-            state.lastResult.kind !== 'ERROR' &&
-            state.lastResult.attendant.id === updatedAttendant.id
+            isMatchingLastResult && state.lastResult && state.lastResult.kind !== 'ERROR'
                ? {
                     ...state.lastResult,
                     attendant: updatedAttendant,
@@ -708,10 +730,15 @@ export function useLogic(
    const isSaveRepresentativeDisabled =
       state.isSavingRepresentative ||
       !state.editingAttendant ||
-      state.representativeInput.trim() === (state.editingAttendant.representative ?? '').trim();
+      (state.representativeInput.trim() === (state.editingAttendant.representative ?? '').trim() &&
+         state.representativePhoneInput.trim() ===
+            (state.editingAttendant.representative_phone ?? '').trim());
    const isInlineRepresentativeDirty =
       state.lastResult && state.lastResult.kind !== 'ERROR'
-         ? state.previewRepresentativeInput.trim() !== (state.lastResult.attendant.representative ?? '').trim()
+         ? state.previewRepresentativeInput.trim() !==
+              (state.lastResult.attendant.representative ?? '').trim() ||
+           state.previewRepresentativePhoneInput.trim() !==
+              (state.lastResult.attendant.representative_phone ?? '').trim()
          : false;
    const isSaveInlineRepresentativeDisabled =
       state.isSavingInlineRepresentative || !isInlineRepresentativeDirty;

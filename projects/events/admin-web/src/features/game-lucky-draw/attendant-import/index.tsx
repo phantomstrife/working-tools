@@ -18,7 +18,10 @@ export const AttendantImport: AdminWeb.Component<Types.Properties> = (properties
                <p className={guide.text}>
                   {func.translate('guide_prefix')} <span className={guide.code}>full_name</span>,{' '}
                   <span className={guide.code}>ticket_code</span> ({func.translate('guide_optional')}:{' '}
-                  <span className={guide.code}>citizen_id, email, phone, company_name, department, accommodation</span>)
+                  <span className={guide.code}>
+                     citizen_id, email, phone, company_name, department, sale_in_charge, accommodation
+                  </span>
+                  )
                </p>
                <button
                   type="button"

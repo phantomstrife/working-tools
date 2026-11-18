@@ -141,7 +141,9 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       const existingParticipants = get().participants;
       const hasParticipant = existingParticipants.some((item) => item.id === attendant.id);
 
+      const phone = attendant.phone?.trim() || null;
       const representative = attendant.representative?.trim() || null;
+      const representativePhone = attendant.representative_phone?.trim() || null;
 
       const updatedParticipants = (
          hasParticipant
@@ -152,7 +154,9 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
                     id: attendant.id,
                     ticketCode: attendant.ticket_code,
                     name: attendant.full_name,
+                    phone,
                     representative,
+                    representativePhone,
                     companyName: attendant.company_name,
                     department: attendant.department,
                     hasWon: true,
@@ -161,7 +165,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
               ]
       ).map((item) => {
          if (item.id === attendant.id) {
-            return { ...item, representative, hasWon: true };
+            return { ...item, phone, representative, representativePhone, hasWon: true };
          }
 
          if (revokedAttendantId && item.id === revokedAttendantId) {
@@ -181,7 +185,9 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
          attendantId: attendant.id,
          ticketCode: attendant.ticket_code,
          name: attendant.full_name,
+         phone,
          representative,
+         representativePhone,
          companyName: attendant.company_name,
          department: attendant.department,
          wonAt: winner.won_at,

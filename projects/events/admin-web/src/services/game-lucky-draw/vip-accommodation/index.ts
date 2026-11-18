@@ -25,6 +25,7 @@ interface AttendantRow {
 interface GameEventRow {
    id: string;
    name: string;
+   event_id: string;
    event:
       | {
            name: string;
@@ -50,8 +51,6 @@ const getMetadataObject = (
 };
 
 const isEventEditExpired = (startTime: string | null): boolean => {
-   console.log(startTime);
-
    if (!startTime) {
       return false;
    }
@@ -109,6 +108,7 @@ const resolveVerifiedVipAttendant = async (token: string) => {
             `
             id,
             name,
+            event_id,
             event:events!games_event_id_fkey (
                name,
                location_name,
@@ -128,8 +128,10 @@ const resolveVerifiedVipAttendant = async (token: string) => {
 
    return {
       anonClient,
+      adminClient,
       attendant: attendantQuery.data,
       eventMeta: {
+         eventId: gameQuery.data?.event_id ?? null,
          eventName: eventData?.name ?? '',
          gameName: gameQuery.data?.name ?? '',
          locationName: eventData?.location_name ?? null,
@@ -152,11 +154,11 @@ export const useServicesGameLuckyDrawVipAccommodationRead: Types.ReadService = a
 };
 
 /**
- * Verifies and confirms the attendant's existing details via anon RLS.
+ * Verifies and confirms the attendant's existing details via anon RLS, and logs confirmation to public.logs.
  */
 export const useServicesGameLuckyDrawVipAccommodationConfirm: Types.ConfirmService = async (request) => {
    return trycatchAsync(async () => {
-      const { anonClient, attendant, eventMeta } = await resolveVerifiedVipAttendant(request.token);
+      const { anonClient, adminClient, attendant, eventMeta } = await resolveVerifiedVipAttendant(request.token);
 
       if (isEventEditExpired(eventMeta.startTime)) {
          return {
@@ -166,18 +168,10 @@ export const useServicesGameLuckyDrawVipAccommodationConfirm: Types.ConfirmServi
 
       const nowIso = new Date().toISOString();
       const baseMetadata = getMetadataObject(attendant.custom_metadata);
-      const existingHistory = Array.isArray(baseMetadata.self_service_history) ? baseMetadata.self_service_history : [];
       const nextMetadata = {
          ...baseMetadata,
          accommodation_confirmed: true,
          confirmed_at: nowIso,
-         self_service_history: [
-            ...existingHistory,
-            {
-               action: 'CONFIRM',
-               at: nowIso,
-            },
-         ],
       };
 
       const confirmed = await anonClient
@@ -194,6 +188,19 @@ export const useServicesGameLuckyDrawVipAccommodationConfirm: Types.ConfirmServi
          throw new Error(confirmed.error?.message || 'services.game_lucky_draw.attendant.save_failed');
       }
 
+      await adminClient.from('logs').insert({
+         account_id: null,
+         event_id: eventMeta.eventId,
+         game_id: attendant.game_id,
+         action_type: 'ATTENDANT_SELF_SERVICE_CONFIRM',
+         target_entity: 'lucky_draw_attendants',
+         target_id: attendant.id,
+         metadata: {
+            ticket_code: attendant.ticket_code,
+            confirmed_at: nowIso,
+         },
+      });
+
       return {
          attendant: {
             ...toVipAttendantInfo(confirmed.data, eventMeta),
@@ -204,11 +211,11 @@ export const useServicesGameLuckyDrawVipAccommodationConfirm: Types.ConfirmServi
 };
 
 /**
- * Updates citizen_id, full_name, email, phone, and custom_metadata via anon RLS and database trigger.
+ * Updates citizen_id, full_name, email, phone via anon RLS and records field diffs in public.logs.
  */
 export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService = async (request) => {
    return trycatchAsync(async () => {
-      const { anonClient, attendant, eventMeta } = await resolveVerifiedVipAttendant(request.token);
+      const { anonClient, adminClient, attendant, eventMeta } = await resolveVerifiedVipAttendant(request.token);
 
       if (isEventEditExpired(eventMeta.startTime)) {
          throw new Error('services.game_lucky_draw.attendant.vip_edit_expired');
@@ -243,19 +250,10 @@ export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService
 
       const nowIso = new Date().toISOString();
       const baseMetadata = getMetadataObject(attendant.custom_metadata);
-      const existingHistory = Array.isArray(baseMetadata.self_service_history) ? baseMetadata.self_service_history : [];
       const nextMetadata = {
          ...baseMetadata,
          accommodation_confirmed: true,
          confirmed_at: nowIso,
-         self_service_history: [
-            ...existingHistory,
-            {
-               action: 'UPDATE',
-               at: nowIso,
-               changes,
-            },
-         ],
       };
 
       // Enforce allowed column updates through anon RLS (`x-attendant-id`) and BEFORE UPDATE trigger.
@@ -276,6 +274,19 @@ export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService
       if (updated.error || !updated.data) {
          throw new Error(updated.error?.message || 'services.game_lucky_draw.attendant.save_failed');
       }
+
+      await adminClient.from('logs').insert({
+         account_id: null,
+         event_id: eventMeta.eventId,
+         game_id: attendant.game_id,
+         action_type: 'ATTENDANT_SELF_SERVICE_UPDATE',
+         target_entity: 'lucky_draw_attendants',
+         target_id: attendant.id,
+         metadata: {
+            ticket_code: attendant.ticket_code,
+            changes,
+         },
+      });
 
       return {
          attendant: toVipAttendantInfo(updated.data, eventMeta),

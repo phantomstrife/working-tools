@@ -9,6 +9,7 @@ import {
    Clock,
    Keyboard,
    Pencil,
+   Phone,
    QrCode,
    RefreshCw,
    RotateCcw,
@@ -395,30 +396,75 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                     : ''}
                               </span>
                            </div>
+                           <div className={feedback.meta_item}>
+                              <span className={feedback.meta_label}>
+                                 {func.translate('feedback.sale_in_charge_label')}
+                              </span>
+                              <span className={feedback.meta_value}>
+                                 {state.lastResult.attendant.sale_in_charge || '—'}
+                              </span>
+                           </div>
+                           <div className={feedback.meta_item}>
+                              <span className={feedback.meta_label}>
+                                 {func.translate('feedback.accommodation_label')}
+                              </span>
+                              <span className={feedback.meta_value}>
+                                 {state.lastResult.attendant.accommodation
+                                    ? func.translate('feedback.accommodation_true')
+                                    : func.translate('feedback.accommodation_false')}
+                              </span>
+                           </div>
                         </div>
 
                         <div className={feedback.inline_rep_box}>
-                           <label
-                              htmlFor="guard-inline-representative"
-                              className={feedback.inline_rep_label}
-                           >
-                              {func.translate('feedback.representative_label')}
-                           </label>
-                           <div className={feedback.inline_rep_row}>
-                              <div className={feedback.inline_rep_input_wrapper}>
-                                 <User size={15} />
-                                 <input
-                                    id="guard-inline-representative"
-                                    type="text"
-                                    value={state.previewRepresentativeInput}
-                                    placeholder={func.translate('feedback.representative_placeholder')}
-                                    onChange={(event) =>
-                                       func.setState(event.target.value, 'previewRepresentativeInput')
-                                    }
-                                    className={feedback.inline_rep_input}
-                                 />
+                           <div className={feedback.inline_rep_grid}>
+                              <div className={feedback.inline_rep_field}>
+                                 <label
+                                    htmlFor="guard-inline-representative"
+                                    className={feedback.inline_rep_label}
+                                 >
+                                    {func.translate('feedback.representative_label')}
+                                 </label>
+                                 <div className={feedback.inline_rep_input_wrapper}>
+                                    <User size={15} />
+                                    <input
+                                       id="guard-inline-representative"
+                                       type="text"
+                                       value={state.previewRepresentativeInput}
+                                       placeholder={func.translate('feedback.representative_placeholder')}
+                                       onChange={(event) =>
+                                          func.setState(event.target.value, 'previewRepresentativeInput')
+                                       }
+                                       className={feedback.inline_rep_input}
+                                    />
+                                 </div>
                               </div>
-                              {state.lastResult.kind !== 'PREVIEW' && (
+
+                              <div className={feedback.inline_rep_field}>
+                                 <label
+                                    htmlFor="guard-inline-representative-phone"
+                                    className={feedback.inline_rep_label}
+                                 >
+                                    {func.translate('feedback.representative_phone_label')}
+                                 </label>
+                                 <div className={feedback.inline_rep_input_wrapper}>
+                                    <Phone size={15} />
+                                    <input
+                                       id="guard-inline-representative-phone"
+                                       type="tel"
+                                       value={state.previewRepresentativePhoneInput}
+                                       placeholder={func.translate('feedback.representative_phone_placeholder')}
+                                       onChange={(event) =>
+                                          func.setState(event.target.value, 'previewRepresentativePhoneInput')
+                                       }
+                                       className={feedback.inline_rep_input}
+                                    />
+                                 </div>
+                              </div>
+                           </div>
+
+                           {state.lastResult.kind !== 'PREVIEW' && (
+                              <div className={feedback.inline_actions}>
                                  <button
                                     type="button"
                                     disabled={param.isSaveInlineRepresentativeDisabled}
@@ -432,8 +478,8 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                        ? func.translate('feedback.saving_representative_btn')
                                        : func.translate('feedback.save_representative_btn')}
                                  </button>
-                              )}
-                           </div>
+                              </div>
+                           )}
                         </div>
 
                         {state.lastResult.kind === 'PREVIEW' && (
@@ -451,17 +497,6 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                  {state.isConfirmingCheckIn
                                     ? func.translate('feedback.confirming_btn')
                                     : func.translate('feedback.confirm_btn')}
-                              </button>
-                              <button
-                                 type="button"
-                                 disabled={state.isConfirmingCheckIn}
-                                 onClick={func.handleResetScan}
-                                 className={feedback.inline_action_btn({
-                                    tone: 'secondary',
-                                    disabled: state.isConfirmingCheckIn,
-                                 })}
-                              >
-                                 {func.translate('feedback.cancel_btn')}
                               </button>
                            </div>
                         )}
@@ -566,8 +601,17 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                           )}
                                        </td>
                                        <td className={manual.td}>
-                                          {row.representative ? (
-                                             <span className={manual.representative_text}>{row.representative}</span>
+                                          {row.representative || row.representative_phone ? (
+                                             <div>
+                                                <div className={manual.representative_text}>
+                                                   {row.representative || '—'}
+                                                </div>
+                                                {row.representative_phone && (
+                                                   <div className={manual.attendant_sub}>
+                                                      {row.representative_phone}
+                                                   </div>
+                                                )}
+                                             </div>
                                           ) : (
                                              <span className={manual.representative_empty}>—</span>
                                           )}
@@ -657,6 +701,20 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                            value={state.representativeInput}
                            placeholder={func.translate('edit_modal.field_placeholder')}
                            onChange={(event) => func.setState(event.target.value, 'representativeInput')}
+                        />
+                     </FormField>
+
+                     <FormField
+                        id="guard-edit-representative-phone"
+                        Icon={Phone}
+                        label={func.translate('edit_modal.phone_label')}
+                     >
+                        <input
+                           id="guard-edit-representative-phone"
+                           type="tel"
+                           value={state.representativePhoneInput}
+                           placeholder={func.translate('edit_modal.phone_placeholder')}
+                           onChange={(event) => func.setState(event.target.value, 'representativePhoneInput')}
                         />
                      </FormField>
                   </div>
