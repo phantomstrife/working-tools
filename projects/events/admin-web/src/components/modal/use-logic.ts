@@ -40,12 +40,8 @@ export function useLogic({ state, properties, contentRef, setState }: Types.UseL
       [setState],
    );
 
-   const close: Types.Close = useCallback(() => {
+   const forceClose: Types.Close = useCallback(() => {
       const current = latestRef.current;
-
-      if (current.state.disabled) {
-         return;
-      }
 
       if (document.querySelectorAll('.modal-instance').length <= 1) {
          document.body.classList.remove('modal-open');
@@ -55,6 +51,16 @@ export function useLogic({ state, properties, contentRef, setState }: Types.UseL
       setState('close', 'status');
       current.properties.onClose?.();
    }, [setState]);
+
+   const close: Types.Close = useCallback(() => {
+      const current = latestRef.current;
+
+      if (current.state.disabled) {
+         return;
+      }
+
+      forceClose();
+   }, [forceClose]);
 
    useEffect(() => {
       if (state.status !== 'open') {
@@ -111,6 +117,7 @@ export function useLogic({ state, properties, contentRef, setState }: Types.UseL
    return {
       func: {
          close,
+         forceClose,
          open,
       },
    };

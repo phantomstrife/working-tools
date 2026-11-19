@@ -28,13 +28,13 @@ export function useController(properties: Types.Properties, contentRef: RefObjec
    useEffect(() => {
       actions.registerModal(id, {
          open: logic.func.open,
-         close: logic.func.close,
+         close: logic.func.forceClose,
       });
 
       return () => {
          actions.unregisterModal(id);
       };
-   }, [id, actions, logic.func.open, logic.func.close]);
+   }, [id, actions, logic.func.open, logic.func.forceClose]);
 
    useEffect(() => {
       if (disabled === state.disabled) {
