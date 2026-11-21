@@ -564,97 +564,124 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                   ) : state.searchResults.length === 0 ? (
                      <div className={manual.empty_box}>{func.translate('manual.no_results')}</div>
                   ) : (
-                     <div className={manual.table_wrapper}>
-                        <table className={manual.table}>
-                           <thead>
-                              <tr>
-                                 <th className={manual.th}>{func.translate('manual.columns.attendant')}</th>
-                                 <th className={manual.th}>{func.translate('manual.columns.ticket')}</th>
-                                 <th className={manual.th}>{func.translate('manual.columns.company')}</th>
-                                 <th className={manual.th}>{func.translate('manual.columns.representative')}</th>
-                                 <th className={manual.th}>{func.translate('manual.columns.status')}</th>
-                                 <th className={manual.th_right}>{func.translate('manual.columns.action')}</th>
-                              </tr>
-                           </thead>
-                           <tbody>
-                              {state.searchResults.map((row) => {
-                                 const isRowLoading = state.checkingInAttendantId === row.id;
+                     <div className={manual.results_scroll}>
+                        {state.searchResults.map((row) => {
+                           const isRowLoading = state.checkingInAttendantId === row.id;
+                           const isCheckInDisabled = Boolean(state.checkingInAttendantId) || Boolean(row.is_checked_in);
+                           const hasRepresentative = Boolean(row.representative || row.representative_phone);
 
-                                 return (
-                                    <tr
-                                       key={row.id}
-                                       className={manual.tr}
-                                    >
-                                       <td className={manual.td}>
-                                          <div className={manual.attendant_name}>{row.full_name}</div>
-                                          <div className={manual.attendant_sub}>
-                                             {[row.phone, row.email].filter(Boolean).join(' • ') || '—'}
-                                          </div>
-                                       </td>
-                                       <td className={manual.td}>
-                                          <span className={manual.ticket_badge}>{row.ticket_code}</span>
-                                       </td>
-                                       <td className={manual.td}>
-                                          <div>{row.company_name || '—'}</div>
-                                          {row.department && (
-                                             <div className={manual.attendant_sub}>{row.department}</div>
-                                          )}
-                                       </td>
-                                       <td className={manual.td}>
-                                          {row.representative || row.representative_phone ? (
-                                             <div>
-                                                <div className={manual.representative_text}>
-                                                   {row.representative || '—'}
-                                                </div>
-                                                {row.representative_phone && (
-                                                   <div className={manual.attendant_sub}>
-                                                      {row.representative_phone}
-                                                   </div>
-                                                )}
-                                             </div>
-                                          ) : (
-                                             <span className={manual.representative_empty}>—</span>
-                                          )}
-                                       </td>
-                                       <td className={manual.td}>
-                                          <span className={manual.status_badge({ checkedIn: !!row.is_checked_in })}>
-                                             {row.is_checked_in
-                                                ? func.translate('manual.badges.checked_in')
-                                                : func.translate('manual.badges.pending')}
+                           return (
+                              <div
+                                 key={row.id}
+                                 className={manual.card}
+                              >
+                                 <div className={manual.card_header}>
+                                    <div className={manual.card_title_group}>
+                                       <span className={manual.attendant_name}>{row.full_name}</span>
+                                       <span className={manual.ticket_badge}>{row.ticket_code}</span>
+                                    </div>
+                                    <span className={manual.status_badge({ checkedIn: !!row.is_checked_in })}>
+                                       {row.is_checked_in
+                                          ? func.translate('manual.badges.checked_in')
+                                          : func.translate('manual.badges.pending')}
+                                    </span>
+                                 </div>
+
+                                 <div className={manual.info_grid}>
+                                    <div className={manual.info_item}>
+                                       <span className={manual.info_label}>
+                                          {func.translate('manual.fields.contact')}
+                                       </span>
+                                       <span className={manual.info_value}>{row.phone || '—'}</span>
+                                       {row.email && (
+                                          <span
+                                             title={row.email}
+                                             className={manual.info_email}
+                                          >
+                                             {row.email}
                                           </span>
-                                       </td>
-                                       <td className={manual.td_right}>
-                                          <div className={manual.action_group}>
-                                             <button
-                                                type="button"
-                                                title={func.translate('manual.edit_representative_title')}
-                                                onClick={() => func.handleOpenEditRepresentative(row)}
-                                                className={manual.edit_btn}
-                                             >
-                                                <Pencil size={13} />
-                                                {func.translate('manual.edit_btn')}
-                                             </button>
-                                             <button
-                                                type="button"
-                                                disabled={Boolean(state.checkingInAttendantId)}
-                                                onClick={() => func.handleManualCheckIn(row)}
-                                                className={manual.action_btn({
-                                                   checkedIn: !!row.is_checked_in,
-                                                   disabled: Boolean(state.checkingInAttendantId),
-                                                })}
-                                             >
-                                                <UserCheck size={14} />
-                                                {isRowLoading
-                                                   ? func.translate('manual.checking_in_btn')
-                                                   : func.translate('manual.check_in_btn')}
-                                             </button>
+                                       )}
+                                    </div>
+
+                                    <div className={manual.info_item}>
+                                       <span className={manual.info_label}>
+                                          {func.translate('manual.columns.company')}
+                                       </span>
+                                       <span className={manual.info_value}>{row.company_name || '—'}</span>
+                                       {row.department && <span className={manual.info_sub}>{row.department}</span>}
+                                    </div>
+
+                                    <div className={manual.rep_box({ hasValue: hasRepresentative })}>
+                                       <span className={hasRepresentative ? manual.rep_label : manual.rep_label_empty}>
+                                          {func.translate('manual.columns.representative')}
+                                       </span>
+                                       {hasRepresentative ? (
+                                          <div className={manual.rep_row}>
+                                             <span className={manual.representative_text}>
+                                                {row.representative || '—'}
+                                             </span>
+                                             {row.representative_phone && (
+                                                <span className={manual.representative_phone}>
+                                                   • {row.representative_phone}
+                                                </span>
+                                             )}
                                           </div>
-                                       </td>
-                                    </tr>
-                                 );
-                              })}
-                           </tbody>
-                        </table>
+                                       ) : (
+                                          <span className={manual.representative_empty}>—</span>
+                                       )}
+                                    </div>
+
+                                    {row.is_checked_in && row.checked_in_at && (
+                                       <div className={manual.checked_in_meta}>
+                                          <Clock size={13} />
+                                          <span>
+                                             {func.translate('manual.fields.checked_in_at', {
+                                                time: formatDateTime(row.checked_in_at),
+                                             })}
+                                             {row.check_in_method
+                                                ? ` (${func.translate(`feedback.method_${row.check_in_method}`)})`
+                                                : ''}
+                                          </span>
+                                       </div>
+                                    )}
+                                 </div>
+
+                                 <div className={manual.card_footer}>
+                                    <button
+                                       type="button"
+                                       title={func.translate('manual.edit_representative_title')}
+                                       onClick={() => func.handleOpenEditRepresentative(row)}
+                                       className={manual.edit_btn}
+                                    >
+                                       <Pencil size={13} />
+                                       {func.translate('manual.edit_representative_btn')}
+                                    </button>
+                                    <button
+                                       type="button"
+                                       disabled={isCheckInDisabled}
+                                       onClick={() => func.handleManualCheckIn(row)}
+                                       className={manual.action_btn({
+                                          checkedIn: !!row.is_checked_in,
+                                          disabled: isCheckInDisabled,
+                                       })}
+                                    >
+                                       {isRowLoading ? (
+                                          <RefreshCw className={stats.refresh_icon({ loading: true })} />
+                                       ) : row.is_checked_in ? (
+                                          <CheckCircle2 size={14} />
+                                       ) : (
+                                          <UserCheck size={14} />
+                                       )}
+                                       {isRowLoading
+                                          ? func.translate('manual.checking_in_btn')
+                                          : row.is_checked_in
+                                            ? func.translate('manual.badges.checked_in')
+                                            : func.translate('manual.check_in_btn')}
+                                    </button>
+                                 </div>
+                              </div>
+                           );
+                        })}
                      </div>
                   )}
                </div>

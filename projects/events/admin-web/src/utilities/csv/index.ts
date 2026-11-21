@@ -115,7 +115,8 @@ export const downloadCsvFile: Types.Download_Csv_File = (csvContent, fileName) =
       return;
    }
 
-   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+   const contentWithBom = csvContent.charCodeAt(0) === 0xfeff ? csvContent : `\uFEFF${csvContent}`;
+   const blob = new Blob([contentWithBom], { type: 'text/csv;charset=utf-8;' });
    const url = URL.createObjectURL(blob);
    const link = document.createElement('a');
 

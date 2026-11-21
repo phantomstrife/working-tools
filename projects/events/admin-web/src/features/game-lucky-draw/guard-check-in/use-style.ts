@@ -127,26 +127,38 @@ const themes = {
       },
    }),
    status_badge: tv({
-      base: 'inline-flex items-center gap-x-1 px-2.5 py-0.5 text-11 font-semibold rounded-primary border whitespace-nowrap',
+      base: 'inline-flex items-center gap-x-1 px-2.5 py-0.5 text-11 font-semibold rounded-primary border whitespace-nowrap shrink-0',
       variants: {
          checkedIn: {
             true: 'bg-success-50 text-success-700 border-success-200',
-            false: 'bg-neutral-100 text-neutral-600 border-utility-300',
+            false: 'bg-warning-50 text-warning-700 border-warning-200',
          },
       },
       defaultVariants: {
          checkedIn: false,
       },
    }),
+   manual_rep_box: tv({
+      base: 'sm:col-span-2 flex flex-col gap-y-0.5 px-3 py-2 rounded-primary border min-w-0',
+      variants: {
+         hasValue: {
+            true: 'bg-info-50/70 border-info-200',
+            false: 'bg-neutral-100/70 border-utility-200',
+         },
+      },
+      defaultVariants: {
+         hasValue: false,
+      },
+   }),
    check_in_action: tv({
       base: 'inline-flex items-center gap-x-1.5 px-3 py-1.5 text-12 font-semibold rounded-primary transition-colors cursor-pointer whitespace-nowrap',
       variants: {
          checkedIn: {
-            true: 'bg-neutral-100 text-neutral-500 border border-utility-200 hover:bg-neutral-200',
+            true: 'bg-success-50 text-success-700 border border-success-200',
             false: 'bg-neutral-900 text-neutral-50 hover:bg-neutral-950',
          },
          disabled: {
-            true: 'opacity-50 pointer-events-none cursor-not-allowed',
+            true: 'opacity-60 pointer-events-none cursor-not-allowed',
          },
       },
       defaultVariants: {
@@ -276,24 +288,32 @@ export const useStyle = {
       clear_btn: 'text-neutral-400 hover:text-neutral-700 cursor-pointer shrink-0',
       empty_box:
          'flex flex-col items-center justify-center gap-y-2 py-12 px-secondary text-center text-13 text-neutral-500 bg-neutral-100/60 border border-dashed border-utility-300 rounded-secondary',
-      table_wrapper: 'overflow-x-auto border border-utility-200 rounded-secondary',
-      table: 'w-full text-left border-collapse',
-      th: 'px-primary py-2.5 text-11 font-bold uppercase tracking-wider text-neutral-500 bg-neutral-100 border-b border-utility-200 whitespace-nowrap',
-      th_right:
-         'px-primary py-2.5 text-11 font-bold uppercase tracking-wider text-neutral-500 bg-neutral-100 border-b border-utility-200 text-right whitespace-nowrap',
-      tr: 'border-b border-utility-200 last:border-b-0 hover:bg-neutral-100/50 transition-colors',
-      td: 'px-primary py-3 text-13 text-neutral-800 align-middle',
-      td_right: 'px-primary py-3 text-13 text-neutral-800 align-middle text-right whitespace-nowrap',
-      attendant_name: 'font-semibold text-neutral-950',
-      attendant_sub: 'text-12 text-neutral-500',
+      results_scroll: 'overflow-y-auto overflow-x-hidden max-h-[480px] lg:max-h-[560px] flex flex-col gap-3 pr-1',
+      card: 'flex flex-col gap-y-3 p-3.5 rounded-secondary border border-neutral-200 bg-neutral-50/50 transition-colors hover:border-neutral-300 min-w-0',
+      card_header: 'flex flex-wrap items-start justify-between gap-2 min-w-0',
+      card_title_group: 'flex flex-wrap items-center gap-2 min-w-0 flex-1',
+      attendant_name: 'text-15 font-bold text-neutral-950 break-words min-w-0',
       ticket_badge:
-         'inline-flex px-2 py-0.5 font-mono text-12 font-semibold bg-neutral-100 border border-utility-300 rounded-primary whitespace-nowrap',
-      representative_text: 'text-13 font-medium text-neutral-900',
-      representative_empty: 'text-13 text-neutral-400',
+         'inline-flex px-2 py-0.5 font-mono text-12 font-semibold text-neutral-800 bg-neutral-100 border border-utility-300 rounded-primary whitespace-nowrap shrink-0',
       status_badge: themes.status_badge,
-      action_group: 'inline-flex items-center justify-end gap-1.5',
+      info_grid: 'grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 min-w-0',
+      info_item: 'flex flex-col gap-y-0.5 min-w-0',
+      info_label: 'text-11 font-semibold uppercase tracking-wider text-neutral-500',
+      info_value: 'text-13 font-medium text-neutral-900 break-words min-w-0',
+      info_email: 'text-12 text-neutral-600 break-all min-w-0',
+      info_sub: 'text-12 text-neutral-500 break-words min-w-0',
+      rep_box: themes.manual_rep_box,
+      rep_label: 'text-11 font-semibold uppercase tracking-wider text-info-700',
+      rep_label_empty: 'text-11 font-semibold uppercase tracking-wider text-neutral-500',
+      rep_row: 'flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0',
+      representative_text: 'text-13 font-semibold text-neutral-950 break-words min-w-0',
+      representative_phone: 'text-12 font-mono font-medium text-neutral-700 break-all',
+      representative_empty: 'text-13 text-neutral-400',
+      checked_in_meta:
+         'sm:col-span-2 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-12 font-medium text-success-700 min-w-0',
+      card_footer: 'flex flex-wrap items-center justify-end gap-2 pt-2.5 border-t border-neutral-200',
       edit_btn:
-         'inline-flex items-center gap-x-1 px-2.5 py-1.5 text-12 font-semibold text-neutral-700 bg-neutral-50 hover:bg-neutral-100 border border-utility-300 rounded-primary transition-colors cursor-pointer whitespace-nowrap',
+         'inline-flex items-center gap-x-1.5 px-3 py-1.5 text-12 font-semibold text-neutral-700 bg-neutral-50 hover:bg-neutral-100 border border-utility-300 rounded-primary transition-colors cursor-pointer whitespace-nowrap',
       action_btn: themes.check_in_action,
    },
    edit_modal: {

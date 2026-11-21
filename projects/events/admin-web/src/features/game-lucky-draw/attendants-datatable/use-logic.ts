@@ -23,6 +23,7 @@ export function useLogic(properties: Types.Properties) {
       isLoading: externalLoading = false,
       onImportCsv,
       onSendEmails,
+      onExportAttendants,
       onExportWinners,
       onCreate,
       onEdit,
@@ -51,6 +52,7 @@ export function useLogic(properties: Types.Properties) {
       targetAttendant: null,
       isDeleting: false,
       isExporting: false,
+      isExportingAttendants: false,
       isSendingEmails: false,
       isSendingAllEmails: false,
    });
@@ -211,6 +213,67 @@ export function useLogic(properties: Types.Properties) {
       void handleSearch();
    };
 
+   const handleExportAttendants = async () => {
+      if (state.isExportingAttendants || !gameId) {
+         return;
+      }
+
+      onExportAttendants?.();
+
+      setState({
+         isExportingAttendants: true,
+      });
+
+      try {
+         const response = await fetch(
+            `/api/game-lucky-draw/attendants-export?gameId=${encodeURIComponent(gameId)}`,
+            {
+               method: 'GET',
+               cache: 'no-store',
+            },
+         );
+
+         if (!response.ok) {
+            const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+            const errorMessage = payload?.message
+               ? resolveErrorMessage(payload.message)
+               : translate('toast.export_attendants_failed');
+
+            toast.error(errorMessage);
+            return;
+         }
+
+         const totalCountHeader = response.headers.get('X-Total-Count');
+         const totalCount = totalCountHeader !== null ? Number(totalCountHeader) : null;
+
+         if (totalCount === 0) {
+            toast.info(translate('toast.export_attendants_empty'));
+            return;
+         }
+
+         const csvContent = await response.text();
+         const contentDisposition = response.headers.get('Content-Disposition') ?? '';
+         const fileNameMatch = /filename="([^"]+)"/i.exec(contentDisposition);
+         const fileName =
+            response.headers.get('X-Export-Filename') ||
+            fileNameMatch?.[1] ||
+            `attendants-${new Date().toISOString().slice(0, 10)}.csv`;
+
+         downloadCsvFile(csvContent, fileName);
+         toast.success(
+            translate('toast.export_attendants_success', {
+               count: totalCount ?? state.totalCount,
+            }),
+         );
+      } catch {
+         toast.error(translate('toast.export_attendants_failed'));
+      } finally {
+         setState({
+            isExportingAttendants: false,
+         });
+      }
+   };
+
    const handleExportWinners = async () => {
       if (state.isExporting || !gameId) {
          return;
@@ -363,6 +426,7 @@ export function useLogic(properties: Types.Properties) {
          targetAttendant: state.targetAttendant,
          isDeleting: state.isDeleting,
          isExporting: state.isExporting,
+         isExportingAttendants: state.isExportingAttendants,
          isSendingEmails: state.isSendingEmails,
          isSendingAllEmails: state.isSendingAllEmails,
       },
@@ -378,6 +442,7 @@ export function useLogic(properties: Types.Properties) {
          handleImportCsv,
          handleDelete,
          handleConfirmDelete,
+         handleExportAttendants,
          handleExportWinners,
          handleSendEmails,
          handleSendAllEmails,

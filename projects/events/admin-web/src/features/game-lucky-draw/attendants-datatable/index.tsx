@@ -1,6 +1,6 @@
 'use client';
 
-import { Download, Mail, Plus, Send, Upload } from 'lucide-react';
+import { Download, FileSpreadsheet, Mail, Plus, Send, Upload } from 'lucide-react';
 
 import { ConfirmModal } from '@admin-web/components/confirm-modal';
 import { DataTable } from '@admin-web/components/datatable';
@@ -51,6 +51,15 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                   icon: Send,
                   disabled: param.isLoading || param.isSendingEmails || param.isSendingAllEmails,
                   onClick: func.handleSendAllEmails,
+               },
+               {
+                  key: 'export-attendants',
+                  label: param.isExportingAttendants
+                     ? func.translate('actions.exporting_attendants')
+                     : func.translate('actions.export_attendants'),
+                  icon: FileSpreadsheet,
+                  disabled: param.isLoading || param.isExportingAttendants,
+                  onClick: func.handleExportAttendants,
                },
                {
                   key: 'export',

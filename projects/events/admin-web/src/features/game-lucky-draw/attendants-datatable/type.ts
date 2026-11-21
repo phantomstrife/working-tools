@@ -10,6 +10,7 @@ export interface Properties {
    isLoading?: boolean;
    onImportCsv?: () => void;
    onSendEmails?: (selectedAttendants: Attendant[]) => void;
+   onExportAttendants?: () => void;
    onExportWinners?: () => void;
    onCreate?: () => void;
    onEdit?: (attendant: Attendant) => void;
@@ -28,6 +29,7 @@ export interface State {
    targetAttendant: Attendant | null;
    isDeleting: boolean;
    isExporting: boolean;
+   isExportingAttendants: boolean;
    isSendingEmails: boolean;
    isSendingAllEmails: boolean;
 }
