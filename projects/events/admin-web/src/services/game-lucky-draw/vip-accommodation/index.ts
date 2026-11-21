@@ -2,7 +2,10 @@
 
 import { getAdminClient } from '@admin-web/adapters/supabase/admin';
 import { getAttendantClient } from '@admin-web/adapters/supabase/attendant';
-import { EMAIL_REGEX } from '@admin-web/services/game-lucky-draw/attendant-import-csv/constants';
+import {
+   EMAIL_REGEX,
+   normalizeSalutation,
+} from '@admin-web/services/game-lucky-draw/attendant-import-csv/constants';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
 import { verifyVipAccommodationToken } from '@admin-web/utilities/vip-accommodation-token';
 
@@ -13,6 +16,7 @@ import type * as Types from './type';
 interface AttendantRow {
    id: string;
    game_id: string;
+   salutation: string | null;
    full_name: string;
    citizen_id: string | null;
    email: string | null;
@@ -71,6 +75,7 @@ const toVipAttendantInfo = (
 
    return {
       id: row.id,
+      salutation: row.salutation,
       full_name: row.full_name,
       citizen_id: row.citizen_id,
       email: row.email,
@@ -211,7 +216,7 @@ export const useServicesGameLuckyDrawVipAccommodationConfirm: Types.ConfirmServi
 };
 
 /**
- * Updates citizen_id, full_name, email, phone via anon RLS and records field diffs in public.logs.
+ * Updates salutation, citizen_id, full_name, email, phone via anon RLS and records field diffs in public.logs.
  */
 export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService = async (request) => {
    return trycatchAsync(async () => {
@@ -226,6 +231,14 @@ export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService
          throw new Error('services.game_lucky_draw.attendant.vip_missing_full_name');
       }
 
+      const hasSalutationField = request.salutation !== undefined;
+      const parsedSalutation = hasSalutationField ? normalizeSalutation(request.salutation) : undefined;
+      if (parsedSalutation === 'invalid') {
+         throw new Error('services.game_lucky_draw.attendant.invalid_salutation');
+      }
+
+      const normalizedSalutation = hasSalutationField ? (parsedSalutation ?? null) : (attendant.salutation ?? null);
+
       const normalizedEmail = request.email?.trim() || null;
       if (normalizedEmail && !EMAIL_REGEX.test(normalizedEmail)) {
          throw new Error('services.game_lucky_draw.attendant.vip_invalid_email');
@@ -235,6 +248,9 @@ export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService
       const normalizedPhone = request.phone?.trim() || null;
 
       const changes: Record<string, { from: string | null; to: string | null }> = {};
+      if ((attendant.salutation ?? null) !== normalizedSalutation) {
+         changes.salutation = { from: attendant.salutation ?? null, to: normalizedSalutation };
+      }
       if (attendant.full_name !== trimmedFullName) {
          changes.full_name = { from: attendant.full_name, to: trimmedFullName };
       }
@@ -260,6 +276,7 @@ export const useServicesGameLuckyDrawVipAccommodationUpdate: Types.UpdateService
       const updated = await anonClient
          .from('lucky_draw_attendants')
          .update({
+            salutation: normalizedSalutation,
             full_name: trimmedFullName,
             citizen_id: normalizedCitizenId,
             email: normalizedEmail,

@@ -46,10 +46,12 @@ export const AttendantForm: AdminWeb.Component<Types.Properties> = (properties) 
 
    const resolveFieldLabel = (field: string) => {
       const knownFields = [
+         'salutation',
          'full_name',
          'citizen_id',
          'email',
          'phone',
+         'representative_salutation',
          'representative',
          'representative_phone',
       ];
@@ -89,6 +91,28 @@ export const AttendantForm: AdminWeb.Component<Types.Properties> = (properties) 
                onSubmit={func.onSubmit}
             >
                <div className={grid}>
+                  <FormField
+                     id="attendant-salutation"
+                     Icon={User}
+                     label={func.translate('fields.salutation.label')}
+                     error={param.errors.salutation?.message}
+                  >
+                     <select
+                        id="attendant-salutation"
+                        {...func.register('salutation')}
+                     >
+                        <option value="">{func.translate('fields.salutation.placeholder')}</option>
+                        {param.salutationOptions.map((option) => (
+                           <option
+                              key={option}
+                              value={option}
+                           >
+                              {option}
+                           </option>
+                        ))}
+                     </select>
+                  </FormField>
+
                   <FormField
                      id="attendant-full-name"
                      Icon={User}
@@ -186,6 +210,56 @@ export const AttendantForm: AdminWeb.Component<Types.Properties> = (properties) 
                         type="text"
                         placeholder={func.translate('fields.department.placeholder')}
                         {...func.register('department')}
+                     />
+                  </FormField>
+
+                  <FormField
+                     id="attendant-representative-salutation"
+                     Icon={User}
+                     label={func.translate('fields.representative_salutation.label')}
+                     error={param.errors.representative_salutation?.message}
+                  >
+                     <select
+                        id="attendant-representative-salutation"
+                        {...func.register('representative_salutation')}
+                     >
+                        <option value="">{func.translate('fields.representative_salutation.placeholder')}</option>
+                        {param.salutationOptions.map((option) => (
+                           <option
+                              key={option}
+                              value={option}
+                           >
+                              {option}
+                           </option>
+                        ))}
+                     </select>
+                  </FormField>
+
+                  <FormField
+                     id="attendant-representative"
+                     Icon={User}
+                     label={func.translate('fields.representative.label')}
+                     error={param.errors.representative?.message}
+                  >
+                     <input
+                        id="attendant-representative"
+                        type="text"
+                        placeholder={func.translate('fields.representative.placeholder')}
+                        {...func.register('representative')}
+                     />
+                  </FormField>
+
+                  <FormField
+                     id="attendant-representative-phone"
+                     Icon={Phone}
+                     label={func.translate('fields.representative_phone.label')}
+                     error={param.errors.representative_phone?.message}
+                  >
+                     <input
+                        id="attendant-representative-phone"
+                        type="tel"
+                        placeholder={func.translate('fields.representative_phone.placeholder')}
+                        {...func.register('representative_phone')}
                      />
                   </FormField>
 

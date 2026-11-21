@@ -1,0 +1,6 @@
+export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+export const NUMBERS = '0123456789';
+export const ALPHANUMERIC = `${LETTERS}${NUMBERS}`;
+export const SPIN_INTERVAL_MS = 50;
+export const SPLIT_FLAP_STRIP_COUNT = 8;
+

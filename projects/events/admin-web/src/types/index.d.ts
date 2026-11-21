@@ -70,7 +70,7 @@ declare global {
 
    declare namespace AdminWeb.Features.GameLuckyDraw {
       type DrawMode = 'auto' | 'manual' | 'instant';
-      type ThemeName = 'theme-02';
+      type ThemeName = 'theme-02' | 'theme-03';
 
       interface Prize {
          id: string;
@@ -85,8 +85,10 @@ declare global {
       interface Participant {
          id: string;
          ticketCode: string;
+         salutation: string | null;
          name: string;
          phone: string | null;
+         representativeSalutation: string | null;
          representative: string | null;
          representativePhone: string | null;
          companyName: string | null;
@@ -100,8 +102,10 @@ declare global {
          prizeId: string;
          attendantId: string;
          ticketCode: string;
+         salutation: string | null;
          name: string;
          phone: string | null;
+         representativeSalutation: string | null;
          representative: string | null;
          representativePhone: string | null;
          companyName: string | null;
@@ -121,6 +125,7 @@ declare global {
       type Attendant = Pick<
          Database.GameLuckyDrawAttendant,
          | 'id'
+         | 'salutation'
          | 'full_name'
          | 'ticket_code'
          | 'email'
@@ -129,6 +134,7 @@ declare global {
          | 'department'
          | 'sale_in_charge'
          | 'accommodation'
+         | 'representative_salutation'
          | 'representative'
          | 'representative_phone'
          | 'is_checked_in'
@@ -142,6 +148,8 @@ declare global {
    }
 
    declare namespace AdminWeb.Features.GameLuckyDraw.Attendant {
+      type Salutation = 'Anh' | 'Chị' | 'Ông' | 'Bà';
+
       type Filter =
          | ''
          | 'CHECKED_IN'

@@ -1,5 +1,6 @@
 import { getAdminClient } from '@admin-web/adapters/supabase/admin';
 import { getTokenClient } from '@admin-web/adapters/supabase/token';
+import { normalizeSalutation } from '@admin-web/services/game-lucky-draw/attendant-import-csv/constants';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
 import { ALLOWED_ROLES, ATTENDANT_COLUMNS, LOG_ACTION } from './constants';
@@ -15,6 +16,7 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
       qrCodePayload = '',
       attendantId = '',
       searchQuery = '',
+      representativeSalutation,
       representative,
       representativePhone,
    } = request;
@@ -158,6 +160,22 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
       }
 
       const nowIso = new Date().toISOString();
+      const hasRepresentativeSalutationField = representativeSalutation !== undefined;
+      const parsedRepresentativeSalutation = hasRepresentativeSalutationField
+         ? normalizeSalutation(representativeSalutation)
+         : undefined;
+
+      if (parsedRepresentativeSalutation === 'invalid') {
+         throw new Error('services.game_lucky_draw.attendant.invalid_representative_salutation');
+      }
+
+      const nextRepresentativeSalutation = hasRepresentativeSalutationField
+         ? (parsedRepresentativeSalutation ?? null)
+         : attendantData.representative_salutation;
+      const representativeSalutationChanged =
+         hasRepresentativeSalutationField &&
+         nextRepresentativeSalutation !== attendantData.representative_salutation;
+
       const hasRepresentativeField = representative !== undefined;
       const hasRepresentativePhoneField = representativePhone !== undefined;
       const nextRepresentative = hasRepresentativeField
@@ -167,6 +185,7 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
          ? representativePhone?.trim() || null
          : attendantData.representative_phone;
       const representativeChanged =
+         representativeSalutationChanged ||
          nextRepresentative !== attendantData.representative ||
          nextRepresentativePhone !== attendantData.representative_phone;
 
@@ -180,6 +199,7 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
             check_in_method: method,
             ...(representativeChanged
                ? {
+                    representative_salutation: nextRepresentativeSalutation,
                     representative: nextRepresentative,
                     representative_phone: nextRepresentativePhone,
                  }
@@ -218,6 +238,8 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
             target_id: update.data.id,
             metadata: {
                ticket_code: update.data.ticket_code,
+               representative_salutation: nextRepresentativeSalutation,
+               previous_representative_salutation: attendantData.representative_salutation,
                representative: nextRepresentative,
                previous_representative: attendantData.representative,
                representative_phone: nextRepresentativePhone,
@@ -229,6 +251,13 @@ export const useServicesGameLuckyDrawAttendantCheckIn: Types.Service = async (re
 
       if (representativeChanged) {
          const guardChanges: Record<string, { from: string | null; to: string | null }> = {};
+
+         if (representativeSalutationChanged) {
+            guardChanges.representative_salutation = {
+               from: attendantData.representative_salutation,
+               to: nextRepresentativeSalutation,
+            };
+         }
 
          if (nextRepresentative !== attendantData.representative) {
             guardChanges.representative = {

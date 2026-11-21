@@ -50,6 +50,20 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
       });
    };
 
+   const formatAttendantName = (attendant: Pick<Types.Attendant, 'salutation' | 'full_name'>) => {
+      return [attendant.salutation?.trim(), attendant.full_name].filter(Boolean).join(' ');
+   };
+
+   const formatRepresentativeName = (
+      attendant: Pick<Types.Attendant, 'representative_salutation' | 'representative'>,
+   ) => {
+      if (!attendant.representative?.trim()) {
+         return '';
+      }
+
+      return [attendant.representative_salutation?.trim(), attendant.representative.trim()].filter(Boolean).join(' ');
+   };
+
    return (
       <div className={root.wrapper}>
          <div className="flex items-center justify-end">
@@ -212,7 +226,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                           <div className={qr.camera.hud_left}>
                                              <UserCheck className={qr.camera.hud_icon} />
                                              <span className={qr.camera.hud_text}>
-                                                {state.lastResult.attendant.full_name}
+                                                {formatAttendantName(state.lastResult.attendant)}
                                              </span>
                                           </div>
                                           <span className={qr.camera.hud_ticket}>
@@ -224,7 +238,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                           <div className={qr.camera.hud_left}>
                                              <CheckCircle2 className={qr.camera.hud_icon} />
                                              <span className={qr.camera.hud_text}>
-                                                {state.lastResult.attendant.full_name}
+                                                {formatAttendantName(state.lastResult.attendant)}
                                              </span>
                                           </div>
                                           <span className={qr.camera.hud_ticket}>
@@ -236,7 +250,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                           <div className={qr.camera.hud_left}>
                                              <AlertTriangle className={qr.camera.hud_icon} />
                                              <span className={qr.camera.hud_text}>
-                                                {state.lastResult.attendant.full_name}
+                                                {formatAttendantName(state.lastResult.attendant)}
                                              </span>
                                           </div>
                                           <span className={qr.camera.hud_ticket}>
@@ -370,7 +384,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                         </div>
 
                         <span className={feedback.name}>
-                           {state.lastResult.attendant.full_name}
+                           {formatAttendantName(state.lastResult.attendant)}
                            <span className={feedback.ticket_code}>{state.lastResult.attendant.ticket_code}</span>
                         </span>
 
@@ -420,6 +434,38 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                            <div className={feedback.inline_rep_grid}>
                               <div className={feedback.inline_rep_field}>
                                  <label
+                                    htmlFor="guard-inline-representative-salutation"
+                                    className={feedback.inline_rep_label}
+                                 >
+                                    {func.translate('feedback.representative_salutation_label')}
+                                 </label>
+                                 <div className={feedback.inline_rep_input_wrapper}>
+                                    <User size={15} />
+                                    <select
+                                       id="guard-inline-representative-salutation"
+                                       value={state.previewRepresentativeSalutationInput}
+                                       onChange={(event) =>
+                                          func.setState(event.target.value, 'previewRepresentativeSalutationInput')
+                                       }
+                                       className={feedback.inline_rep_select}
+                                    >
+                                       <option value="">
+                                          {func.translate('feedback.representative_salutation_placeholder')}
+                                       </option>
+                                       {param.salutationOptions.map((option) => (
+                                          <option
+                                             key={option}
+                                             value={option}
+                                          >
+                                             {option}
+                                          </option>
+                                       ))}
+                                    </select>
+                                 </div>
+                              </div>
+
+                              <div className={feedback.inline_rep_field}>
+                                 <label
                                     htmlFor="guard-inline-representative"
                                     className={feedback.inline_rep_label}
                                  >
@@ -440,7 +486,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                  </div>
                               </div>
 
-                              <div className={feedback.inline_rep_field}>
+                              <div className={feedback.inline_rep_field_full}>
                                  <label
                                     htmlFor="guard-inline-representative-phone"
                                     className={feedback.inline_rep_label}
@@ -515,7 +561,8 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                  <div className={feedback.recent.left}>
                                     <span className={feedback.recent.ticket}>{entry.attendant.ticket_code}</span>
                                     <span className={feedback.recent.name}>
-                                       {entry.attendant.representative || entry.attendant.full_name}
+                                       {formatRepresentativeName(entry.attendant) ||
+                                          formatAttendantName(entry.attendant)}
                                     </span>
                                  </div>
                                  <span className={feedback.recent.time}>{formatDateTime(entry.at)}</span>
@@ -568,7 +615,8 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                         {state.searchResults.map((row) => {
                            const isRowLoading = state.checkingInAttendantId === row.id;
                            const isCheckInDisabled = Boolean(state.checkingInAttendantId) || Boolean(row.is_checked_in);
-                           const hasRepresentative = Boolean(row.representative || row.representative_phone);
+                           const formattedRep = formatRepresentativeName(row);
+                           const hasRepresentative = Boolean(formattedRep || row.representative_phone);
 
                            return (
                               <div
@@ -577,7 +625,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                               >
                                  <div className={manual.card_header}>
                                     <div className={manual.card_title_group}>
-                                       <span className={manual.attendant_name}>{row.full_name}</span>
+                                       <span className={manual.attendant_name}>{formatAttendantName(row)}</span>
                                        <span className={manual.ticket_badge}>{row.ticket_code}</span>
                                     </div>
                                     <span className={manual.status_badge({ checkedIn: !!row.is_checked_in })}>
@@ -617,9 +665,7 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                                        </span>
                                        {hasRepresentative ? (
                                           <div className={manual.rep_row}>
-                                             <span className={manual.representative_text}>
-                                                {row.representative || '—'}
-                                             </span>
+                                             <span className={manual.representative_text}>{formattedRep || '—'}</span>
                                              {row.representative_phone && (
                                                 <span className={manual.representative_phone}>
                                                    • {row.representative_phone}
@@ -703,7 +749,9 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                      {state.editingAttendant && (
                         <div className={edit_modal.summary}>
                            <div className={edit_modal.summary_top}>
-                              <span className={edit_modal.summary_name}>{state.editingAttendant.full_name}</span>
+                              <span className={edit_modal.summary_name}>
+                                 {formatAttendantName(state.editingAttendant)}
+                              </span>
                               <span className={edit_modal.summary_ticket}>{state.editingAttendant.ticket_code}</span>
                            </div>
                            {(state.editingAttendant.company_name || state.editingAttendant.department) && (
@@ -715,6 +763,30 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                            )}
                         </div>
                      )}
+
+                     <FormField
+                        id="guard-edit-representative-salutation"
+                        Icon={User}
+                        label={func.translate('edit_modal.representative_salutation_label')}
+                     >
+                        <select
+                           id="guard-edit-representative-salutation"
+                           value={state.representativeSalutationInput}
+                           onChange={(event) => func.setState(event.target.value, 'representativeSalutationInput')}
+                        >
+                           <option value="">
+                              {func.translate('edit_modal.representative_salutation_placeholder')}
+                           </option>
+                           {param.salutationOptions.map((option) => (
+                              <option
+                                 key={option}
+                                 value={option}
+                              >
+                                 {option}
+                              </option>
+                           ))}
+                        </select>
+                     </FormField>
 
                      <FormField
                         id="guard-edit-representative"

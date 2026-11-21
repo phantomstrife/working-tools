@@ -10,6 +10,10 @@ const escapeHtml = (input: string): string => {
 };
 
 export const buildAttendantTicketEmail = (context: Types.TemplateContext) => {
+   const trimmedSalutation = context.salutation?.trim() || '';
+   const greetingName = [trimmedSalutation, context.fullName.trim()].filter(Boolean).join(' ');
+   const safeGreetingName = escapeHtml(greetingName);
+   const safeSalutation = trimmedSalutation ? escapeHtml(trimmedSalutation) : '—';
    const safeFullName = escapeHtml(context.fullName);
    const safeTicketCode = escapeHtml(context.ticketCode);
    const safeQrPayload = escapeHtml(context.qrCodePayload);
@@ -34,6 +38,10 @@ export const buildAttendantTicketEmail = (context: Types.TemplateContext) => {
                      Vui lòng kiểm tra thông tin tham dự của bạn. Nhấn Xác nhận nếu thông tin đã chính xác, hoặc Thay đổi để chỉnh sửa.
                   </p>
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#ffffff;border:1px solid #e5e5e5;border-radius:6px;margin-bottom:14px;font-size:13px;color:#171717;">
+                     <tr>
+                        <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#737373;width:40%;">Danh xưng</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;font-weight:700;text-align:right;">${safeSalutation}</td>
+                     </tr>
                      <tr>
                         <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#737373;width:40%;">Họ và tên</td>
                         <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;font-weight:700;text-align:right;">${safeFullName}</td>
@@ -83,7 +91,7 @@ export const buildAttendantTicketEmail = (context: Types.TemplateContext) => {
          <tr>
             <td style="padding:24px;">
                <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
-                  Xin chào <strong>${safeFullName}</strong>,
+                  Kính gửi <strong>${safeGreetingName}</strong>,
                </p>
                <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#525252;">
                   Dưới đây là thông tin vé tham dự và mã QR dùng để Check-In tham gia chương trình quay số trúng thưởng của bạn:
@@ -117,13 +125,14 @@ export const buildAttendantTicketEmail = (context: Types.TemplateContext) => {
 </html>`.trim();
 
    const text = [
-      `Xin chào ${context.fullName},`,
+      `Kính gửi ${greetingName},`,
       `Sự kiện: ${context.eventName} - ${context.gameName}`,
       `Mã vé của bạn: ${context.ticketCode}`,
       `Mã QR Check-In: ${context.qrCodePayload}`,
       hasVerificationLinks
          ? 'Vui lòng kiểm tra thông tin tham dự của bạn. Nhấn Xác nhận nếu thông tin đã chính xác, hoặc Thay đổi để chỉnh sửa.'
          : '',
+      hasVerificationLinks ? `Danh xưng: ${trimmedSalutation || '—'}` : '',
       hasVerificationLinks ? `Họ và tên: ${context.fullName}` : '',
       hasVerificationLinks ? `CCCD / CMND: ${context.citizenId?.trim() || '—'}` : '',
       hasVerificationLinks ? `Email: ${context.email?.trim() || '—'}` : '',

@@ -11,7 +11,7 @@ import { useStyle } from './use-style';
 import type * as Types from './type';
 
 export const EventGameOverview: AdminWeb.Component<Types.Properties> = (properties) => {
-   const { events } = properties;
+   const { events, isSuperAdmin = false } = properties;
 
    const { state, func } = useLogic();
    const { root, notify } = useStyle;
@@ -33,7 +33,12 @@ export const EventGameOverview: AdminWeb.Component<Types.Properties> = (properti
             </div>
          )}
 
-         {state.game && state.game.game_type === 'LUCKY_DRAW' && <GameLuckyDrawOverview game={state.game} />}
+         {state.game && state.game.game_type === 'LUCKY_DRAW' && (
+            <GameLuckyDrawOverview
+               game={state.game}
+               isSuperAdmin={isSuperAdmin}
+            />
+         )}
       </div>
    );
 };

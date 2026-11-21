@@ -3,6 +3,7 @@ export type Attendant = AdminWeb.Features.GameLuckyDraw.CheckIn.Attendant;
 export interface Request {
    gameId: string;
    attendantId: string;
+   representativeSalutation?: AdminWeb.Features.GameLuckyDraw.Attendant.Salutation | null;
    representative: string | null;
    representativePhone: string | null;
 }

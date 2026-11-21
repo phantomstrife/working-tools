@@ -261,11 +261,13 @@ export const useStyle = {
       inline_rep_box: 'flex flex-col gap-y-2.5 pt-3 border-t border-utility-300/60',
       inline_rep_grid: 'grid grid-cols-1 sm:grid-cols-2 gap-2.5',
       inline_rep_field: 'flex flex-col gap-y-1 min-w-0',
+      inline_rep_field_full: 'sm:col-span-2 flex flex-col gap-y-1 min-w-0',
       inline_rep_label: 'text-11 font-semibold uppercase tracking-wider text-neutral-600',
       inline_rep_row: 'flex flex-col sm:flex-row items-stretch sm:items-center gap-2',
       inline_rep_input_wrapper:
          'flex-1 flex items-center gap-x-2 px-3 py-2 bg-neutral-50 border border-utility-300 rounded-primary focus-within:border-primary-500 transition-colors min-w-0',
       inline_rep_input: 'w-full min-w-0 text-13 text-neutral-950 bg-transparent placeholder:text-neutral-400',
+      inline_rep_select: 'w-full min-w-0 text-13 text-neutral-950 bg-transparent cursor-pointer',
       inline_actions: 'flex flex-wrap items-center gap-2 pt-1',
       inline_action_btn: themes.inline_action_btn,
       empty: 'flex flex-col items-center justify-center gap-y-2 py-6 text-center text-13 text-neutral-500 bg-neutral-100/70 border border-dashed border-utility-300 rounded-secondary',

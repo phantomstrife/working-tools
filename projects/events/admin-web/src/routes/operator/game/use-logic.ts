@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 import { useTranslate } from '@admin-web/locale';
@@ -10,6 +10,13 @@ import { useStoreSession } from '@admin-web/stores/session';
 
 import type * as Types from './type';
 
+interface GameResolution {
+   gameId: string;
+   status: 'ready' | 'error';
+   game: AdminWeb.Features.Game.AssignedGame | null;
+   errorMessage: string;
+}
+
 export function useLogic() {
    const router = useRouter();
    const params = useParams<Types.Route_Params>();
@@ -19,7 +26,12 @@ export function useLogic() {
       prefix: 'features.operator.placeholder',
    });
 
-   const events = useStoreSession((store) => store.events);
+   const { translate: translateRoot } = useTranslate({
+      prefix: '',
+   });
+
+   const [resolution, setResolution] = useState<GameResolution | null>(null);
+
    const setAuthenticated = useStoreSession((store) => store.setAuthenticated);
    const setAssignments = useStoreSession((store) => store.setAssignments);
    const setLoadingAssignments = useStoreSession((store) => store.setLoadingAssignments);
@@ -34,6 +46,16 @@ export function useLogic() {
       let active = true;
 
       void (async () => {
+         if (!gameId) {
+            setResolution({
+               gameId,
+               status: 'error',
+               game: null,
+               errorMessage: 'services.game_lucky_draw.game_not_found',
+            });
+            return;
+         }
+
          const serviceAccount = await useServicesAccountRead();
 
          if (!active) {
@@ -61,6 +83,12 @@ export function useLogic() {
 
          if (assignmentsResult.error) {
             setLoadingAssignments(false);
+            setResolution({
+               gameId,
+               status: 'error',
+               game: null,
+               errorMessage: assignmentsResult.message,
+            });
             return;
          }
 
@@ -70,14 +98,27 @@ export function useLogic() {
          const matchedEvent = assignedEvents.find((event) =>
             event.games.some((game) => game.id === gameId),
          );
+         const matchedGame = matchedEvent?.games.find((game) => game.id === gameId) ?? null;
 
-         if (!matchedEvent) {
+         if (!matchedEvent || !matchedGame) {
+            setResolution({
+               gameId,
+               status: 'error',
+               game: null,
+               errorMessage: 'services.game_lucky_draw.game_not_found',
+            });
             router.replace(ROUTE.OPERATOR.HOME);
             return;
          }
 
          selectEvent(matchedEvent.id);
          selectGame(gameId);
+         setResolution({
+            gameId,
+            status: 'ready',
+            game: matchedGame,
+            errorMessage: '',
+         });
       })();
 
       return () => {
@@ -94,13 +135,22 @@ export function useLogic() {
       setUnauthenticated,
    ]);
 
-   const selectedEvent = events.find((event) => event.games.some((game) => game.id === gameId)) ?? null;
-   const selectedGame = selectedEvent?.games.find((game) => game.id === gameId) ?? null;
-   const gameType = selectedGame?.game_type ?? 'LUCKY_DRAW';
+   const isCurrentGameResolved = resolution?.gameId === gameId;
+   const resolvedGame =
+      isCurrentGameResolved && resolution.status === 'ready' && resolution.game?.id === gameId
+         ? resolution.game
+         : null;
+   const isResolving = !isCurrentGameResolved;
+   const rawErrorMessage =
+      isCurrentGameResolved && resolution.status === 'error' ? resolution.errorMessage : '';
+   const errorMessage = rawErrorMessage.startsWith('services.')
+      ? translateRoot(rawErrorMessage)
+      : rawErrorMessage;
+   const gameType = resolvedGame?.game_type ?? null;
 
    useEffect(() => {
-      if (gameId && gameType === 'LUCKY_DRAW') {
-         void loadGameData(gameId);
+      if (resolvedGame && resolvedGame.game_type === 'LUCKY_DRAW') {
+         void loadGameData(resolvedGame.id);
       } else {
          void loadGameData('');
       }
@@ -108,13 +158,14 @@ export function useLogic() {
       return () => {
          cleanupRealtime();
       };
-   }, [cleanupRealtime, gameId, gameType, loadGameData]);
+   }, [cleanupRealtime, loadGameData, resolvedGame]);
 
    return {
       param: {
          gameId,
-         selectedEvent,
-         selectedGame,
+         resolvedGame,
+         isResolving,
+         errorMessage,
          gameType,
       },
       func: {

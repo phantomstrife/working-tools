@@ -11,8 +11,10 @@ export const PRIZE_COLUMNS = [
 
 export const PARTICIPANT_COLUMNS = [
    'id',
+   'salutation',
    'full_name',
    'phone',
+   'representative_salutation',
    'representative',
    'representative_phone',
    'ticket_code',
@@ -30,8 +32,10 @@ export const WINNER_COLUMNS = `
    won_at,
    attendant:lucky_draw_attendants!lucky_draw_winners_attendant_id_fkey (
       id,
+      salutation,
       full_name,
       phone,
+      representative_salutation,
       representative,
       representative_phone,
       ticket_code,

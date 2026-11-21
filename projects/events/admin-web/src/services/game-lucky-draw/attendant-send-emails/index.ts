@@ -65,6 +65,7 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
 
       const attendants: Array<{
          id: string;
+         salutation: string | null;
          full_name: string;
          citizen_id: string | null;
          phone: string | null;
@@ -80,7 +81,9 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
          while (true) {
             const query = await supabase
                .from('lucky_draw_attendants')
-               .select('id, full_name, citizen_id, phone, ticket_code, email, qr_code_payload, accommodation')
+               .select(
+                  'id, salutation, full_name, citizen_id, phone, ticket_code, email, qr_code_payload, accommodation',
+               )
                .eq('game_id', request.gameId)
                .range(offset, offset + FETCH_PAGE_SIZE - 1);
 
@@ -102,7 +105,9 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
             const idChunk = uniqueIds.slice(i, i + UPDATE_CHUNK_SIZE);
             const query = await supabase
                .from('lucky_draw_attendants')
-               .select('id, full_name, citizen_id, phone, ticket_code, email, qr_code_payload, accommodation')
+               .select(
+                  'id, salutation, full_name, citizen_id, phone, ticket_code, email, qr_code_payload, accommodation',
+               )
                .eq('game_id', request.gameId)
                .in('id', idChunk);
 
@@ -162,6 +167,7 @@ export const useServicesGameLuckyDrawAttendantSendEmails: Types.Service = async 
                const editUrl = `${vipBasePath}?token=${encodedToken}&action=edit`;
 
                const content = buildAttendantTicketEmail({
+                  salutation: attendant.salutation,
                   fullName: attendant.full_name,
                   citizenId: attendant.citizen_id,
                   email: attendant.email,

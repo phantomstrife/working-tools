@@ -10,10 +10,24 @@ export const PageOperatorGame: AdminWeb.Router.Page = () => {
    const { param, func } = useLogic();
    const { stage } = useStyle;
 
+   if (param.isResolving) {
+      return <div className={stage.loading} />;
+   }
+
+   if (!param.resolvedGame) {
+      return (
+         <div className={stage.unsupported}>
+            <span className={stage.badge}>{func.translate('badge')}</span>
+            <h2 className={stage.title}>{func.translate('no_game')}</h2>
+            {param.errorMessage && <p className={stage.description}>{param.errorMessage}</p>}
+         </div>
+      );
+   }
+
    const renderGameStage = () => {
       switch (param.gameType) {
          case 'LUCKY_DRAW': {
-            return <GameLuckyDrawInterface game={param.selectedGame} />;
+            return <GameLuckyDrawInterface game={param.resolvedGame} />;
          }
 
          default: {

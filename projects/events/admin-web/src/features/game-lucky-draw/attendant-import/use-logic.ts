@@ -91,12 +91,15 @@ export function useLogic(properties: Types.Properties) {
    const handleDownloadTemplate = () => {
       const sampleCsv = stringifyCsv(SAMPLE_CSV_ROWS, [
          { header: 'citizen_id', getValue: (row) => row.citizen_id },
+         { header: 'salutation', getValue: (row) => row.salutation },
          { header: 'full_name', getValue: (row) => row.full_name },
          { header: 'ticket_code', getValue: (row) => row.ticket_code },
          { header: 'email', getValue: (row) => row.email },
          { header: 'phone', getValue: (row) => row.phone },
          { header: 'company_name', getValue: (row) => row.company_name },
          { header: 'department', getValue: (row) => row.department },
+         { header: 'representative_salutation', getValue: (row) => row.representative_salutation },
+         { header: 'sale_in_charge', getValue: (row) => row.sale_in_charge },
          { header: 'accommodation', getValue: (row) => row.accommodation },
       ]);
 

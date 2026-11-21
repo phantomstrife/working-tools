@@ -2,6 +2,7 @@
 
 import { getAdminClient } from '@admin-web/adapters/supabase/admin';
 import { getServerClient } from '@admin-web/adapters/supabase/server';
+import { normalizeSalutation } from '@admin-web/services/game-lucky-draw/attendant-import-csv/constants';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
 import { ATTENDANT_COLUMNS } from './constants';
@@ -11,11 +12,19 @@ import type * as Types from './type';
 const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = ['GUARD', 'ADMIN', 'SUPER_ADMIN'];
 
 export const useServicesGameLuckyDrawGuardAttendantUpdateRepresentative: Types.Service = async (request) => {
-   const { gameId, attendantId, representative, representativePhone } = request;
+   const { gameId, attendantId, representativeSalutation, representative, representativePhone } = request;
 
    const result = await trycatchAsync(async () => {
       const normalizedRepresentative = representative?.trim() || null;
       const normalizedRepresentativePhone = representativePhone?.trim() || null;
+      const hasRepresentativeSalutationField = representativeSalutation !== undefined;
+      const parsedRepresentativeSalutation = hasRepresentativeSalutationField
+         ? normalizeSalutation(representativeSalutation)
+         : undefined;
+
+      if (parsedRepresentativeSalutation === 'invalid') {
+         throw new Error('services.game_lucky_draw.attendant.invalid_representative_salutation');
+      }
 
       if (!gameId || !attendantId) {
          throw new Error('services.game_lucky_draw.attendant.not_found');
@@ -109,7 +118,14 @@ export const useServicesGameLuckyDrawGuardAttendantUpdateRepresentative: Types.S
          throw new Error('services.game_lucky_draw.attendant.not_found');
       }
 
+      const nextRepresentativeSalutation = hasRepresentativeSalutationField
+         ? (parsedRepresentativeSalutation ?? null)
+         : current.data.representative_salutation;
+      const representativeSalutationChanged =
+         hasRepresentativeSalutationField &&
+         nextRepresentativeSalutation !== current.data.representative_salutation;
       const representativeChanged =
+         representativeSalutationChanged ||
          normalizedRepresentative !== current.data.representative ||
          normalizedRepresentativePhone !== current.data.representative_phone;
 
@@ -122,6 +138,7 @@ export const useServicesGameLuckyDrawGuardAttendantUpdateRepresentative: Types.S
          .update({
             representative: normalizedRepresentative,
             representative_phone: normalizedRepresentativePhone,
+            ...(representativeSalutationChanged ? { representative_salutation: nextRepresentativeSalutation } : {}),
          })
          .eq('id', attendantId)
          .eq('game_id', gameId)
@@ -137,6 +154,13 @@ export const useServicesGameLuckyDrawGuardAttendantUpdateRepresentative: Types.S
       }
 
       const changes: Record<string, { from: string | null; to: string | null }> = {};
+
+      if (representativeSalutationChanged) {
+         changes.representative_salutation = {
+            from: current.data.representative_salutation,
+            to: nextRepresentativeSalutation,
+         };
+      }
 
       if (normalizedRepresentative !== current.data.representative) {
          changes.representative = {

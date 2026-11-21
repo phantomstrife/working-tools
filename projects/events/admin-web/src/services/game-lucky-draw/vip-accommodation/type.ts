@@ -1,5 +1,6 @@
 export interface VipAttendantInfo {
    id: string;
+   salutation: string | null;
    full_name: string;
    citizen_id: string | null;
    email: string | null;
@@ -23,6 +24,7 @@ export interface ConfirmRequest {
 
 export interface UpdateRequest {
    token: string;
+   salutation?: AdminWeb.Features.GameLuckyDraw.Attendant.Salutation | null;
    full_name: string;
    citizen_id?: string | null;
    email?: string | null;

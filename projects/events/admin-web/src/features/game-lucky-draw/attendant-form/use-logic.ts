@@ -8,11 +8,12 @@ import { useTranslate } from '@admin-web/locale';
 import { useServicesGameLuckyDrawAttendantHistorySearch } from '@admin-web/services/game-lucky-draw/attendant-history-search';
 import { useServicesGameLuckyDrawAttendantSave } from '@admin-web/services/game-lucky-draw/attendant-save';
 
-import { schema } from './constants';
+import { SALUTATION_OPTIONS, schema } from './constants';
 
 import type * as Types from './type';
 
 const getInitialValues = (attendant?: Types.Attendant | null): Types.FormValues => ({
+   salutation: (attendant?.salutation as Types.Salutation | null) ?? '',
    full_name: attendant?.full_name ?? '',
    citizen_id: attendant?.citizen_id ?? '',
    ticket_code: attendant?.ticket_code ?? '',
@@ -20,6 +21,9 @@ const getInitialValues = (attendant?: Types.Attendant | null): Types.FormValues 
    phone: attendant?.phone ?? '',
    company_name: attendant?.company_name ?? '',
    department: attendant?.department ?? '',
+   representative_salutation: (attendant?.representative_salutation as Types.Salutation | null) ?? '',
+   representative: attendant?.representative ?? '',
+   representative_phone: attendant?.representative_phone ?? '',
    sale_in_charge: attendant?.sale_in_charge ?? '',
    accommodation: Boolean(attendant?.accommodation),
 });
@@ -114,6 +118,7 @@ export function useLogic(properties: Types.Properties) {
          const saveResult = await useServicesGameLuckyDrawAttendantSave({
             id: attendant?.id,
             gameId,
+            salutation: (values.salutation || null) as Types.Salutation | null,
             full_name: values.full_name,
             citizen_id: values.citizen_id || null,
             ticket_code: values.ticket_code,
@@ -121,6 +126,9 @@ export function useLogic(properties: Types.Properties) {
             phone: values.phone || null,
             company_name: values.company_name || null,
             department: values.department || null,
+            representative_salutation: (values.representative_salutation || null) as Types.Salutation | null,
+            representative: values.representative || null,
+            representative_phone: values.representative_phone || null,
             sale_in_charge: values.sale_in_charge || null,
             accommodation: Boolean(values.accommodation),
          });
@@ -144,6 +152,7 @@ export function useLogic(properties: Types.Properties) {
       param: {
          mode,
          attendant,
+         salutationOptions: SALUTATION_OPTIONS,
          isPending,
          isSubmitDisabled: isPending || (mode === 'edit' && !formState.isDirty),
          errors: formState.errors,

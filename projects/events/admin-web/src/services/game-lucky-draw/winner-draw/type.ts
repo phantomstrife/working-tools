@@ -6,7 +6,9 @@ export type Prize = Pick<
 export type Attendant = Pick<
    AdminWeb.Database.GameLuckyDrawAttendant,
    | 'id'
+   | 'salutation'
    | 'full_name'
+   | 'representative_salutation'
    | 'representative'
    | 'representative_phone'
    | 'ticket_code'

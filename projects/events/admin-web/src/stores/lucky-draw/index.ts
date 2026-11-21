@@ -12,6 +12,7 @@ import type * as Types from './type';
 
 let realtimeChannel: RealtimeChannel | null = null;
 let autoStopTimeouts: number[] = [];
+let drawSequenceId = 0;
 
 const clearAutoStopTimers = () => {
    autoStopTimeouts.forEach((timerId) => window.clearTimeout(timerId));
@@ -57,12 +58,16 @@ function triggerFireworks(): void {
 }
 
 export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
-   const scheduleAutoReelStops = (totalReels: number) => {
+   const scheduleAutoReelStops = (totalReels: number, initialDelayMs: number, expectedSeq: number) => {
       clearAutoStopTimers();
 
       for (let step = 1; step <= totalReels; step += 1) {
-         const delay = AUTO_INITIAL_DELAY_MS + (step - 1) * AUTO_REEL_STEP_MS;
+         const delay = initialDelayMs + (step - 1) * AUTO_REEL_STEP_MS;
          const timerId = window.setTimeout(() => {
+            if (expectedSeq !== drawSequenceId) {
+               return;
+            }
+
             const isFinal = step >= totalReels;
 
             set({
@@ -83,7 +88,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       const state = get();
       const currentPrize = state.prizes[state.currentPrizeIndex] ?? null;
 
-      if (!state.gameId || !currentPrize || state.isDrawingRequest || state.isLoadingGame) {
+      if (!state.gameId || !currentPrize || state.isDrawingRequest || state.isLoadingGame || state.isSpinning) {
          return;
       }
 
@@ -91,12 +96,40 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
          return;
       }
 
-      if (state.isSpinning && state.drawMode !== 'instant') {
+      const revokedAttendantFromRecord = revokeWinnerRecordId
+         ? (state.winners.find((item) => item.id === revokeWinnerRecordId)?.attendantId ?? null)
+         : null;
+      const excludedSet = new Set<string>([
+         ...state.forfeitedAttendantIds,
+         ...(revokedAttendantFromRecord ? [revokedAttendantFromRecord] : []),
+      ]);
+      const hasEligibleParticipant = state.participants.some(
+         (participant) => !participant.hasWon && !participant.isAbsentForfeited && !excludedSet.has(participant.id),
+      );
+
+      if (!hasEligibleParticipant) {
+         set({
+            notice: {
+               kind: 'error',
+               text: 'services.game_lucky_draw.draw.no_eligible_attendants',
+            },
+         });
          return;
       }
 
+      // Immediately start spinning on frame 1 before awaiting the draw API.
       clearAutoStopTimers();
+      drawSequenceId += 1;
+      const currentSeq = drawSequenceId;
+      const spinStartedAt = Date.now();
+      const spinningPlaceholder = buildPlaceholderCode(state.participants);
+
       set({
+         winnerId: spinningPlaceholder,
+         activeWinnerId: null,
+         activeWinnerRecordId: null,
+         stoppedReels: 0,
+         queuedManualStops: 0,
          isSpinning: true,
          isDrawingRequest: true,
          notice: null,
@@ -109,8 +142,19 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
          excludeAttendantIds: state.forfeitedAttendantIds,
       });
 
+      // Discard stale responses if the operator switched prize/game or left the page mid-spin.
+      if (currentSeq !== drawSequenceId) {
+         return;
+      }
+
       if (serviceDraw.error) {
+         clearAutoStopTimers();
          set({
+            winnerId: buildPlaceholderCode(get().participants),
+            activeWinnerId: null,
+            activeWinnerRecordId: null,
+            stoppedReels: 0,
+            queuedManualStops: 0,
             isDrawingRequest: false,
             isSpinning: false,
             notice: {
@@ -141,7 +185,9 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       const existingParticipants = get().participants;
       const hasParticipant = existingParticipants.some((item) => item.id === attendant.id);
 
+      const salutation = attendant.salutation?.trim() || null;
       const phone = attendant.phone?.trim() || null;
+      const representativeSalutation = attendant.representative_salutation?.trim() || null;
       const representative = attendant.representative?.trim() || null;
       const representativePhone = attendant.representative_phone?.trim() || null;
 
@@ -153,8 +199,10 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
                  {
                     id: attendant.id,
                     ticketCode: attendant.ticket_code,
+                    salutation,
                     name: attendant.full_name,
                     phone,
+                    representativeSalutation,
                     representative,
                     representativePhone,
                     companyName: attendant.company_name,
@@ -165,7 +213,15 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
               ]
       ).map((item) => {
          if (item.id === attendant.id) {
-            return { ...item, phone, representative, representativePhone, hasWon: true };
+            return {
+               ...item,
+               salutation,
+               phone,
+               representativeSalutation,
+               representative,
+               representativePhone,
+               hasWon: true,
+            };
          }
 
          if (revokedAttendantId && item.id === revokedAttendantId) {
@@ -184,8 +240,10 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
          prizeId: winner.prize_id,
          attendantId: attendant.id,
          ticketCode: attendant.ticket_code,
+         salutation,
          name: attendant.full_name,
          phone,
+         representativeSalutation,
          representative,
          representativePhone,
          companyName: attendant.company_name,
@@ -193,7 +251,54 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
          wonAt: winner.won_at,
       };
 
-      const isInstant = get().drawMode === 'instant';
+      const latestState = get();
+      const mode = latestState.drawMode;
+      const queuedStops = latestState.queuedManualStops;
+
+      if (mode === 'instant') {
+         set({
+            prizes: updatedPrizes,
+            participants: updatedParticipants,
+            winners: [...filteredWinners, nextWinnerEntry],
+            forfeitedAttendantIds: nextForfeitedIds,
+            winnerId: ticketCode,
+            activeWinnerId: ticketCode,
+            activeWinnerRecordId: winner.id,
+            isDrawingRequest: false,
+            isSpinning: false,
+            stoppedReels: ticketCode.length,
+            queuedManualStops: 0,
+         });
+         triggerFireworks();
+         return;
+      }
+
+      if (mode === 'manual' || queuedStops > 0) {
+         const initialStopped = Math.min(ticketCode.length, queuedStops);
+         const isFinal = initialStopped >= ticketCode.length;
+
+         set({
+            prizes: updatedPrizes,
+            participants: updatedParticipants,
+            winners: [...filteredWinners, nextWinnerEntry],
+            forfeitedAttendantIds: nextForfeitedIds,
+            winnerId: ticketCode,
+            activeWinnerId: ticketCode,
+            activeWinnerRecordId: winner.id,
+            isDrawingRequest: false,
+            isSpinning: !isFinal,
+            stoppedReels: initialStopped,
+            queuedManualStops: 0,
+         });
+
+         if (isFinal) {
+            triggerFireworks();
+         }
+         return;
+      }
+
+      const elapsedMs = Date.now() - spinStartedAt;
+      const remainingInitialDelayMs = Math.max(0, AUTO_INITIAL_DELAY_MS - elapsedMs);
 
       set({
          prizes: updatedPrizes,
@@ -204,15 +309,12 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
          activeWinnerId: ticketCode,
          activeWinnerRecordId: winner.id,
          isDrawingRequest: false,
-         isSpinning: !isInstant,
-         stoppedReels: isInstant ? ticketCode.length : 0,
+         isSpinning: true,
+         stoppedReels: 0,
+         queuedManualStops: 0,
       });
 
-      if (isInstant) {
-         triggerFireworks();
-      } else if (get().drawMode === 'auto') {
-         scheduleAutoReelStops(ticketCode.length);
-      }
+      scheduleAutoReelStops(ticketCode.length, remainingInitialDelayMs, currentSeq);
    };
 
    return {
@@ -230,12 +332,14 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       isLoadingGame: false,
       isRealtimeConnected: false,
       stoppedReels: 0,
+      queuedManualStops: 0,
       drawMode: 'auto',
       showWinners: false,
       hideHud: false,
       notice: null,
 
       cleanupRealtime: () => {
+         drawSequenceId += 1;
          clearAutoStopTimers();
 
          if (realtimeChannel) {
@@ -243,10 +347,16 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
             realtimeChannel = null;
          }
 
-         set({ isRealtimeConnected: false });
+         set({
+            isRealtimeConnected: false,
+            isSpinning: false,
+            isDrawingRequest: false,
+            queuedManualStops: 0,
+         });
       },
 
       loadGameData: async (gameId) => {
+         drawSequenceId += 1;
          clearAutoStopTimers();
 
          if (!gameId) {
@@ -265,6 +375,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
                isDrawingRequest: false,
                isLoadingGame: false,
                stoppedReels: 0,
+               queuedManualStops: 0,
                notice: null,
             });
             return;
@@ -275,6 +386,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
          set({
             gameId,
             isLoadingGame: true,
+            queuedManualStops: 0,
             notice: null,
          });
 
@@ -310,6 +422,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
             isDrawingRequest: false,
             isLoadingGame: false,
             stoppedReels: 0,
+            queuedManualStops: 0,
          });
 
          if (realtimeChannel) {
@@ -344,6 +457,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       },
 
       setCurrentPrize: (index) => {
+         drawSequenceId += 1;
          clearAutoStopTimers();
          const placeholder = buildPlaceholderCode(get().participants);
 
@@ -353,7 +467,9 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
             activeWinnerId: null,
             activeWinnerRecordId: null,
             isSpinning: false,
+            isDrawingRequest: false,
             stoppedReels: 0,
+            queuedManualStops: 0,
             notice: null,
          });
       },
@@ -387,7 +503,16 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
       handleManualStop: () => {
          const state = get();
 
-         if (!state.isSpinning) {
+         if (!state.isSpinning || state.drawMode === 'instant') {
+            return;
+         }
+
+         // Queue early manual stop presses while the draw API is still in-flight so no click is lost
+         // and reels never lock onto placeholder characters.
+         if (state.isDrawingRequest || !state.activeWinnerId) {
+            set({
+               queuedManualStops: state.queuedManualStops + 1,
+            });
             return;
          }
 

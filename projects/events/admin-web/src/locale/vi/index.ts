@@ -124,7 +124,7 @@ export const vi = {
                create_game_title: 'Tạo trò chơi mới',
                create_game_description: 'Khởi tạo trò chơi tương tác mới thuộc sự kiện của công ty.',
                edit_game_title: 'Cập nhật trò chơi',
-               edit_game_description: 'Chỉnh sửa tên, trạng thái hoặc mô tả của trò chơi.',
+               edit_game_description: 'Chỉnh sửa tên, trạng thái, giao diện hoặc mô tả của trò chơi.',
                delete_game_title: 'Xác nhận xóa trò chơi',
                delete_game_description: 'Hành động này không thể hoàn tác.',
                delete_game_message: 'Bạn có chắc chắn muốn xóa trò chơi "{{name}}" khỏi sự kiện này không?',
@@ -205,6 +205,9 @@ export const vi = {
                status: {
                   label: 'Trạng thái trò chơi',
                },
+               theme: {
+                  label: 'Giao diện trò chơi (Theme)',
+               },
                description: {
                   label: 'Mô tả trò chơi',
                   placeholder: 'Ghi chú thể lệ hoặc mô tả ngắn về trò chơi...',
@@ -212,6 +215,10 @@ export const vi = {
             },
             game_types: {
                LUCKY_DRAW: 'Quay số trúng thưởng (LUCKY DRAW)',
+            },
+            themes: {
+               'theme-02': 'Giao diện 02 — Mặc định cũ',
+               'theme-03': 'Giao diện 03 — Màn hình LED 7.2m × 2.6m',
             },
             statuses: {
                PENDING: 'Chờ cấu hình (PENDING)',
@@ -240,6 +247,7 @@ export const vi = {
          overview: {
             prize: 'Giải thưởng',
             staff: 'Nhân viên',
+            reset_game: 'Đặt lại dữ liệu game',
          },
       },
       lucky_draw: {
@@ -281,6 +289,7 @@ export const vi = {
                headers: {
                   citizen_id: 'CCCD / CMND',
                   full_name: 'Họ và tên',
+                  salutation: 'Danh xưng',
                   representative: 'Người đại diện',
                   representative_phone: 'SĐT đại diện',
                   phone: 'Số điện thoại',
@@ -340,6 +349,10 @@ export const vi = {
                history: 'Lịch sử chỉnh sửa',
             },
             fields: {
+               salutation: {
+                  label: 'Danh xưng',
+                  placeholder: '-- Chọn danh xưng --',
+               },
                full_name: {
                   label: 'Họ và tên',
                   placeholder: 'Ví dụ: Nguyễn Văn A',
@@ -367,6 +380,18 @@ export const vi = {
                department: {
                   label: 'Phòng ban',
                   placeholder: 'Ví dụ: Kỹ thuật',
+               },
+               representative_salutation: {
+                  label: 'Danh xưng người đại diện',
+                  placeholder: '-- Chọn danh xưng --',
+               },
+               representative: {
+                  label: 'Người đại diện',
+                  placeholder: 'Ví dụ: Trần Văn B',
+               },
+               representative_phone: {
+                  label: 'SĐT người đại diện',
+                  placeholder: '0909876543',
                },
                sale_in_charge: {
                   label: 'Sale phụ trách',
@@ -406,10 +431,12 @@ export const vi = {
                   GUARD_EDIT: 'Cổng Guard',
                },
                fields: {
+                  salutation: 'Danh xưng',
                   full_name: 'Họ và tên',
                   citizen_id: 'CCCD / CMND',
                   email: 'Email',
                   phone: 'Số điện thoại',
+                  representative_salutation: 'Danh xưng người đại diện',
                   representative: 'Người đại diện',
                   representative_phone: 'SĐT người đại diện',
                },
@@ -437,6 +464,9 @@ export const vi = {
                row_prefix: 'Dòng {{row}}',
                reasons: {
                   missing_required_fields: 'Thiếu họ tên (full_name) hoặc mã vé (ticket_code)',
+                  invalid_salutation: 'Giá trị danh xưng không hợp lệ (chỉ nhận Anh, Chị, Ông, Bà)',
+                  invalid_representative_salutation:
+                     'Giá trị danh xưng đại diện không hợp lệ (chỉ nhận Anh, Chị, Ông, Bà)',
                   invalid_email: 'Định dạng email không hợp lệ',
                   invalid_accommodation: 'Giá trị accommodation không hợp lệ (chỉ nhận true hoặc false)',
                   duplicate_in_file: 'Trùng mã vé trong cùng tệp CSV',
@@ -475,6 +505,7 @@ export const vi = {
             },
             summary: {
                title: 'Thông tin khách tham dự',
+               salutation: 'Danh xưng',
                full_name: 'Họ và tên',
                citizen_id: 'Số CCCD / CMND',
                email: 'Email',
@@ -484,6 +515,10 @@ export const vi = {
                title: 'Cập nhật thông tin khách tham dự',
                description: 'Vui lòng kiểm tra và chỉnh sửa thông tin cá nhân nếu có thay đổi.',
                fields: {
+                  salutation: {
+                     label: 'Danh xưng',
+                     placeholder: '-- Chọn danh xưng --',
+                  },
                   full_name: {
                      label: 'Họ và tên',
                      placeholder: 'Nhập họ và tên',
@@ -687,6 +722,38 @@ export const vi = {
                edit_success: 'Cập nhật thông tin nhân sự thành công.',
             },
          },
+         game_reset: {
+            modal: {
+               title: 'Đặt lại dữ liệu trò chơi',
+               description: 'Công cụ dành riêng cho SUPER_ADMIN để làm sạch dữ liệu quay số trước khi chạy lại.',
+               target_game: 'Trò chơi áp dụng',
+               default_scope_title: 'Luôn thực hiện mặc định',
+               default_scope_winners: 'Xóa toàn bộ lịch sử trúng giải (lucky_draw_winners)',
+               default_scope_attendants:
+                  'Đặt lại trạng thái trúng giải & vắng mặt của khách (has_won = false, xóa is_absent_forfeited)',
+               default_scope_prizes:
+                  'Khôi phục số lượng còn lại của tất cả giải thưởng (remaining_quantity = total_quantity)',
+               optional_title: 'Tùy chọn bổ sung',
+               reset_check_ins_label: 'Đặt lại trạng thái Check-in',
+               reset_check_ins_hint:
+                  'Đưa toàn bộ khách tham dự về trạng thái chưa check-in (xóa thời gian & phương thức check-in).',
+               delete_attendants_label: 'Xóa toàn bộ danh sách khách tham dự',
+               delete_attendants_hint: 'Xóa vĩnh viễn tất cả bản ghi khách tham dự của trò chơi này.',
+               delete_attendants_warning:
+                  'Cảnh báo: Toàn bộ khách tham dự của trò chơi này sẽ bị xóa vĩnh viễn và không thể khôi phục. Bạn sẽ cần nhập lại danh sách mới trước khi quay số.',
+            },
+            actions: {
+               cancel: 'Hủy',
+               confirm_saving_false: 'Xác nhận đặt lại',
+               confirm_saving_true: 'Đang đặt lại...',
+            },
+            toast: {
+               success_reset:
+                  'Đã đặt lại dữ liệu game: xóa {{winners}} lượt trúng giải, khôi phục {{prizes}} giải thưởng, đặt lại {{attendants}} khách.',
+               success_deleted:
+                  'Đã xóa dữ liệu game: xóa {{winners}} lượt trúng giải, khôi phục {{prizes}} giải thưởng, xóa {{attendants}} khách tham dự.',
+            },
+         },
       },
       guard: {
          check_in: {
@@ -754,6 +821,8 @@ export const vi = {
             edit_modal: {
                title: 'Cập nhật người đại diện',
                description: 'Nhân viên kiểm soát chỉ được phép chỉnh sửa thông tin người đại diện.',
+               representative_salutation_label: 'Danh xưng người đại diện',
+               representative_salutation_placeholder: '-- Không chọn --',
                field_label: 'Người đại diện',
                field_placeholder: 'Nhập họ tên người đại diện (để trống nếu xóa)...',
                phone_label: 'SĐT người đại diện',
@@ -773,6 +842,8 @@ export const vi = {
                error_title: 'KHÔNG THỂ CHECK-IN',
                ticket_label: 'Mã vé',
                company_label: 'Đơn vị',
+               representative_salutation_label: 'Danh xưng người đại diện',
+               representative_salutation_placeholder: '-- Không chọn --',
                representative_label: 'Người đại diện',
                representative_placeholder: 'Nhập họ tên người đại diện (nếu có)...',
                representative_phone_label: 'SĐT người đại diện',
@@ -830,6 +901,14 @@ export const vi = {
             ready: 'Sẵn sàng',
             all_awarded: 'Đã trao hết',
             remaining_count: 'Còn lại {{remaining}}/{{total}}',
+            theme_03: {
+               standby_status: 'VÒNG QUAY ĐÃ SẴN SÀNG',
+               drawing_status: 'ĐANG TÌM CHỦ NHÂN GIẢI THƯỞNG',
+               winner_status: 'CHÚC MỪNG KHÁCH MỜI MAY MẮN',
+               select_prize_status: 'VUI LÒNG CHỌN GIẢI THƯỞNG',
+               prize_exhausted_status: 'GIẢI THƯỞNG ĐÃ ĐƯỢC TRAO HẾT',
+               close_winner_overlay: 'Đóng thông báo trúng thưởng',
+            },
          },
          controls: {
             title: 'Bảng Điều Khiển Quay Số',
@@ -988,6 +1067,8 @@ export const vi = {
          attendant: {
             not_found: 'Không tìm thấy người tham dự.',
             missing_required_fields: 'Vui lòng nhập đầy đủ Họ tên và Mã vé.',
+            invalid_salutation: 'Danh xưng không hợp lệ (chỉ chấp nhận Anh, Chị, Ông hoặc Bà).',
+            invalid_representative_salutation: 'Danh xưng đại diện không hợp lệ (chỉ chấp nhận Anh, Chị, Ông hoặc Bà).',
             duplicate_ticket_code: 'Mã vé này đã tồn tại trong trò chơi. Vui lòng sử dụng mã vé khác.',
             save_failed: 'Không thể lưu thông tin người tham dự.',
             csv_empty: 'Tệp CSV trống hoặc không có dòng dữ liệu nào.',
@@ -1015,6 +1096,9 @@ export const vi = {
             no_eligible_attendants: 'Không còn khách tham dự đủ điều kiện (đã check-in) để quay số.',
             draw_conflict: 'Có xung đột dữ liệu khi lưu kết quả quay số. Vui lòng thử lại.',
             failed: 'Không thể thực hiện quay số. Vui lòng thử lại.',
+         },
+         game_reset: {
+            forbidden: 'Chỉ Quản trị hệ thống (SUPER_ADMIN) mới có quyền đặt lại dữ liệu trò chơi.',
          },
       },
       user: {

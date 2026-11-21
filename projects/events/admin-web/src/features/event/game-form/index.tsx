@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, Calendar, FileText, Gamepad2, Sparkles } from 'lucide-react';
+import { Activity, Calendar, FileText, Gamepad2, Palette, Sparkles } from 'lucide-react';
 
 import { FormField } from '@admin-web/components/form-field';
 import { modalFormStyle } from '@admin-web/components/modal/form-style';
@@ -102,6 +102,31 @@ export const GameForm: AdminWeb.Component<Types.Properties> = (properties) => {
                   ))}
                </select>
             </FormField>
+
+            {param.isLuckyDraw && (
+               <FormField
+                  id="game-theme"
+                  className={full_span}
+                  Icon={Palette}
+                  label={func.translate('fields.theme.label')}
+                  required
+                  error={param.errors.theme?.message}
+               >
+                  <select
+                     id="game-theme"
+                     {...func.register('theme')}
+                  >
+                     {param.themeOptions.map((themeOption) => (
+                        <option
+                           key={themeOption}
+                           value={themeOption}
+                        >
+                           {func.translate(`themes.${themeOption}`)}
+                        </option>
+                     ))}
+                  </select>
+               </FormField>
+            )}
 
             <FormField
                id="game-description"

@@ -14,6 +14,7 @@ export interface Response {
 }
 
 export interface TemplateContext {
+   salutation?: string | null;
    fullName: string;
    citizenId?: string | null;
    email?: string | null;

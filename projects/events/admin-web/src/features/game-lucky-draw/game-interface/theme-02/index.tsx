@@ -3,7 +3,7 @@
 import { Maximize2, Minimize2 } from 'lucide-react';
 
 import { SoldOutStamp } from '@admin-web/components/sold-out-stamp';
-import { SlotReel } from '@admin-web/features/game-lucky-draw/game-interface/slot-reel';
+import { SlotReel01 } from '@admin-web/features/game-lucky-draw/game-interface/slot-reel-01';
 
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
@@ -93,9 +93,8 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
                   ) : (
                      <ul className={winnersList()}>
                         {param.prizeWinners.map((w, idx) => {
-                           const resolvedPhone = w.representative
-                              ? w.representativePhone || w.phone
-                              : w.phone;
+                           const resolvedName = func.resolveEffectiveAttendeeName(w);
+                           const resolvedPhone = w.representativePhone || w.phone;
 
                            return (
                               <li
@@ -105,7 +104,7 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
                                  <div className={winnerItemLeft()}>
                                     <span className={winnerIndex()}>#{idx + 1}</span>
                                     <div className={winnerNameBlock()}>
-                                       <span className={winnerNameText()}>{w.representative || w.name}</span>
+                                       <span className={winnerNameText()}>{resolvedName}</span>
                                        {w.companyName && <span className={winnerOrgText()}>{w.companyName}</span>}
                                        {resolvedPhone && <span className={winnerPhoneText()}>{resolvedPhone}</span>}
                                     </div>
@@ -159,7 +158,7 @@ export const LuckyDrawBoard: AdminWeb.Component<object> = () => {
                   style={{ backgroundImage: `url(${param.resultBar})` }}
                >
                   {param.winnerChars.map((char, index) => (
-                     <SlotReel
+                     <SlotReel01
                         key={index}
                         targetChar={char}
                         isSpinning={param.isSpinning && index >= param.stoppedReels}

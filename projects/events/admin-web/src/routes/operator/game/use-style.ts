@@ -1,5 +1,6 @@
 export const useStyle = {
    stage: {
+      loading: 'w-screen h-screen bg-neutral-950',
       wrapper: 'relative w-full min-h-screen bg-neutral-950 overflow-hidden',
       unsupported:
          'flex flex-col items-center justify-center gap-y-primary min-h-screen px-secondary text-center text-neutral-100 bg-neutral-950',

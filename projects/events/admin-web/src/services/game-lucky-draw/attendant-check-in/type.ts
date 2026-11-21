@@ -12,6 +12,7 @@ export interface Request {
    qrCodePayload?: string;
    attendantId?: string;
    searchQuery?: string;
+   representativeSalutation?: AdminWeb.Features.GameLuckyDraw.Attendant.Salutation | null;
    representative?: string | null;
    representativePhone?: string | null;
 }

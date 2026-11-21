@@ -14,6 +14,7 @@ import {
    CAMERA_SCAN_INTERVAL_MS,
    MODAL_ID,
    RECENT_HISTORY_LIMIT,
+   SALUTATION_OPTIONS,
    SEARCH_DEBOUNCE_MS,
 } from './constants';
 
@@ -111,9 +112,11 @@ export function useLogic(
       searchResults: [],
       checkingInAttendantId: '',
       editingAttendant: null,
+      representativeSalutationInput: '',
       representativeInput: '',
       representativePhoneInput: '',
       isSavingRepresentative: false,
+      previewRepresentativeSalutationInput: '',
       previewRepresentativeInput: '',
       previewRepresentativePhoneInput: '',
       isConfirmingCheckIn: false,
@@ -198,6 +201,9 @@ export function useLogic(
          qrCodePayload?: string,
       ) => {
          const now = Date.now();
+         const displayName = [response.attendant.salutation?.trim(), response.attendant.full_name]
+            .filter(Boolean)
+            .join(' ');
 
          if (response.status === 'PENDING_CONFIRMATION') {
             setState({
@@ -207,6 +213,7 @@ export function useLogic(
                   qrCodePayload,
                   at: now,
                },
+               previewRepresentativeSalutationInput: response.attendant.representative_salutation ?? '',
                previewRepresentativeInput: response.attendant.representative ?? '',
                previewRepresentativePhoneInput: response.attendant.representative_phone ?? '',
             });
@@ -234,6 +241,7 @@ export function useLogic(
          setState({
             checkedInCount: isFirstCheckIn ? state.checkedInCount + 1 : state.checkedInCount,
             searchResults: updatedResults,
+            previewRepresentativeSalutationInput: response.attendant.representative_salutation ?? '',
             previewRepresentativeInput: response.attendant.representative ?? '',
             previewRepresentativePhoneInput: response.attendant.representative_phone ?? '',
             lastResult: {
@@ -250,14 +258,14 @@ export function useLogic(
          if (isFirstCheckIn) {
             toast.success(
                translate('toast.check_in_success', {
-                  name: response.attendant.full_name,
+                  name: displayName,
                   ticket: response.attendant.ticket_code,
                }),
             );
          } else {
             toast.warning(
                translate('toast.already_checked_in', {
-                  name: response.attendant.full_name,
+                  name: displayName,
                   ticket: response.attendant.ticket_code,
                }),
             );
@@ -295,6 +303,7 @@ export function useLogic(
             setState({
                isQrSubmitting: false,
                qrInput: '',
+               previewRepresentativeSalutationInput: '',
                previewRepresentativeInput: '',
                previewRepresentativePhoneInput: '',
                lastResult: {
@@ -332,6 +341,7 @@ export function useLogic(
          lastScannedPayload: '',
          lastResult: null,
          qrInput: '',
+         previewRepresentativeSalutationInput: '',
          previewRepresentativeInput: '',
          previewRepresentativePhoneInput: '',
       });
@@ -355,6 +365,9 @@ export function useLogic(
          action: 'CONFIRM',
          qrCodePayload: targetResult.qrCodePayload,
          attendantId: targetResult.attendant.id,
+         representativeSalutation: (state.previewRepresentativeSalutationInput.trim() || null) as
+            | Types.Salutation
+            | null,
          representative: state.previewRepresentativeInput.trim() || null,
          representativePhone: state.previewRepresentativePhoneInput.trim() || null,
       });
@@ -388,6 +401,7 @@ export function useLogic(
       setState,
       state.isConfirmingCheckIn,
       state.lastResult,
+      state.previewRepresentativeSalutationInput,
       state.previewRepresentativeInput,
       state.previewRepresentativePhoneInput,
    ]);
@@ -408,6 +422,9 @@ export function useLogic(
       const serviceUpdate = await useServicesGameLuckyDrawGuardAttendantUpdateRepresentative({
          gameId,
          attendantId: targetResult.attendant.id,
+         representativeSalutation: (state.previewRepresentativeSalutationInput.trim() || null) as
+            | Types.Salutation
+            | null,
          representative: state.previewRepresentativeInput.trim() || null,
          representativePhone: state.previewRepresentativePhoneInput.trim() || null,
       });
@@ -420,11 +437,13 @@ export function useLogic(
       }
 
       const updatedAttendant = serviceUpdate.data;
+      const displayName = [updatedAttendant.salutation?.trim(), updatedAttendant.full_name].filter(Boolean).join(' ');
 
       setState({
          searchResults: state.searchResults.map((item) =>
             item.id === updatedAttendant.id ? updatedAttendant : item,
          ),
+         previewRepresentativeSalutationInput: updatedAttendant.representative_salutation ?? '',
          previewRepresentativeInput: updatedAttendant.representative ?? '',
          previewRepresentativePhoneInput: updatedAttendant.representative_phone ?? '',
          lastResult: {
@@ -443,7 +462,7 @@ export function useLogic(
 
       toast.success(
          translate('toast.representative_updated', {
-            name: updatedAttendant.full_name,
+            name: displayName,
             ticket: updatedAttendant.ticket_code,
          }),
       );
@@ -453,6 +472,7 @@ export function useLogic(
       setState,
       state.isSavingInlineRepresentative,
       state.lastResult,
+      state.previewRepresentativeSalutationInput,
       state.previewRepresentativeInput,
       state.previewRepresentativePhoneInput,
       state.recentHistory,
@@ -635,6 +655,7 @@ export function useLogic(
    const handleOpenEditRepresentative = (attendant: Types.Attendant) => {
       setState({
          editingAttendant: attendant,
+         representativeSalutationInput: attendant.representative_salutation ?? '',
          representativeInput: attendant.representative ?? '',
          representativePhoneInput: attendant.representative_phone ?? '',
       });
@@ -645,6 +666,7 @@ export function useLogic(
       modalActions.closeModal(MODAL_ID.EDIT_REPRESENTATIVE);
       setState({
          editingAttendant: null,
+         representativeSalutationInput: '',
          representativeInput: '',
          representativePhoneInput: '',
       });
@@ -663,6 +685,7 @@ export function useLogic(
       const serviceUpdate = await useServicesGameLuckyDrawGuardAttendantUpdateRepresentative({
          gameId,
          attendantId: targetAttendant.id,
+         representativeSalutation: (state.representativeSalutationInput.trim() || null) as Types.Salutation | null,
          representative: state.representativeInput.trim() || null,
          representativePhone: state.representativePhoneInput.trim() || null,
       });
@@ -675,6 +698,7 @@ export function useLogic(
       }
 
       const updatedAttendant = serviceUpdate.data;
+      const displayName = [updatedAttendant.salutation?.trim(), updatedAttendant.full_name].filter(Boolean).join(' ');
       const isMatchingLastResult =
          state.lastResult &&
          state.lastResult.kind !== 'ERROR' &&
@@ -686,6 +710,7 @@ export function useLogic(
          ),
          ...(isMatchingLastResult
             ? {
+                 previewRepresentativeSalutationInput: updatedAttendant.representative_salutation ?? '',
                  previewRepresentativeInput: updatedAttendant.representative ?? '',
                  previewRepresentativePhoneInput: updatedAttendant.representative_phone ?? '',
               }
@@ -709,7 +734,7 @@ export function useLogic(
 
       toast.success(
          translate('toast.representative_updated', {
-            name: updatedAttendant.full_name,
+            name: displayName,
             ticket: updatedAttendant.ticket_code,
          }),
       );
@@ -730,12 +755,16 @@ export function useLogic(
    const isSaveRepresentativeDisabled =
       state.isSavingRepresentative ||
       !state.editingAttendant ||
-      (state.representativeInput.trim() === (state.editingAttendant.representative ?? '').trim() &&
+      (state.representativeSalutationInput.trim() ===
+         (state.editingAttendant.representative_salutation ?? '').trim() &&
+         state.representativeInput.trim() === (state.editingAttendant.representative ?? '').trim() &&
          state.representativePhoneInput.trim() ===
             (state.editingAttendant.representative_phone ?? '').trim());
    const isInlineRepresentativeDirty =
       state.lastResult && state.lastResult.kind !== 'ERROR'
-         ? state.previewRepresentativeInput.trim() !==
+         ? state.previewRepresentativeSalutationInput.trim() !==
+              (state.lastResult.attendant.representative_salutation ?? '').trim() ||
+           state.previewRepresentativeInput.trim() !==
               (state.lastResult.attendant.representative ?? '').trim() ||
            state.previewRepresentativePhoneInput.trim() !==
               (state.lastResult.attendant.representative_phone ?? '').trim()
@@ -748,6 +777,7 @@ export function useLogic(
       param: {
          remainingCount,
          attendanceRate,
+         salutationOptions: SALUTATION_OPTIONS,
          isQrSubmitDisabled: state.isQrSubmitting || !state.qrInput.trim(),
          cameraStatus,
          canResetScan: Boolean(state.lastResult || state.lastScannedPayload),

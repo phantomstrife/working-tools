@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useDeepState } from '@admin-web/hooks/deep-state';
 
-import { LETTERS, NUMBERS, SPIN_INTERVAL_MS } from './constants';
+import { ALPHANUMERIC, LETTERS, NUMBERS, SPIN_INTERVAL_MS } from './constants';
 
 import type * as Types from './type';
 
@@ -21,14 +21,18 @@ export function useLogic(properties: Types.Properties) {
       }
 
       const isNumeric = /^\d$/.test(targetChar);
-      const charPool = isNumeric ? NUMBERS : LETTERS;
+      const charPool = isNumeric ? NUMBERS : targetChar === '?' ? ALPHANUMERIC : LETTERS;
 
-      const intervalId = window.setInterval(() => {
+      const pickRandomChar = () => {
          const randomChar = charPool[Math.floor(Math.random() * charPool.length)];
          setState(randomChar, 'spinningChar');
-      }, SPIN_INTERVAL_MS);
+      };
+
+      const initialTimerId = window.setTimeout(pickRandomChar, 0);
+      const intervalId = window.setInterval(pickRandomChar, SPIN_INTERVAL_MS);
 
       return () => {
+         window.clearTimeout(initialTimerId);
          window.clearInterval(intervalId);
       };
    }, [effectiveSpinning, setState, targetChar]);

@@ -63,6 +63,7 @@ export const useServicesGameLuckyDrawWinnersExportCsv: Types.Service = async (re
                   id,
                   ticket_code,
                   citizen_id,
+                  salutation,
                   full_name,
                   email,
                   phone,
@@ -70,6 +71,7 @@ export const useServicesGameLuckyDrawWinnersExportCsv: Types.Service = async (re
                   department,
                   sale_in_charge,
                   accommodation,
+                  representative_salutation,
                   representative,
                   representative_phone
                )
@@ -127,6 +129,10 @@ export const useServicesGameLuckyDrawWinnersExportCsv: Types.Service = async (re
             getValue: (row) => unwrapRelation(row.attendant)?.citizen_id ?? '',
          },
          {
+            header: 'Danh xưng',
+            getValue: (row) => unwrapRelation(row.attendant)?.salutation ?? '',
+         },
+         {
             header: 'Họ và tên',
             getValue: (row) => unwrapRelation(row.attendant)?.full_name ?? '',
          },
@@ -137,6 +143,18 @@ export const useServicesGameLuckyDrawWinnersExportCsv: Types.Service = async (re
          {
             header: 'Số điện thoại',
             getValue: (row) => unwrapRelation(row.attendant)?.phone ?? '',
+         },
+         {
+            header: 'Danh xưng người đại diện',
+            getValue: (row) => unwrapRelation(row.attendant)?.representative_salutation ?? '',
+         },
+         {
+            header: 'Người đại diện',
+            getValue: (row) => unwrapRelation(row.attendant)?.representative ?? '',
+         },
+         {
+            header: 'SĐT người đại diện',
+            getValue: (row) => unwrapRelation(row.attendant)?.representative_phone ?? '',
          },
          {
             header: 'Công ty / Đơn vị',
@@ -153,14 +171,6 @@ export const useServicesGameLuckyDrawWinnersExportCsv: Types.Service = async (re
          {
             header: 'Lưu trú',
             getValue: (row) => (unwrapRelation(row.attendant)?.accommodation ? 'Có' : 'Không'),
-         },
-         {
-            header: 'Người đại diện',
-            getValue: (row) => unwrapRelation(row.attendant)?.representative ?? '',
-         },
-         {
-            header: 'SĐT người đại diện',
-            getValue: (row) => unwrapRelation(row.attendant)?.representative_phone ?? '',
          },
          {
             header: 'Thời gian trúng giải',

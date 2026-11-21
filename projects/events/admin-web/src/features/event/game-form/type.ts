@@ -12,5 +12,6 @@ export interface Properties {
 
 export type EventWithGames = AdminWeb.Database.EventWithGames;
 export type Game = AdminWeb.Database.Game;
+export type ThemeName = AdminWeb.Features.GameLuckyDraw.ThemeName;
 export type FormValues = z.infer<typeof schema>;
 export type Mode = 'create' | 'edit';

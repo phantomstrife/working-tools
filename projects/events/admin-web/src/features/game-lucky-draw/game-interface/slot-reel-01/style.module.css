@@ -1,0 +1,395 @@
+.split_flap_column {
+   --sf-col-tile-w: var(--sf-tile-w, 4.4cqw);
+   --sf-col-tile-h: var(--sf-tile-h, 6.35cqw);
+   --sf-radius: clamp(0.55cqw, calc(var(--sf-col-tile-w) * 0.19), 1.12cqw);
+   --sf-bezel: clamp(0.11cqw, calc(var(--sf-col-tile-w) * 0.032), 0.19cqw);
+   --sf-seam-h: clamp(0.12cqw, calc(var(--sf-col-tile-h) * 0.022), 0.18cqw);
+   --sf-pin-w: clamp(0.18cqw, calc(var(--sf-col-tile-w) * 0.048), 0.28cqw);
+   --sf-pin-h: clamp(0.88cqw, calc(var(--sf-col-tile-h) * 0.2), 1.55cqw);
+   --sf-font-size: calc(var(--sf-col-tile-h) * 0.6);
+   --sf-bar-gap: clamp(0.46cqw, calc(var(--sf-col-tile-h) * 0.095), 0.78cqw);
+   --sf-bar-h: clamp(0.24cqw, calc(var(--sf-col-tile-h) * 0.046), 0.36cqw);
+
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   flex-shrink: 0;
+}
+
+.split_flap_frame {
+   position: relative;
+   width: var(--sf-col-tile-w);
+   height: var(--sf-col-tile-h);
+   padding: var(--sf-bezel);
+   border-radius: var(--sf-radius);
+   background: linear-gradient(145deg, #dfc486 0%, #9e7b39 28%, #f4dfaa 56%, #8f6d2e 84%, #d4b472 100%);
+   box-shadow:
+      0 0.8cqw 1.8cqw -0.4cqw rgba(6, 18, 38, 0.38),
+      0 0.2cqw 0.5cqw rgba(6, 18, 38, 0.22),
+      inset 0 0.05cqw 0.06cqw rgba(255, 248, 224, 0.55);
+   will-change: transform;
+   transition: box-shadow 220ms ease;
+}
+
+.split_flap_frame::before {
+   content: '';
+   position: absolute;
+   inset: 0;
+   z-index: 1;
+   border-radius: inherit;
+   pointer-events: none;
+   opacity: 0;
+   background: linear-gradient(135deg, #fff8de 0%, #f4dfaa 50%, #fff8de 100%);
+   box-shadow: 0 0 1.25cqw rgba(244, 223, 170, 0.85);
+}
+
+.split_flap_frame_spinning {
+   box-shadow:
+      0 0.8cqw 1.8cqw -0.4cqw rgba(6, 18, 38, 0.38),
+      0 0.2cqw 0.5cqw rgba(6, 18, 38, 0.22),
+      0 0 0.95cqw rgba(226, 187, 108, 0.48),
+      inset 0 0.05cqw 0.08cqw rgba(255, 248, 224, 0.72);
+}
+
+.split_flap_frame_locked {
+   box-shadow:
+      0 0.8cqw 1.8cqw -0.4cqw rgba(6, 18, 38, 0.4),
+      0 0.2cqw 0.5cqw rgba(6, 18, 38, 0.24),
+      0 0 0.55cqw rgba(223, 196, 134, 0.32),
+      inset 0 0.05cqw 0.08cqw rgba(255, 248, 224, 0.65);
+   animation: splitFlapLock 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.split_flap_frame_locked::before {
+   animation: splitFlapRimFlash 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.split_flap_cavity {
+   position: relative;
+   z-index: 2;
+   width: 100%;
+   height: 100%;
+   overflow: hidden;
+   border-radius: calc(var(--sf-radius) - var(--sf-bezel));
+   border: clamp(1px, 0.11cqw, 2px) solid #040b18;
+   background-color: #071326;
+   box-shadow:
+      inset 0 0.22cqw 0.45cqw rgba(2, 6, 16, 0.72),
+      inset 0 -0.18cqw 0.35cqw rgba(2, 6, 16, 0.58);
+}
+
+.split_flap_cavity::after {
+   content: '';
+   position: absolute;
+   inset: -25% -65%;
+   z-index: 6;
+   pointer-events: none;
+   opacity: 0;
+   background: linear-gradient(
+      115deg,
+      rgba(255, 246, 214, 0) 28%,
+      rgba(244, 223, 170, 0.16) 43%,
+      rgba(255, 250, 232, 0.42) 50%,
+      rgba(223, 196, 134, 0.16) 57%,
+      rgba(255, 246, 214, 0) 72%
+   );
+   transform: translate3d(-120%, 0, 0) skewX(-18deg);
+}
+
+.split_flap_cavity_victory::after {
+   animation: splitFlapVictorySheen 760ms cubic-bezier(0.22, 1, 0.36, 1) calc(80ms + var(--sf-col-index, 0) * 55ms) 1
+      both;
+}
+
+.split_flap_cavity_victory_revealed::after {
+   animation: splitFlapVictorySheenReveal 760ms cubic-bezier(0.22, 1, 0.36, 1)
+      calc(60ms + var(--sf-col-index, 0) * 55ms) 1 both;
+}
+
+.split_flap_upper_half {
+   position: absolute;
+   inset: 0 0 50% 0;
+   z-index: 1;
+   pointer-events: none;
+   background: linear-gradient(180deg, #0e2342 0%, #091830 100%);
+   box-shadow: inset 0 0.06cqw 0.12cqw rgba(255, 244, 214, 0.08);
+}
+
+.split_flap_lower_half {
+   position: absolute;
+   inset: 50% 0 0 0;
+   z-index: 1;
+   pointer-events: none;
+   background: linear-gradient(180deg, #071326 0%, #0c203d 100%);
+}
+
+.split_flap_strip_viewport {
+   position: absolute;
+   inset: 0;
+   z-index: 2;
+   overflow: hidden;
+   opacity: 0.92;
+   filter: blur(0.06cqw);
+   transform: scaleY(1.04);
+   will-change: transform;
+}
+
+.split_flap_strip {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   height: 1600%;
+   display: flex;
+   flex-direction: column;
+   will-change: transform;
+   animation-name: splitFlapVerticalRoll;
+   animation-duration: calc(0.42s + var(--sf-col-phase, 0) * 0.03s);
+   animation-timing-function: linear;
+   animation-iteration-count: infinite;
+   animation-delay: calc(var(--sf-col-index, 0) * -0.07s);
+}
+
+.split_flap_strip_item {
+   flex: 0 0 6.25%;
+   height: 6.25%;
+   width: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.split_flap_strip_glyph {
+   display: inline-block;
+   font-size: var(--sf-font-size);
+   font-weight: 800;
+   font-variant-numeric: tabular-nums;
+   line-height: 1;
+   text-transform: uppercase;
+   letter-spacing: -0.02em;
+   color: #fff9ec;
+   text-shadow: 0 0.18cqw 0.3cqw rgba(0, 0, 0, 0.65);
+   user-select: none;
+}
+
+.split_flap_char_stage {
+   position: absolute;
+   inset: 0;
+   z-index: 2;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   filter: blur(0);
+   will-change: transform, opacity;
+}
+
+.split_flap_char_stage_locked {
+   animation: splitFlapCharSettle 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.split_flap_char {
+   display: inline-block;
+   padding: 0.04em 0.06em;
+   font-size: var(--sf-font-size);
+   font-weight: 800;
+   font-variant-numeric: tabular-nums;
+   line-height: 1;
+   text-transform: uppercase;
+   letter-spacing: -0.02em;
+   color: #fff9ec;
+   background: linear-gradient(180deg, #fffdf7 0%, #f8eed6 52%, #ead5a3 100%);
+   -webkit-background-clip: text;
+   background-clip: text;
+   -webkit-text-fill-color: transparent;
+   filter: drop-shadow(0 0.18cqw 0.3cqw rgba(0, 0, 0, 0.65));
+   user-select: none;
+}
+
+.split_flap_char_standby {
+   opacity: 0.88;
+}
+
+.split_flap_vignette {
+   position: absolute;
+   inset: 0;
+   z-index: 3;
+   pointer-events: none;
+   background: linear-gradient(
+      180deg,
+      rgba(2, 7, 18, 0.55) 0%,
+      rgba(2, 7, 18, 0.18) 14%,
+      rgba(2, 7, 18, 0) 28%,
+      rgba(2, 7, 18, 0) 72%,
+      rgba(2, 7, 18, 0.18) 86%,
+      rgba(2, 7, 18, 0.55) 100%
+   );
+}
+
+.split_flap_seam {
+   position: absolute;
+   left: 0;
+   right: 0;
+   top: 50%;
+   z-index: 4;
+   height: var(--sf-seam-h);
+   transform: translateY(-50%);
+   pointer-events: none;
+   background: rgba(2, 7, 16, 0.92);
+   box-shadow:
+      0 1px 0 rgba(255, 245, 220, 0.08),
+      0 -0.06cqw 0.14cqw rgba(2, 7, 16, 0.45);
+}
+
+.split_flap_pin {
+   position: absolute;
+   top: 50%;
+   z-index: 5;
+   width: var(--sf-pin-w);
+   height: var(--sf-pin-h);
+   transform: translateY(-50%);
+   border-radius: 9999px;
+   pointer-events: none;
+   background: linear-gradient(180deg, #8c6b2d 0%, #f7e4b4 48%, #c79f50 72%, #8c6b2d 100%);
+   box-shadow:
+      0 0 0 0.08cqw rgba(2, 7, 16, 0.95),
+      0 0.08cqw 0.2cqw rgba(0, 0, 0, 0.75);
+}
+
+.split_flap_pin_left {
+   left: clamp(0.12cqw, calc(var(--sf-col-tile-w) * 0.032), 0.22cqw);
+}
+
+.split_flap_pin_right {
+   right: clamp(0.12cqw, calc(var(--sf-col-tile-w) * 0.032), 0.22cqw);
+}
+
+.split_flap_status_bar {
+   margin-top: var(--sf-bar-gap);
+   width: 78%;
+   height: var(--sf-bar-h);
+   border-radius: 9999px;
+   flex-shrink: 0;
+   transition:
+      opacity 220ms ease,
+      box-shadow 260ms ease,
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.split_flap_status_standby {
+   opacity: 0.45;
+   background: linear-gradient(90deg, #9a7d46 0%, #d8bc7e 50%, #9a7d46 100%);
+   box-shadow: none;
+}
+
+.split_flap_status_spinning {
+   background: linear-gradient(90deg, #a8843f 0%, #f2d896 32%, #fff1c1 50%, #f2d896 68%, #a8843f 100%);
+   background-size: 200% 100%;
+   box-shadow: 0 0 0.45cqw rgba(226, 187, 108, 0.42);
+   animation: splitFlapBarShimmer 850ms ease-in-out infinite;
+}
+
+.split_flap_status_locked {
+   opacity: 1;
+   background: linear-gradient(90deg, #c59a4b 0%, #fff1c1 50%, #c59a4b 100%);
+   box-shadow:
+      0 0 0.8cqw rgba(226, 187, 108, 0.75),
+      0 0 0.28cqw rgba(255, 241, 193, 0.85);
+}
+
+@keyframes splitFlapVerticalRoll {
+   0% {
+      transform: translate3d(0, -50%, 0);
+   }
+   100% {
+      transform: translate3d(0, 0, 0);
+   }
+}
+
+@keyframes splitFlapLock {
+   0% {
+      transform: translate3d(0, -0.32cqw, 0) scale(1.028);
+   }
+   48% {
+      transform: translate3d(0, 0.14cqw, 0) scale(0.992);
+   }
+   100% {
+      transform: translate3d(0, 0, 0) scale(1);
+   }
+}
+
+@keyframes splitFlapRimFlash {
+   0% {
+      opacity: 0;
+   }
+   32% {
+      opacity: 0.92;
+   }
+   100% {
+      opacity: 0;
+   }
+}
+
+@keyframes splitFlapCharSettle {
+   0% {
+      transform: translate3d(0, -14%, 0) scaleY(1.06);
+      opacity: 0.86;
+   }
+   55% {
+      transform: translate3d(0, 3%, 0) scaleY(0.98);
+      opacity: 1;
+   }
+   100% {
+      transform: translate3d(0, 0, 0) scaleY(1);
+      opacity: 1;
+   }
+}
+
+@keyframes splitFlapBarShimmer {
+   0% {
+      opacity: 0.75;
+      background-position: 120% 0;
+   }
+   50% {
+      opacity: 1;
+      background-position: 50% 0;
+   }
+   100% {
+      opacity: 0.75;
+      background-position: -20% 0;
+   }
+}
+
+@keyframes splitFlapVictorySheen {
+   0% {
+      opacity: 0;
+      transform: translate3d(-120%, 0, 0) skewX(-18deg);
+   }
+   18% {
+      opacity: 1;
+   }
+   82% {
+      opacity: 1;
+   }
+   100% {
+      opacity: 0;
+      transform: translate3d(120%, 0, 0) skewX(-18deg);
+   }
+}
+
+@keyframes splitFlapVictorySheenReveal {
+   0% {
+      opacity: 0;
+      transform: translate3d(-120%, 0, 0) skewX(-18deg);
+   }
+   18% {
+      opacity: 1;
+   }
+   82% {
+      opacity: 1;
+   }
+   100% {
+      opacity: 0;
+      transform: translate3d(120%, 0, 0) skewX(-18deg);
+   }
+}

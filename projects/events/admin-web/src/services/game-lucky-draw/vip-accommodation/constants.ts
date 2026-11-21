@@ -1,6 +1,7 @@
 export const VIP_ATTENDANT_COLUMNS = [
    'id',
    'game_id',
+   'salutation',
    'full_name',
    'citizen_id',
    'email',

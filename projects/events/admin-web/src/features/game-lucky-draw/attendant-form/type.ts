@@ -12,6 +12,7 @@ export interface Properties {
 }
 
 export type Attendant = AdminWeb.Database.GameLuckyDrawAttendant;
+export type Salutation = AdminWeb.Features.GameLuckyDraw.Attendant.Salutation;
 export type FormValues = z.infer<typeof schema>;
 export type Mode = 'create' | 'edit';
 export type Tab = 'info' | 'history';

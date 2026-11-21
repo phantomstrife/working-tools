@@ -1,5 +1,6 @@
 'use server';
 
+import { normalizeSalutation } from '@admin-web/services/game-lucky-draw/attendant-import-csv/constants';
 import { verifyGameAccess } from '@admin-web/services/game-lucky-draw/verify-game-access';
 import { generateQrCodePayload } from '@admin-web/utilities/qr-code';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
@@ -17,9 +18,19 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
       const { supabase } = access.data;
       const trimmedFullName = request.full_name.trim();
       const trimmedTicketCode = request.ticket_code.trim();
+      const normalizedSalutation = normalizeSalutation(request.salutation);
+      const normalizedRepresentativeSalutation = normalizeSalutation(request.representative_salutation);
 
       if (!trimmedFullName || !trimmedTicketCode) {
          throw new Error('services.game_lucky_draw.attendant.missing_required_fields');
+      }
+
+      if (normalizedSalutation === 'invalid') {
+         throw new Error('services.game_lucky_draw.attendant.invalid_salutation');
+      }
+
+      if (normalizedRepresentativeSalutation === 'invalid') {
+         throw new Error('services.game_lucky_draw.attendant.invalid_representative_salutation');
       }
 
       let duplicateQuery = supabase
@@ -43,6 +54,7 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
       }
 
       const normalizedPayload = {
+         salutation: normalizedSalutation,
          full_name: trimmedFullName,
          citizen_id: request.citizen_id?.trim() || null,
          ticket_code: trimmedTicketCode,
@@ -50,6 +62,9 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
          phone: request.phone?.trim() || null,
          company_name: request.company_name?.trim() || null,
          department: request.department?.trim() || null,
+         representative_salutation: normalizedRepresentativeSalutation,
+         representative: request.representative?.trim() || null,
+         representative_phone: request.representative_phone?.trim() || null,
          sale_in_charge: request.sale_in_charge?.trim() || null,
          accommodation: Boolean(request.accommodation),
       };

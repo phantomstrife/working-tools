@@ -13,6 +13,7 @@ export async function POST(request: Request) {
       qrCodePayload?: string;
       attendantId?: string;
       searchQuery?: string;
+      representativeSalutation?: AdminWeb.Features.GameLuckyDraw.Attendant.Salutation | null;
       representative?: string | null;
       representativePhone?: string | null;
    } | null;
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
       qrCodePayload: body.qrCodePayload,
       attendantId: body.attendantId,
       searchQuery: body.searchQuery,
+      representativeSalutation: body.representativeSalutation,
       representative: body.representative,
       representativePhone: body.representativePhone,
    });

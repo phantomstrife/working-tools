@@ -5,15 +5,33 @@ import { parseCsv } from '@admin-web/utilities/csv';
 import { generateQrCodePayload } from '@admin-web/utilities/qr-code';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
-import { BATCH_CHUNK_SIZE, EMAIL_REGEX, FETCH_PAGE_SIZE, STANDARD_CSV_COLUMNS } from './constants';
+import {
+   BATCH_CHUNK_SIZE,
+   EMAIL_REGEX,
+   FETCH_PAGE_SIZE,
+   REPRESENTATIVE_SALUTATION_ALIAS_KEYS,
+   SALUTATION_ALIAS_KEYS,
+   STANDARD_CSV_COLUMNS,
+   normalizeSalutation,
+} from './constants';
 
 import type * as Types from './type';
 
 const normalizeHeaderKey = (header: string): string => {
-   return header
+   const normalized = header
       .trim()
       .toLowerCase()
       .replace(/[\s-]+/g, '_');
+
+   if (SALUTATION_ALIAS_KEYS.has(normalized)) {
+      return 'salutation';
+   }
+
+   if (REPRESENTATIVE_SALUTATION_ALIAS_KEYS.has(normalized)) {
+      return 'representative_salutation';
+   }
+
+   return normalized;
 };
 
 const parseAccommodationCell = (rawValue: string): boolean | null | 'invalid' => {
@@ -117,12 +135,16 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
          });
 
          const citizenId = normalizedRow.citizen_id ?? '';
+         const parsedSalutation = normalizeSalutation(normalizedRow.salutation ?? '');
          const fullName = normalizedRow.full_name ?? '';
          const ticketCode = normalizedRow.ticket_code ?? '';
          const email = normalizedRow.email ?? '';
          const phone = normalizedRow.phone ?? '';
          const companyName = normalizedRow.company_name ?? '';
          const department = normalizedRow.department ?? '';
+         const parsedRepresentativeSalutation = normalizeSalutation(normalizedRow.representative_salutation ?? '');
+         const representative = normalizedRow.representative ?? '';
+         const representativePhone = normalizedRow.representative_phone ?? '';
          const saleInCharge = normalizedRow.sale_in_charge ?? '';
          const parsedAccommodation = parseAccommodationCell(normalizedRow.accommodation ?? '');
 
@@ -131,6 +153,24 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
                row: rowNumber,
                ticket_code: ticketCode || undefined,
                reason: 'missing_required_fields',
+            });
+            return;
+         }
+
+         if (parsedSalutation === 'invalid') {
+            errors.push({
+               row: rowNumber,
+               ticket_code: ticketCode,
+               reason: 'invalid_salutation',
+            });
+            return;
+         }
+
+         if (parsedRepresentativeSalutation === 'invalid') {
+            errors.push({
+               row: rowNumber,
+               ticket_code: ticketCode,
+               reason: 'invalid_representative_salutation',
             });
             return;
          }
@@ -177,6 +217,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
                id: existing.id,
                game_id: request.gameId,
                citizen_id: citizenId || null,
+               ...(normalizedHeaders.has('salutation') ? { salutation: parsedSalutation } : {}),
                full_name: fullName,
                ticket_code: existing.ticket_code,
                qr_code_payload: existing.qr_code_payload,
@@ -184,6 +225,13 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
                phone: phone || null,
                company_name: companyName || null,
                department: department || null,
+               ...(normalizedHeaders.has('representative_salutation')
+                  ? { representative_salutation: parsedRepresentativeSalutation }
+                  : {}),
+               ...(normalizedHeaders.has('representative') ? { representative: representative || null } : {}),
+               ...(normalizedHeaders.has('representative_phone')
+                  ? { representative_phone: representativePhone || null }
+                  : {}),
                sale_in_charge: saleInCharge || null,
                ...(parsedAccommodation !== null ? { accommodation: parsedAccommodation } : {}),
                ...(hasCustomMetadata ? { custom_metadata: customMetadata } : {}),
@@ -196,6 +244,7 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
          toInsert.push({
             game_id: request.gameId,
             citizen_id: citizenId || null,
+            salutation: parsedSalutation,
             full_name: fullName,
             ticket_code: ticketCode,
             qr_code_payload: generateQrCodePayload(request.gameId, ticketCode),
@@ -203,6 +252,9 @@ export const useServicesGameLuckyDrawAttendantImportCsv: Types.Service = async (
             phone: phone || null,
             company_name: companyName || null,
             department: department || null,
+            representative_salutation: parsedRepresentativeSalutation,
+            representative: representative || null,
+            representative_phone: representativePhone || null,
             sale_in_charge: saleInCharge || null,
             accommodation: parsedAccommodation ?? false,
             custom_metadata: hasCustomMetadata ? customMetadata : null,

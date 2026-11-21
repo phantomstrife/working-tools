@@ -36,10 +36,8 @@ export const GameSettings: AdminWeb.Component<object> = () => {
    }
 
    const isStartDisabled =
-      param.isDrawingRequest ||
-      (param.isSpinning && param.drawMode !== 'instant') ||
-      param.prizes.length === 0 ||
-      param.currentPrizeDone;
+      param.isDrawingRequest || param.isSpinning || param.prizes.length === 0 || param.currentPrizeDone;
+   const displayedStoppedReels = Math.min(param.winnerLength, param.stoppedReels + param.queuedManualStops);
 
    return (
       <div className={expandedContainer()}>
@@ -134,13 +132,11 @@ export const GameSettings: AdminWeb.Component<object> = () => {
                      >
                         {(param.isDrawingRequest || param.isSpinning) && <Loader2 className={spinnerIcon()} />}
                         <span>
-                           {param.isDrawingRequest
-                              ? func.translate('preparing_draw')
-                              : param.isSpinning
-                                ? func.translate('spinning_reels')
-                                : param.currentPrizeDone
-                                  ? func.translate('prize_completed')
-                                  : func.translate('start_draw')}
+                           {param.isSpinning || param.isDrawingRequest
+                              ? func.translate('spinning_reels')
+                              : param.currentPrizeDone
+                                ? func.translate('prize_completed')
+                                : func.translate('start_draw')}
                         </span>
                      </button>
 
@@ -151,7 +147,7 @@ export const GameSettings: AdminWeb.Component<object> = () => {
                            className={manualStopBtn()}
                         >
                            {func.translate('stop_next_reel', {
-                              stopped: param.stoppedReels,
+                              stopped: displayedStoppedReels,
                               total: param.winnerLength,
                            })}
                         </button>

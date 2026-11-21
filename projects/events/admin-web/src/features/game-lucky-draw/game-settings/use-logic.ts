@@ -37,6 +37,7 @@ export function useLogic() {
    const isDrawingRequest = useStoreLuckyDraw((s) => s.isDrawingRequest);
    const isLoadingGame = useStoreLuckyDraw((s) => s.isLoadingGame);
    const stoppedReels = useStoreLuckyDraw((s) => s.stoppedReels);
+   const queuedManualStops = useStoreLuckyDraw((s) => s.queuedManualStops);
    const winnerId = useStoreLuckyDraw((s) => s.winnerId);
    const drawMode = useStoreLuckyDraw((s) => s.drawMode);
    const hideHud = useStoreLuckyDraw((s) => s.hideHud);
@@ -128,6 +129,7 @@ export function useLogic() {
          isDrawingRequest,
          isLoadingGame: isLoadingGame || isLoadingAssignments,
          stoppedReels,
+         queuedManualStops,
          winnerLength: winnerId.length,
          activeWinnerId,
          canRedrawAbsent,

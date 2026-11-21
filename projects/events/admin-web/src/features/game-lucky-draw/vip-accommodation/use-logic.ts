@@ -12,11 +12,12 @@ import {
 } from '@admin-web/services/game-lucky-draw/vip-accommodation';
 import type { VipAttendantInfo } from '@admin-web/services/game-lucky-draw/vip-accommodation/type';
 
-import { schema } from './constants';
+import { SALUTATION_OPTIONS, schema } from './constants';
 
 import type * as Types from './type';
 
 const getInitialValues = (attendant?: VipAttendantInfo | null): Types.FormValues => ({
+   salutation: (attendant?.salutation as Types.Salutation | null) ?? '',
    full_name: attendant?.full_name ?? '',
    citizen_id: attendant?.citizen_id ?? '',
    email: attendant?.email ?? '',
@@ -166,6 +167,7 @@ export function useLogic(properties: Types.Properties) {
 
          const updateResult = await useServicesGameLuckyDrawVipAccommodationUpdate({
             token: initialToken,
+            salutation: (values.salutation || null) as Types.Salutation | null,
             full_name: values.full_name,
             citizen_id: values.citizen_id || null,
             email: values.email || null,
@@ -206,6 +208,7 @@ export function useLogic(properties: Types.Properties) {
          initialAction,
          mode: state.mode,
          attendant: state.attendant,
+         salutationOptions: SALUTATION_OPTIONS,
          errorMessage: state.errorMessage,
          submitError: state.submitError,
          wasUpdated: state.wasUpdated,

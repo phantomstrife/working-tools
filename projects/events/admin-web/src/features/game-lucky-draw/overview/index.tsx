@@ -1,10 +1,11 @@
 'use client';
 
 import { useRef } from 'react';
-import { Gift, RefreshCw, User2Icon } from 'lucide-react';
+import { Gift, RefreshCw, RotateCcw, User2Icon } from 'lucide-react';
 
 import { StatusBadge } from '@admin-web/components/status-badge';
 import { AttendantsDatatable } from '@admin-web/features/game-lucky-draw/attendants-datatable';
+import { GameResetModal } from '@admin-web/features/game-lucky-draw/game-reset-modal';
 import { PrizePanel } from '@admin-web/features/game-lucky-draw/prize-panel';
 import { StaffPanel } from '@admin-web/features/game-lucky-draw/staff-panel';
 
@@ -51,16 +52,29 @@ export const GameLuckyDrawOverview: AdminWeb.Component<Types.Properties> = (prop
                />
                {func.translate('staff')}: <strong>{state.staffCount}</strong>
             </div>
-            <button
-               type="button"
-               className={statistic.tool}
-               onClick={func.synchronizeData}
-            >
-               <RefreshCw
-                  className={statistic.icon({ loading: state.loading })}
-                  size={16}
-               />
-            </button>
+            <div className={statistic.tools_group}>
+               {param.isSuperAdmin && (
+                  <button
+                     type="button"
+                     disabled={state.loading}
+                     className={statistic.reset_btn}
+                     onClick={func.handleOpenResetModal}
+                  >
+                     <RotateCcw size={14} />
+                     <span>{func.translate('reset_game')}</span>
+                  </button>
+               )}
+               <button
+                  type="button"
+                  className={statistic.tool}
+                  onClick={func.synchronizeData}
+               >
+                  <RefreshCw
+                     className={statistic.icon({ loading: state.loading })}
+                     size={16}
+                  />
+               </button>
+            </div>
          </div>
 
          <AttendantsDatatable
@@ -88,6 +102,13 @@ export const GameLuckyDrawOverview: AdminWeb.Component<Types.Properties> = (prop
                onDataChange={func.fetchStaffs}
             />
          </div>
+
+         {param.isSuperAdmin && (
+            <GameResetModal
+               game={param.game}
+               onSuccess={func.synchronizeData}
+            />
+         )}
       </div>
    );
 };

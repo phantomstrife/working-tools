@@ -38,7 +38,12 @@ export const useStyle = {
       status: cx(css.statistic_status),
       prize: themes.badge({ className: css.statistic_prize }),
       staff: themes.badge({ className: css.statistic_staff }),
-      tool: themes.badge({ className: css.statistic_tool }),
+      tools_group: cx('flex items-center gap-2 justify-self-end', css.statistic_tool),
+      tool: themes.badge({ className: 'cursor-pointer hover:bg-neutral-200/70 transition-colors' }),
+      reset_btn: [
+         'inline-flex items-center gap-x-1.5 px-primary py-1 text-13 font-semibold text-error-700',
+         'bg-error-50 hover:bg-error-100 border border-error-200 rounded-primary transition-colors cursor-pointer whitespace-nowrap',
+      ].join(' '),
       icon: themes.icon,
    },
 };

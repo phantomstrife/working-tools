@@ -19,6 +19,7 @@ export interface JoinedAttendant {
    id: string;
    ticket_code: string;
    citizen_id: string | null;
+   salutation: string | null;
    full_name: string;
    email: string | null;
    phone: string | null;
@@ -26,6 +27,7 @@ export interface JoinedAttendant {
    department: string | null;
    sale_in_charge: string | null;
    accommodation: boolean | null;
+   representative_salutation: string | null;
    representative: string | null;
    representative_phone: string | null;
 }

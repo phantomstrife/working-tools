@@ -27,7 +27,12 @@ export const PageAdminHome: AdminWeb.Router.Page<Types.Params> = async ({ params
             />
          )}
          <CompanyInfoCard company={param.serviceCompanyRead.data.company} />
-         {!param.serviceEventGetGames.error && <EventGameOverview events={param.serviceEventGetGames.data.event} />}
+         {!param.serviceEventGetGames.error && (
+            <EventGameOverview
+               events={param.serviceEventGetGames.data.event}
+               isSuperAdmin={param.isSuperAdmin}
+            />
+         )}
       </div>
    );
 };

@@ -5,6 +5,7 @@ export interface Request {
    game_type: AdminWeb.Database.Game_Type;
    status?: AdminWeb.Database.Game_Status | null;
    description?: string | null;
+   theme?: AdminWeb.Features.GameLuckyDraw.ThemeName;
 }
 
 export interface Response {

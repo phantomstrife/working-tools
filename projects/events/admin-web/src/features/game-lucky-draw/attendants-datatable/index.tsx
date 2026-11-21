@@ -136,17 +136,12 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                   header: func.translate('table.headers.citizen_id'),
                },
                {
+                  key: 'salutation',
+                  header: func.translate('table.headers.salutation'),
+               },
+               {
                   key: 'full_name',
                   header: func.translate('table.headers.full_name'),
-                  emphasis: true,
-               },
-               {
-                  key: 'representative',
-                  header: func.translate('table.headers.representative'),
-               },
-               {
-                  key: 'representative_phone',
-                  header: func.translate('table.headers.representative_phone'),
                },
                {
                   key: 'phone',
@@ -155,6 +150,18 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                {
                   key: 'email',
                   header: func.translate('table.headers.email'),
+               },
+               {
+                  key: 'representative',
+                  header: func.translate('table.headers.representative'),
+                  render: (row) =>
+                     row.representative?.trim()
+                        ? [row.representative_salutation?.trim(), row.representative.trim()].filter(Boolean).join(' ')
+                        : '—',
+               },
+               {
+                  key: 'representative_phone',
+                  header: func.translate('table.headers.representative_phone'),
                },
                {
                   key: 'sale_in_charge',
@@ -251,9 +258,7 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
 
          <Modal
             id={MODAL_ID.ATTENDANT_FORM}
-            title={
-               param.targetAttendant ? func.translate('modals.edit_title') : func.translate('modals.create_title')
-            }
+            title={param.targetAttendant ? func.translate('modals.edit_title') : func.translate('modals.create_title')}
             description={
                param.targetAttendant
                   ? func.translate('modals.edit_description')
@@ -295,7 +300,9 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
             title={func.translate('modals.delete_title')}
             description={func.translate('modals.delete_description')}
             message={func.translate('modals.delete_message', {
-               name: param.targetAttendant?.full_name ?? '',
+               name: [param.targetAttendant?.salutation?.trim(), param.targetAttendant?.full_name]
+                  .filter(Boolean)
+                  .join(' '),
                ticket: param.targetAttendant?.ticket_code ?? '',
             })}
             cancelLabel={func.translate('actions.cancel')}

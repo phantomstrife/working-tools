@@ -5,6 +5,21 @@ import { useStoreLuckyDraw } from '@admin-web/stores/lucky-draw';
 const backgroundImage = '/assets/images/background.jpg';
 const resultBar = '/assets/images/result-bar.png';
 
+const resolveEffectiveAttendeeName = (person: {
+   salutation?: string | null;
+   name?: string | null;
+   representative?: string | null;
+   representativeSalutation?: string | null;
+}): string => {
+   const representative = person.representative?.trim();
+
+   if (representative) {
+      return [person.representativeSalutation?.trim(), representative].filter(Boolean).join(' ');
+   }
+
+   return [person.salutation?.trim(), person.name?.trim()].filter(Boolean).join(' ');
+};
+
 export function useLogic() {
    const { translate } = useTranslate({
       prefix: 'features.operator.board',
@@ -35,7 +50,7 @@ export function useLogic() {
    );
 
    const remaining = currentPrize
-      ? isSpinning
+      ? isSpinning && !isDrawingRequest
          ? Math.min(currentPrize.totalQuantity, currentPrize.remainingQuantity + 1)
          : currentPrize.remainingQuantity
       : 0;
@@ -45,18 +60,14 @@ export function useLogic() {
    const winningParticipant = participants.find((p) => p.ticketCode === winnerId || p.id === winnerId) ?? null;
 
    const winnerDisplayPhone = winningParticipant
-      ? winningParticipant.representative
-         ? winningParticipant.representativePhone || winningParticipant.phone
-         : winningParticipant.phone
+      ? winningParticipant.representativePhone || winningParticipant.phone
       : null;
 
    const displayName =
       isSpinning || isDrawingRequest
          ? translate('searching_winner')
          : winningParticipant
-           ? winningParticipant.representative
-              ? winningParticipant.representative
-              : winningParticipant.name
+           ? resolveEffectiveAttendeeName(winningParticipant)
            : !currentPrize
              ? translate('select_prize')
              : prizeDone
@@ -98,7 +109,9 @@ export function useLogic() {
             return;
          }
 
-         if ((e.shiftKey || e.metaKey) && e.code === 'Space') {
+         const hasModifier = e.ctrlKey || e.metaKey || e.shiftKey;
+
+         if (hasModifier && e.code === 'Space') {
             if (e.repeat) {
                return;
             }
@@ -109,13 +122,13 @@ export function useLogic() {
             } else if (!storeState.isDrawingRequest) {
                void storeState.startDraw();
             }
-         } else if ((e.shiftKey || e.metaKey) && e.code === 'KeyW') {
+         } else if (hasModifier && e.code === 'KeyW') {
             e.preventDefault();
             setShowWinners((v) => !v);
-         } else if ((e.shiftKey || e.metaKey) && e.code === 'KeyH') {
+         } else if (hasModifier && e.code === 'KeyH') {
             e.preventDefault();
             setHideHud((v) => !v);
-         } else if ((e.shiftKey || e.metaKey) && e.code === 'KeyF') {
+         } else if (hasModifier && e.code === 'KeyF') {
             e.preventDefault();
             void handleToggleFullscreen();
          }
@@ -150,6 +163,7 @@ export function useLogic() {
       },
       func: {
          translate,
+         resolveEffectiveAttendeeName,
          handleCloseWinners,
          handleToggleFullscreen,
       },

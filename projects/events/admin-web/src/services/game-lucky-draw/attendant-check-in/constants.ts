@@ -6,6 +6,7 @@ export const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = [
 
 export const ATTENDANT_COLUMNS = [
    'id',
+   'salutation',
    'full_name',
    'ticket_code',
    'email',
@@ -14,6 +15,7 @@ export const ATTENDANT_COLUMNS = [
    'department',
    'sale_in_charge',
    'accommodation',
+   'representative_salutation',
    'representative',
    'representative_phone',
    'is_checked_in',

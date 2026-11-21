@@ -69,6 +69,10 @@ export const VipAccommodation: AdminWeb.Component<Types.Properties> = (propertie
                   <h2 className={summary_card.heading}>{func.translate('summary.title')}</h2>
                   <div className={summary_card.list}>
                      <div className={summary_card.row}>
+                        <span className={summary_card.label}>{func.translate('summary.salutation')}</span>
+                        <span className={summary_card.value}>{param.attendant.salutation || '—'}</span>
+                     </div>
+                     <div className={summary_card.row}>
                         <span className={summary_card.label}>{func.translate('summary.full_name')}</span>
                         <span className={summary_card.value}>{param.attendant.full_name}</span>
                      </div>
@@ -125,6 +129,29 @@ export const VipAccommodation: AdminWeb.Component<Types.Properties> = (propertie
                   onSubmit={func.onSubmit}
                >
                   <div className={form.fields}>
+                     <FormField
+                        id="vip-salutation"
+                        Icon={User}
+                        label={func.translate('edit.fields.salutation.label')}
+                        error={param.errors.salutation?.message}
+                     >
+                        <select
+                           id="vip-salutation"
+                           disabled={param.isPending}
+                           {...func.register('salutation')}
+                        >
+                           <option value="">{func.translate('edit.fields.salutation.placeholder')}</option>
+                           {param.salutationOptions.map((option) => (
+                              <option
+                                 key={option}
+                                 value={option}
+                              >
+                                 {option}
+                              </option>
+                           ))}
+                        </select>
+                     </FormField>
+
                      <FormField
                         id="vip-full-name"
                         Icon={User}

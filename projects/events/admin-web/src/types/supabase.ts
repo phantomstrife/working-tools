@@ -346,7 +346,9 @@ export type Database = {
                qr_code_payload: string;
                representative: string | null;
                representative_phone: string | null;
+               representative_salutation: string | null;
                sale_in_charge: string | null;
+               salutation: string | null;
                ticket_code: string;
                updated_at: string | null;
             };
@@ -372,7 +374,9 @@ export type Database = {
                qr_code_payload: string;
                representative?: string | null;
                representative_phone?: string | null;
+               representative_salutation?: string | null;
                sale_in_charge?: string | null;
+               salutation?: string | null;
                ticket_code: string;
                updated_at?: string | null;
             };
@@ -398,7 +402,9 @@ export type Database = {
                qr_code_payload?: string;
                representative?: string | null;
                representative_phone?: string | null;
+               representative_salutation?: string | null;
                sale_in_charge?: string | null;
+               salutation?: string | null;
                ticket_code?: string;
                updated_at?: string | null;
             };

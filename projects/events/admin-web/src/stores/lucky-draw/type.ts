@@ -21,6 +21,7 @@ export interface Store {
    isLoadingGame: boolean;
    isRealtimeConnected: boolean;
    stoppedReels: number;
+   queuedManualStops: number;
    drawMode: Draw_Mode;
    showWinners: boolean;
    hideHud: boolean;

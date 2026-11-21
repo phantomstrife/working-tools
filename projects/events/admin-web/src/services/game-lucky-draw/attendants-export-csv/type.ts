@@ -11,6 +11,7 @@ export interface Response {
 export interface AttendantExportRow {
    id: string;
    ticket_code: string;
+   salutation: string | null;
    full_name: string;
    email: string | null;
    phone: string | null;
@@ -19,6 +20,7 @@ export interface AttendantExportRow {
    department: string | null;
    sale_in_charge: string | null;
    accommodation: boolean | null;
+   representative_salutation: string | null;
    representative: string | null;
    representative_phone: string | null;
    email_status: AdminWeb.Database.Email_Status | null;

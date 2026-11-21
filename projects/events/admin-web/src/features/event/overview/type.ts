@@ -1,5 +1,6 @@
 export interface Properties {
    events: Events;
+   isSuperAdmin?: boolean;
 }
 
 export interface State {

@@ -11,16 +11,18 @@ const PAGE_SIZE = 1000;
 const ATTENDANT_EXPORT_COLUMNS = [
    'id',
    'ticket_code',
+   'salutation',
    'full_name',
    'email',
    'phone',
    'citizen_id',
+   'representative_salutation',
+   'representative',
+   'representative_phone',
    'company_name',
    'department',
    'sale_in_charge',
    'accommodation',
-   'representative',
-   'representative_phone',
    'email_status',
    'email_sent_at',
    'is_checked_in',
@@ -39,6 +41,18 @@ const sanitizeSlug = (value: string): string => {
    );
 };
 
+const EMAIL_STATUS_LABELS: Record<AdminWeb.Database.Email_Status, string> = {
+   NOT_SENT: 'Chưa gửi',
+   SENDING: 'Đang gửi',
+   SENT: 'Đã gửi',
+   FAILED: 'Thất bại',
+};
+
+const CHECK_IN_METHOD_LABELS: Record<AdminWeb.Database.Check_In_Method, string> = {
+   QR_SCAN: 'Quét mã QR',
+   MANUAL_SEARCH: 'Tra cứu thủ công',
+};
+
 const formatDateTime = (iso: string | null): string => {
    if (!iso) {
       return '';
@@ -49,9 +63,29 @@ const formatDateTime = (iso: string | null): string => {
    });
 };
 
+const formatEmailStatus = (status: AdminWeb.Database.Email_Status | null): string => {
+   return EMAIL_STATUS_LABELS[status ?? 'NOT_SENT'] ?? 'Chưa gửi';
+};
+
+const formatCheckInMethod = (method: AdminWeb.Database.Check_In_Method | null): string => {
+   if (!method) {
+      return '';
+   }
+
+   return CHECK_IN_METHOD_LABELS[method] ?? method;
+};
+
 const getEffectiveRepresentative = (row: Types.AttendantExportRow): string => {
-   const rawRepresentative = (row.representative ?? '').trim();
-   return rawRepresentative || (row.full_name ?? '').trim();
+   const rawRepName = (row.representative ?? '').trim();
+   return rawRepName || (row.full_name ?? '').trim();
+};
+
+const getEffectiveRepresentativeSalutation = (row: Types.AttendantExportRow): string => {
+   const rawRepName = (row.representative ?? '').trim();
+   const rawRepSalutation = (row.representative_salutation ?? '').trim();
+   const rawGuestSalutation = (row.salutation ?? '').trim();
+
+   return rawRepName ? rawRepSalutation : rawRepSalutation || rawGuestSalutation;
 };
 
 const getEffectiveRepresentativePhone = (row: Types.AttendantExportRow): string => {
@@ -97,75 +131,83 @@ export const useServicesGameLuckyDrawAttendantsExportCsv: Types.Service = async 
 
       const csvContent = stringifyCsv(allAttendants, [
          {
-            header: 'ticket_code',
+            header: 'Mã vé',
             getValue: (row) => row.ticket_code ?? '',
          },
          {
-            header: 'full_name',
+            header: 'Danh xưng',
+            getValue: (row) => row.salutation ?? '',
+         },
+         {
+            header: 'Họ và tên',
             getValue: (row) => row.full_name ?? '',
          },
          {
-            header: 'email',
+            header: 'Email',
             getValue: (row) => row.email ?? '',
          },
          {
-            header: 'phone',
+            header: 'Số điện thoại',
             getValue: (row) => row.phone ?? '',
          },
          {
-            header: 'citizen_id',
+            header: 'CCCD / CMND',
             getValue: (row) => row.citizen_id ?? '',
          },
          {
-            header: 'company_name',
-            getValue: (row) => row.company_name ?? '',
+            header: 'Danh xưng người đại diện',
+            getValue: (row) => getEffectiveRepresentativeSalutation(row),
          },
          {
-            header: 'department',
-            getValue: (row) => row.department ?? '',
-         },
-         {
-            header: 'sale_in_charge',
-            getValue: (row) => row.sale_in_charge ?? '',
-         },
-         {
-            header: 'accommodation',
-            getValue: (row) => (row.accommodation ? 'true' : 'false'),
-         },
-         {
-            header: 'representative',
+            header: 'Người đại diện',
             getValue: (row) => getEffectiveRepresentative(row),
          },
          {
-            header: 'representative_phone',
+            header: 'SĐT người đại diện',
             getValue: (row) => getEffectiveRepresentativePhone(row),
          },
          {
-            header: 'email_status',
-            getValue: (row) => row.email_status ?? 'NOT_SENT',
+            header: 'Công ty / Đơn vị',
+            getValue: (row) => row.company_name ?? '',
          },
          {
-            header: 'email_sent_at',
+            header: 'Phòng ban',
+            getValue: (row) => row.department ?? '',
+         },
+         {
+            header: 'Sale phụ trách',
+            getValue: (row) => row.sale_in_charge ?? '',
+         },
+         {
+            header: 'Lưu trú',
+            getValue: (row) => (row.accommodation ? 'Có' : 'Không'),
+         },
+         {
+            header: 'Trạng thái email',
+            getValue: (row) => formatEmailStatus(row.email_status),
+         },
+         {
+            header: 'Thời gian gửi email',
             getValue: (row) => formatDateTime(row.email_sent_at),
          },
          {
-            header: 'is_checked_in',
-            getValue: (row) => (row.is_checked_in ? 'true' : 'false'),
+            header: 'Đã check-in',
+            getValue: (row) => (row.is_checked_in ? 'Có' : 'Không'),
          },
          {
-            header: 'checked_in_at',
+            header: 'Thời gian check-in',
             getValue: (row) => formatDateTime(row.checked_in_at),
          },
          {
-            header: 'check_in_method',
-            getValue: (row) => row.check_in_method ?? '',
+            header: 'Phương thức check-in',
+            getValue: (row) => formatCheckInMethod(row.check_in_method),
          },
          {
-            header: 'has_won',
-            getValue: (row) => (row.has_won ? 'true' : 'false'),
+            header: 'Đã trúng giải',
+            getValue: (row) => (row.has_won ? 'Có' : 'Không'),
          },
          {
-            header: 'created_at',
+            header: 'Thời gian tạo',
             getValue: (row) => formatDateTime(row.created_at),
          },
       ]);

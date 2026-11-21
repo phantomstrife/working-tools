@@ -4,6 +4,7 @@ import type * as StaffPanelTypes from '@admin-web/features/game-lucky-draw/staff
 
 export interface Properties {
    game: Game;
+   isSuperAdmin?: boolean;
 }
 
 export interface State {

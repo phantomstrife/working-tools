@@ -1,5 +1,7 @@
 import { useCallback, useEffect } from 'react';
 
+import { useStoreModal } from '@admin-web/components/modal';
+import { GAME_RESET_MODAL_ID } from '@admin-web/features/game-lucky-draw/game-reset-modal/constants';
 import { useDeepState } from '@admin-web/hooks/deep-state';
 import { useTranslate } from '@admin-web/locale';
 
@@ -9,7 +11,9 @@ import { useServicesGameGetStaff } from '@admin-web/services/game/get-staff';
 import type * as Types from './type';
 
 export function useLogic(properties: Types.Properties, refs: Types.PanelRefs) {
-   const { game } = properties;
+   const { game, isSuperAdmin = false } = properties;
+
+   const modalActions = useStoreModal((store) => store.actions);
 
    const { translate } = useTranslate({
       prefix: 'features.game_luck_draw.overview',
@@ -80,18 +84,28 @@ export function useLogic(properties: Types.Properties, refs: Types.PanelRefs) {
       });
    }, [setState, fetchPrizes, fetchStaffs, refs]);
 
+   const handleOpenResetModal = useCallback(() => {
+      if (!isSuperAdmin) {
+         return;
+      }
+
+      modalActions.openModal(GAME_RESET_MODAL_ID);
+   }, [isSuperAdmin, modalActions]);
+
    useEffect(() => void synchronizeStats(), [synchronizeStats]);
 
    return {
       state,
       param: {
          game,
+         isSuperAdmin,
       },
       func: {
          translate,
          fetchPrizes: () => void fetchPrizes(),
          fetchStaffs: () => void fetchStaffs(),
          synchronizeData,
+         handleOpenResetModal,
       },
    };
 }

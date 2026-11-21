@@ -6,6 +6,14 @@ import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
 import type * as Types from './type';
 
+const getConfigObject = (config: AdminWeb.Database.Game['config']): Record<string, unknown> => {
+   if (typeof config === 'object' && config !== null && !Array.isArray(config)) {
+      return config as Record<string, unknown>;
+   }
+
+   return {};
+};
+
 export const useServicesGameCreate: Types.Service = async (request) => {
    return trycatchAsync(async () => {
       const serviceUserRead = await useServicesUserRead();
@@ -49,7 +57,7 @@ export const useServicesGameCreate: Types.Service = async (request) => {
       if (request.id) {
          const existingGame = await supabase
             .from('games')
-            .select('id, event_id')
+            .select('id, event_id, config')
             .eq('id', request.id)
             .single();
 
@@ -57,12 +65,20 @@ export const useServicesGameCreate: Types.Service = async (request) => {
             throw new Error('services.game_lucky_draw.game_not_found');
          }
 
+         const nextConfig = request.theme
+            ? ({
+                 ...getConfigObject(existingGame.data.config),
+                 theme: request.theme,
+              } as AdminWeb.Database.Game['config'])
+            : existingGame.data.config;
+
          const updatePayload: AdminWeb.Database.GameUpdate = {
             event_id: request.eventId,
             name: trimmedName,
             game_type: request.game_type,
             status: request.status || 'READY',
             description: request.description?.trim() || null,
+            config: nextConfig,
             updated_at: new Date().toISOString(),
          };
 
@@ -82,12 +98,17 @@ export const useServicesGameCreate: Types.Service = async (request) => {
          };
       }
 
+      const initialConfig = (
+         request.game_type === 'LUCKY_DRAW' ? { theme: request.theme ?? 'theme-02' } : null
+      ) as AdminWeb.Database.Game['config'];
+
       const insertPayload: AdminWeb.Database.GameInsert = {
          event_id: request.eventId,
          name: trimmedName,
          game_type: request.game_type,
          status: request.status || 'READY',
          description: request.description?.trim() || null,
+         config: initialConfig,
       };
 
       const created = await supabase.from('games').insert(insertPayload).select('*').single();
