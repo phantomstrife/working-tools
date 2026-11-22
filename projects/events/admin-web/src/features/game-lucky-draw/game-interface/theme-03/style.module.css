@@ -89,21 +89,27 @@
 .right_box {
    position: absolute;
    left: 54.72%;
-   top: 34.55%;
+   top: 55.7%;
+   transform: translateY(-50%);
    width: 33.52%;
-   height: 42.3%;
+   height: auto;
+   min-height: 11.5cqw;
    border-radius: 1.05cqw;
+   background: #ffffff;
+   box-shadow:
+      0 0 1.4cqw rgba(110, 205, 255, 0.55),
+      0 0.5cqw 1.8cqw rgba(2, 8, 38, 0.45);
    overflow: hidden;
    z-index: 10;
 }
 
 .reel_layer {
-   position: absolute;
-   inset: 0;
+   position: relative;
+   width: 100%;
    display: flex;
    align-items: center;
    justify-content: center;
-   padding: 0;
+   padding: 1.35cqw;
 }
 
 .reel_row {

@@ -6,7 +6,7 @@ import { useStoreLuckyDraw } from '@admin-web/stores/lucky-draw';
 
 import type * as Types from './type';
 
-const BACKGROUND_IMAGE = '/assets/images/lucky-draw-theme-03-background.jpg';
+const BACKGROUND_IMAGE = '/assets/images/lucky-draw-theme-03-background.jpeg';
 
 const resolveEffectiveAttendeeName = (person: {
    salutation?: string | null;
@@ -57,9 +57,7 @@ export function useLogic() {
    const hiddenTicketCode = isSpinning ? winnerId : null;
    const prizeWinners = useMemo(
       () =>
-         currentPrize
-            ? winners.filter((w) => w.prizeId === currentPrize.id && w.ticketCode !== hiddenTicketCode)
-            : [],
+         currentPrize ? winners.filter((w) => w.prizeId === currentPrize.id && w.ticketCode !== hiddenTicketCode) : [],
       [winners, currentPrize, hiddenTicketCode],
    );
 
@@ -97,10 +95,10 @@ export function useLogic() {
 
    const isWinnerCardVisible = Boolean(
       !isSpinning &&
-         !isDrawingRequest &&
-         activeWinnerRecordId &&
-         dismissedWinnerRecordId !== activeWinnerRecordId &&
-         revealedWinnerCard,
+      !isDrawingRequest &&
+      activeWinnerRecordId &&
+      dismissedWinnerRecordId !== activeWinnerRecordId &&
+      revealedWinnerCard,
    );
 
    const statusKey: Types.Stage_Status_Key = !currentPrize
@@ -124,10 +122,10 @@ export function useLogic() {
 
    const isAllReelsLocked = Boolean(
       !isSpinning &&
-         !isDrawingRequest &&
-         activeWinnerRecordId &&
-         winnerChars.length > 0 &&
-         stoppedReels >= winnerChars.length,
+      !isDrawingRequest &&
+      activeWinnerRecordId &&
+      winnerChars.length > 0 &&
+      stoppedReels >= winnerChars.length,
    );
    const isVictoryRevealed = Boolean(isAllReelsLocked && dismissedWinnerRecordId === activeWinnerRecordId);
 
