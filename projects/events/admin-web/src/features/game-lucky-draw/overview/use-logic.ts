@@ -11,7 +11,9 @@ import { useServicesGameGetStaff } from '@admin-web/services/game/get-staff';
 import type * as Types from './type';
 
 export function useLogic(properties: Types.Properties, refs: Types.PanelRefs) {
-   const { game, isSuperAdmin = false } = properties;
+   const { game, role, isSuperAdmin = false } = properties;
+   const resolvedRole = role ?? (isSuperAdmin ? 'SUPER_ADMIN' : null);
+   const canResetGame = resolvedRole === 'SUPER_ADMIN' || resolvedRole === 'ADMIN';
 
    const modalActions = useStoreModal((store) => store.actions);
 
@@ -85,12 +87,12 @@ export function useLogic(properties: Types.Properties, refs: Types.PanelRefs) {
    }, [setState, fetchPrizes, fetchStaffs, refs]);
 
    const handleOpenResetModal = useCallback(() => {
-      if (!isSuperAdmin) {
+      if (!canResetGame) {
          return;
       }
 
       modalActions.openModal(GAME_RESET_MODAL_ID);
-   }, [isSuperAdmin, modalActions]);
+   }, [canResetGame, modalActions]);
 
    useEffect(() => void synchronizeStats(), [synchronizeStats]);
 
@@ -98,7 +100,8 @@ export function useLogic(properties: Types.Properties, refs: Types.PanelRefs) {
       state,
       param: {
          game,
-         isSuperAdmin,
+         role: resolvedRole,
+         canResetGame,
       },
       func: {
          translate,

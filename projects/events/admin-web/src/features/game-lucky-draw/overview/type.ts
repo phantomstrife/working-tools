@@ -4,6 +4,7 @@ import type * as StaffPanelTypes from '@admin-web/features/game-lucky-draw/staff
 
 export interface Properties {
    game: Game;
+   role?: Account_Role | null;
    isSuperAdmin?: boolean;
 }
 
@@ -19,6 +20,7 @@ export interface PanelRefs {
    staff: React.RefObject<StaffPanelHandle | null>;
 }
 
+export type Account_Role = AdminWeb.Database.Account_Role;
 export type Game = AdminWeb.Database.Game;
 export type GameLuckyDrawPrize = AdminWeb.Database.GameLuckyDrawPrize;
 export type AttendantsDatatableHandle = AttendantsDatatableTypes.ImperativeHandle;

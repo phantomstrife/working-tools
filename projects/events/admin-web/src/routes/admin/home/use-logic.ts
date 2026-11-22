@@ -5,7 +5,8 @@ import { useServicesUserRead } from '@admin-web/services/user/read/server';
 
 export async function useLogic(companyId: string) {
    const serviceUserRead = await useServicesUserRead();
-   const isSuperAdmin = !serviceUserRead.error && serviceUserRead.data.role === 'SUPER_ADMIN';
+   const role = !serviceUserRead.error ? serviceUserRead.data.role : null;
+   const isSuperAdmin = role === 'SUPER_ADMIN';
 
    const [serviceCompanyRead, serviceEventGetGames, serviceCompanySearch] = await Promise.all([
       useServicesCompanyRead({ id: companyId }),
@@ -18,6 +19,7 @@ export async function useLogic(companyId: string) {
 
    return {
       param: {
+         role,
          isSuperAdmin,
          companies,
          serviceCompanyRead,

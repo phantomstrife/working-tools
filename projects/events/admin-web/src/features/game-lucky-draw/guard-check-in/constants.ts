@@ -2,6 +2,8 @@ import { SALUTATION_OPTIONS } from '@admin-web/services/game-lucky-draw/attendan
 
 export { SALUTATION_OPTIONS };
 
+export const SHOW_QR_SCANNER_BLOCK = false;
+
 export const SEARCH_DEBOUNCE_MS = 300;
 export const CAMERA_SCAN_INTERVAL_MS = 180;
 export const RECENT_HISTORY_LIMIT = 6;

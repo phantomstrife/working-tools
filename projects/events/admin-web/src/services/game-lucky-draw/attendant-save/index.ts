@@ -15,7 +15,7 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
          throw new Error(access.message);
       }
 
-      const { supabase } = access.data;
+      const { supabase, userId, game, event } = access.data;
       const trimmedFullName = request.full_name.trim();
       const trimmedTicketCode = request.ticket_code.trim();
       const normalizedSalutation = normalizeSalutation(request.salutation);
@@ -69,10 +69,12 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
          accommodation: Boolean(request.accommodation),
       };
 
+      const nowIso = new Date().toISOString();
+
       if (request.id) {
          const existingRecord = await supabase
             .from('lucky_draw_attendants')
-            .select('id, ticket_code, email')
+            .select('id, ticket_code, email, is_checked_in, checked_in_at, checked_in_by, check_in_method')
             .eq('id', request.id)
             .eq('game_id', request.gameId)
             .single();
@@ -83,10 +85,31 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
 
          const ticketChanged = existingRecord.data.ticket_code !== trimmedTicketCode;
          const emailChanged = (existingRecord.data.email ?? null) !== normalizedPayload.email;
+         const hasCheckInChange =
+            request.is_checked_in !== undefined &&
+            Boolean(request.is_checked_in) !== Boolean(existingRecord.data.is_checked_in);
+         const nextCheckedIn = Boolean(request.is_checked_in);
+
+         const checkInPayload: Partial<AdminWeb.Database.GameLuckyDrawAttendantUpdate> = hasCheckInChange
+            ? nextCheckedIn
+               ? {
+                    is_checked_in: true,
+                    checked_in_at: nowIso,
+                    checked_in_by: userId,
+                    check_in_method: 'MANUAL_SEARCH',
+                 }
+               : {
+                    is_checked_in: false,
+                    checked_in_at: null,
+                    checked_in_by: null,
+                    check_in_method: null,
+                 }
+            : {};
 
          const updatePayload: AdminWeb.Database.GameLuckyDrawAttendantUpdate = {
             ...normalizedPayload,
-            updated_at: new Date().toISOString(),
+            ...checkInPayload,
+            updated_at: nowIso,
             ...(ticketChanged ? { qr_code_payload: generateQrCodePayload(request.gameId, trimmedTicketCode) } : {}),
             ...(emailChanged ? { email_status: 'NOT_SENT', email_sent_at: null } : {}),
          };
@@ -103,17 +126,38 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
             throw new Error(updated.error?.message || 'services.game_lucky_draw.attendant.save_failed');
          }
 
+         if (hasCheckInChange && nextCheckedIn) {
+            await supabase.from('logs').insert({
+               account_id: userId,
+               event_id: event.id,
+               game_id: game.id,
+               action_type: 'CHECKIN_MANUAL_SEARCH',
+               target_entity: 'lucky_draw_attendants',
+               target_id: updated.data.id,
+               metadata: {
+                  attendant_id: updated.data.id,
+                  ticket_code: updated.data.ticket_code,
+                  source: 'ADMIN_FORM',
+               },
+            });
+         }
+
          return {
             attendant: updated.data,
          };
       }
+
+      const shouldCheckIn = Boolean(request.is_checked_in);
 
       const insertPayload: AdminWeb.Database.GameLuckyDrawAttendantInsert = {
          ...normalizedPayload,
          game_id: request.gameId,
          qr_code_payload: generateQrCodePayload(request.gameId, trimmedTicketCode),
          email_status: 'NOT_SENT',
-         is_checked_in: false,
+         is_checked_in: shouldCheckIn,
+         checked_in_at: shouldCheckIn ? nowIso : null,
+         checked_in_by: shouldCheckIn ? userId : null,
+         check_in_method: shouldCheckIn ? 'MANUAL_SEARCH' : null,
          has_won: false,
       };
 
@@ -121,6 +165,22 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
 
       if (created.error || !created.data) {
          throw new Error(created.error?.message || 'services.game_lucky_draw.attendant.save_failed');
+      }
+
+      if (shouldCheckIn) {
+         await supabase.from('logs').insert({
+            account_id: userId,
+            event_id: event.id,
+            game_id: game.id,
+            action_type: 'CHECKIN_MANUAL_SEARCH',
+            target_entity: 'lucky_draw_attendants',
+            target_id: created.data.id,
+            metadata: {
+               attendant_id: created.data.id,
+               ticket_code: created.data.ticket_code,
+               source: 'ADMIN_FORM',
+            },
+         });
       }
 
       return {

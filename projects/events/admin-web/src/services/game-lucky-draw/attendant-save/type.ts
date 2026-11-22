@@ -14,6 +14,7 @@ export interface Request {
    representative_phone?: string | null;
    sale_in_charge?: string | null;
    accommodation?: boolean | null;
+   is_checked_in?: boolean | null;
 }
 
 export interface Response {

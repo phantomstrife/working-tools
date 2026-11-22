@@ -166,6 +166,42 @@ const themes = {
          disabled: false,
       },
    }),
+   root_grid: tv({
+      base: 'grid grid-cols-1 gap-secondary items-start',
+      variants: {
+         singleColumn: {
+            true: '',
+            false: 'xl:grid-cols-12',
+         },
+      },
+      defaultVariants: {
+         singleColumn: false,
+      },
+   }),
+   root_col_qr: tv({
+      base: 'flex flex-col gap-y-secondary min-w-0',
+      variants: {
+         singleColumn: {
+            true: '',
+            false: 'xl:col-span-5',
+         },
+      },
+      defaultVariants: {
+         singleColumn: false,
+      },
+   }),
+   root_col_feedback: tv({
+      base: 'flex flex-col gap-y-secondary min-w-0',
+      variants: {
+         singleColumn: {
+            true: '',
+            false: 'xl:col-span-7',
+         },
+      },
+      defaultVariants: {
+         singleColumn: false,
+      },
+   }),
    refresh_icon: tv({
       base: 'w-4 h-4 shrink-0',
       variants: {
@@ -181,12 +217,14 @@ const themes = {
 
 export const useStyle = {
    root: {
-      wrapper: 'flex flex-col gap-y-secondary',
-      grid: 'grid grid-cols-1 xl:grid-cols-12 gap-secondary items-start',
-      left_col: 'xl:col-span-5 flex flex-col gap-y-secondary',
-      right_col: 'xl:col-span-7 flex flex-col gap-y-secondary',
+      wrapper: 'flex flex-col gap-y-secondary min-w-0',
+      grid: themes.root_grid,
+      left_col: themes.root_col_qr,
+      right_col: themes.root_col_feedback,
    },
    stats: {
+      section: 'flex flex-col gap-y-3 min-w-0',
+      toolbar: 'flex items-center justify-end',
       wrapper: 'grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-primary',
       card: 'flex flex-col justify-between gap-y-2 p-3 sm:p-primary bg-neutral-50 border border-utility-200 rounded-secondary shadow-2xs',
       header: 'flex items-center justify-between gap-1 text-12 font-medium text-neutral-500',

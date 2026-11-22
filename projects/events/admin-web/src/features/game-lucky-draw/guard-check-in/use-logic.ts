@@ -16,6 +16,7 @@ import {
    RECENT_HISTORY_LIMIT,
    SALUTATION_OPTIONS,
    SEARCH_DEBOUNCE_MS,
+   SHOW_QR_SCANNER_BLOCK,
 } from './constants';
 
 import type * as Types from './type';
@@ -315,7 +316,9 @@ export function useLogic(
 
             playFeedbackTone('ERROR');
             toast.error(errorMessage);
-            scannerInputRef.current?.focus();
+            if (SHOW_QR_SCANNER_BLOCK) {
+               scannerInputRef.current?.focus();
+            }
             return;
          }
 
@@ -325,13 +328,18 @@ export function useLogic(
          });
 
          applyCheckInOutcome(serviceCheckIn.data, payload);
-         scannerInputRef.current?.focus();
+         if (SHOW_QR_SCANNER_BLOCK) {
+            scannerInputRef.current?.focus();
+         }
       },
       [applyCheckInOutcome, gameId, localizeError, scannerInputRef, setState],
    );
 
    const handleQrFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      if (!SHOW_QR_SCANNER_BLOCK) {
+         return;
+      }
       void submitQrPayload(state.qrInput);
    };
 
@@ -346,7 +354,7 @@ export function useLogic(
          previewRepresentativePhoneInput: '',
       });
 
-      if (state.qrMode === 'SCANNER') {
+      if (SHOW_QR_SCANNER_BLOCK && state.qrMode === 'SCANNER') {
          scannerInputRef.current?.focus();
       }
    }, [scannerInputRef, setState, state.qrMode]);
@@ -387,12 +395,16 @@ export function useLogic(
 
          playFeedbackTone('ERROR');
          toast.error(errorMessage);
-         scannerInputRef.current?.focus();
+         if (SHOW_QR_SCANNER_BLOCK) {
+            scannerInputRef.current?.focus();
+         }
          return;
       }
 
       applyCheckInOutcome(serviceCheckIn.data, targetResult.qrCodePayload);
-      scannerInputRef.current?.focus();
+      if (SHOW_QR_SCANNER_BLOCK) {
+         scannerInputRef.current?.focus();
+      }
    }, [
       applyCheckInOutcome,
       gameId,
@@ -481,7 +493,7 @@ export function useLogic(
    ]);
 
    const startCamera = useCallback(async () => {
-      if (state.isCameraActive || state.isCameraStarting) {
+      if (!SHOW_QR_SCANNER_BLOCK || state.isCameraActive || state.isCameraStarting) {
          return;
       }
 
@@ -567,7 +579,7 @@ export function useLogic(
    ]);
 
    const handleSelectQrMode = (mode: Types.Qr_Mode) => {
-      if (mode === state.qrMode) {
+      if (!SHOW_QR_SCANNER_BLOCK || mode === state.qrMode) {
          return;
       }
 

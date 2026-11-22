@@ -121,7 +121,6 @@ export function useLogic() {
    );
 
    const isAllReelsLocked = Boolean(
-      !isSpinning &&
       !isDrawingRequest &&
       activeWinnerRecordId &&
       winnerChars.length > 0 &&

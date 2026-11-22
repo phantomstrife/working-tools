@@ -26,6 +26,7 @@ const getInitialValues = (attendant?: Types.Attendant | null): Types.FormValues 
    representative_phone: attendant?.representative_phone ?? '',
    sale_in_charge: attendant?.sale_in_charge ?? '',
    accommodation: Boolean(attendant?.accommodation),
+   is_checked_in: Boolean(attendant?.is_checked_in),
 });
 
 export function useLogic(properties: Types.Properties) {
@@ -131,6 +132,7 @@ export function useLogic(properties: Types.Properties) {
             representative_phone: values.representative_phone || null,
             sale_in_charge: values.sale_in_charge || null,
             accommodation: Boolean(values.accommodation),
+            is_checked_in: Boolean(values.is_checked_in),
          });
 
          if (saveResult.error) {

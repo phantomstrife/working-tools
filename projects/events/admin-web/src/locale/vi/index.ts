@@ -17,6 +17,12 @@ export const vi = {
          description: `Không có dữ liệu nào phù hợp với tiêu chí tìm kiếm của bạn. Vui lòng thử lại với các tiêu chí khác.`,
          retry: 'Thử lại',
       },
+      app_version_tag: {
+         tooltip_synced: 'Phiên bản hiện tại: {{client}} (Máy chủ: {{server}}) · Nhấn để kiểm tra cập nhật',
+         tooltip_mismatch: 'Có phiên bản mới! Trình duyệt: {{client}} → Máy chủ: {{server}} · Nhấn để tải lại trang',
+         update_label: 'Cập nhật',
+         checking: 'Đang kiểm tra phiên bản...',
+      },
    },
    features: {
       authorize: {
@@ -401,6 +407,11 @@ export const vi = {
                   label: 'Lưu trú (VIP)',
                   checkbox_label: 'Khách lưu trú VIP (gửi kèm nút Xác nhận / Thay đổi trong Email)',
                },
+               is_checked_in: {
+                  label: 'Trạng thái check-in',
+                  checkbox_label: 'Đã check-in tham dự sự kiện',
+                  checked_in_at_hint: 'Đã check-in lúc {{time}}',
+               },
                qr_code_payload: {
                   label: 'Mã định danh QR (Tự động tạo)',
                },
@@ -725,15 +736,22 @@ export const vi = {
          game_reset: {
             modal: {
                title: 'Đặt lại dữ liệu trò chơi',
-               description: 'Công cụ dành riêng cho SUPER_ADMIN để làm sạch dữ liệu quay số trước khi chạy lại.',
+               description: 'Làm sạch dữ liệu quay số trước khi chạy lại trò chơi.',
+               description_admin:
+                  'Chỉ đặt lại dữ liệu quay số và khôi phục số lượng giải thưởng. Toàn bộ lịch sử check-in và danh sách khách tham dự được giữ nguyên.',
                target_game: 'Trò chơi áp dụng',
+               scope_title: 'Phạm vi đặt lại',
+               game_data_only_label: 'Chỉ đặt lại dữ liệu quay số',
+               game_data_only_hint:
+                  'Giữ nguyên dữ liệu check-in của khách, chỉ xóa kết quả trúng giải và đặt lại số lượng giải thưởng về ban đầu.',
                default_scope_title: 'Luôn thực hiện mặc định',
-               default_scope_winners: 'Xóa toàn bộ lịch sử trúng giải (lucky_draw_winners)',
+               default_scope_winners:
+                  'Xóa toàn bộ danh sách trúng giải (lucky_draw_winners) và trạng thái trúng/vắng mặt của khách',
                default_scope_attendants:
                   'Đặt lại trạng thái trúng giải & vắng mặt của khách (has_won = false, xóa is_absent_forfeited)',
-               default_scope_prizes:
-                  'Khôi phục số lượng còn lại của tất cả giải thưởng (remaining_quantity = total_quantity)',
-               optional_title: 'Tùy chọn bổ sung',
+               default_scope_prizes: 'Khôi phục số lượng ban đầu của tất cả giải thưởng',
+               default_scope_preserve: 'Giữ nguyên toàn bộ lịch sử check-in và danh sách khách tham dự',
+               optional_title: 'Tùy chọn nâng cao (Chỉ SUPER_ADMIN)',
                reset_check_ins_label: 'Đặt lại trạng thái Check-in',
                reset_check_ins_hint:
                   'Đưa toàn bộ khách tham dự về trạng thái chưa check-in (xóa thời gian & phương thức check-in).',
@@ -953,6 +971,8 @@ export const vi = {
             preparing_short: 'Đang xử lý...',
             spinning_short: 'Đang quay...',
             stop_short: 'Dừng',
+            drag_hint: 'Kéo để di chuyển bảng điều khiển (nhấp đúp để đặt lại)',
+            reset_box_tooltip: 'Đặt lại vị trí & kích thước mặc định',
             shortcuts_hint:
                'Phím tắt: [Shift + Space] Quay số / Dừng · [Shift + W] Ẩn/hiện DS trúng giải · [Shift + H] Ẩn/hiện bảng điều khiển · [Shift + F] Toàn màn hình',
          },
@@ -1098,7 +1118,10 @@ export const vi = {
             failed: 'Không thể thực hiện quay số. Vui lòng thử lại.',
          },
          game_reset: {
-            forbidden: 'Chỉ Quản trị hệ thống (SUPER_ADMIN) mới có quyền đặt lại dữ liệu trò chơi.',
+            forbidden:
+               'Chỉ Quản trị hệ thống (SUPER_ADMIN) hoặc Quản trị viên (ADMIN) mới có quyền đặt lại dữ liệu trò chơi.',
+            admin_option_forbidden:
+               'Tài khoản ADMIN chỉ được phép thực hiện "Chỉ đặt lại dữ liệu quay số", không được phép đặt lại Check-in hoặc xóa danh sách khách tham dự.',
          },
       },
       user: {

@@ -19,7 +19,11 @@ export const GameResetModal: AdminWeb.Component<Types.Properties> = (properties)
          id={GAME_RESET_MODAL_ID}
          disabled={param.isPending}
          title={func.translate('modal.title')}
-         description={func.translate('modal.description')}
+         description={
+            param.isSuperAdmin
+               ? func.translate('modal.description')
+               : func.translate('modal.description_admin')
+         }
          style={{ width: '34rem', bodyClass: 'p-0' }}
       >
          {() => (
@@ -33,70 +37,94 @@ export const GameResetModal: AdminWeb.Component<Types.Properties> = (properties)
                      <span className={game_name}>{param.game.name}</span>
                   </div>
 
-                  <div className={scope.wrapper}>
-                     <span className={scope.title}>{func.translate('modal.default_scope_title')}</span>
-                     <ul className={scope.list}>
-                        <li className={scope.item}>
-                           <span className={scope.dot} />
-                           <span>{func.translate('modal.default_scope_winners')}</span>
-                        </li>
-                        <li className={scope.item}>
-                           <span className={scope.dot} />
-                           <span>{func.translate('modal.default_scope_attendants')}</span>
-                        </li>
-                        <li className={scope.item}>
-                           <span className={scope.dot} />
-                           <span>{func.translate('modal.default_scope_prizes')}</span>
-                        </li>
-                     </ul>
-                  </div>
-
                   <div className={options.wrapper}>
-                     <span className={options.title}>{func.translate('modal.optional_title')}</span>
+                     <span className={options.title}>{func.translate('modal.scope_title')}</span>
 
                      <label
-                        htmlFor="game-reset-check-ins"
-                        className={options.card({ disabled: param.isPending || state.deleteAttendants })}
-                     >
-                        <input
-                           id="game-reset-check-ins"
-                           type="checkbox"
-                           checked={state.resetCheckIns}
-                           disabled={param.isPending || state.deleteAttendants}
-                           onChange={(event) => func.handleToggleResetCheckIns(event.target.checked)}
-                           className={options.checkbox}
-                        />
-                        <div className={options.content}>
-                           <span className={options.label}>{func.translate('modal.reset_check_ins_label')}</span>
-                           <span className={options.hint}>{func.translate('modal.reset_check_ins_hint')}</span>
-                        </div>
-                     </label>
-
-                     <label
-                        htmlFor="game-reset-delete-attendants"
+                        htmlFor="game-reset-game-data-only"
                         className={options.card({
                            disabled: param.isPending,
-                           danger: state.deleteAttendants,
+                           selected: param.isGameDataOnly,
+                           locked: !param.isSuperAdmin,
                         })}
                      >
                         <input
-                           id="game-reset-delete-attendants"
+                           id="game-reset-game-data-only"
                            type="checkbox"
-                           checked={state.deleteAttendants}
-                           disabled={param.isPending}
-                           onChange={(event) => func.handleToggleDeleteAttendants(event.target.checked)}
-                           className={options.checkbox}
+                           checked={param.isGameDataOnly}
+                           disabled={param.isPending || !param.isSuperAdmin}
+                           onChange={() => func.handleSelectGameDataOnly()}
+                           className={options.checkbox_primary}
                         />
                         <div className={options.content}>
-                           <span className={options.label_danger}>
-                              {func.translate('modal.delete_attendants_label')}
-                           </span>
-                           <span className={options.hint}>{func.translate('modal.delete_attendants_hint')}</span>
+                           <span className={options.label}>{func.translate('modal.game_data_only_label')}</span>
+                           <span className={options.hint}>{func.translate('modal.game_data_only_hint')}</span>
+                           <ul className={scope.list}>
+                              <li className={scope.item}>
+                                 <span className={scope.dot} />
+                                 <span>{func.translate('modal.default_scope_winners')}</span>
+                              </li>
+                              <li className={scope.item}>
+                                 <span className={scope.dot} />
+                                 <span>{func.translate('modal.default_scope_prizes')}</span>
+                              </li>
+                              <li className={scope.item_preserve}>
+                                 <span className={scope.dot_preserve} />
+                                 <span>{func.translate('modal.default_scope_preserve')}</span>
+                              </li>
+                           </ul>
                         </div>
                      </label>
                   </div>
 
-                  {state.deleteAttendants && (
+                  {param.isSuperAdmin && (
+                     <div className={options.wrapper}>
+                        <span className={options.title}>{func.translate('modal.optional_title')}</span>
+
+                        <label
+                           htmlFor="game-reset-check-ins"
+                           className={options.card({ disabled: param.isPending || state.deleteAttendants })}
+                        >
+                           <input
+                              id="game-reset-check-ins"
+                              type="checkbox"
+                              checked={state.resetCheckIns}
+                              disabled={param.isPending || state.deleteAttendants}
+                              onChange={(event) => func.handleToggleResetCheckIns(event.target.checked)}
+                              className={options.checkbox}
+                           />
+                           <div className={options.content}>
+                              <span className={options.label}>{func.translate('modal.reset_check_ins_label')}</span>
+                              <span className={options.hint}>{func.translate('modal.reset_check_ins_hint')}</span>
+                           </div>
+                        </label>
+
+                        <label
+                           htmlFor="game-reset-delete-attendants"
+                           className={options.card({
+                              disabled: param.isPending,
+                              danger: state.deleteAttendants,
+                           })}
+                        >
+                           <input
+                              id="game-reset-delete-attendants"
+                              type="checkbox"
+                              checked={state.deleteAttendants}
+                              disabled={param.isPending}
+                              onChange={(event) => func.handleToggleDeleteAttendants(event.target.checked)}
+                              className={options.checkbox}
+                           />
+                           <div className={options.content}>
+                              <span className={options.label_danger}>
+                                 {func.translate('modal.delete_attendants_label')}
+                              </span>
+                              <span className={options.hint}>{func.translate('modal.delete_attendants_hint')}</span>
+                           </div>
+                        </label>
+                     </div>
+                  )}
+
+                  {param.isSuperAdmin && state.deleteAttendants && (
                      <div
                         role="alert"
                         className={warning.box}

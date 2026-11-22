@@ -51,9 +51,11 @@ export const useStyle = {
       title_row: 'flex items-center gap-x-1.5 text-13 font-medium text-neutral-800',
       title_icon: 'text-neutral-500 shrink-0',
       control:
-         'flex items-center gap-x-2.5 px-primary py-2.5 bg-neutral-50 border border-utility-300 rounded-primary cursor-pointer hover:bg-neutral-100/60 transition-colors',
-      input: 'w-4 h-4 accent-neutral-900 rounded cursor-pointer shrink-0',
+         'flex items-start gap-x-2.5 px-primary py-2.5 bg-neutral-50 border border-utility-300 rounded-primary cursor-pointer hover:bg-neutral-100/60 transition-colors',
+      input: 'mt-0.5 w-4 h-4 accent-neutral-900 rounded cursor-pointer shrink-0',
+      label_group: 'flex flex-col gap-y-0.5 min-w-0',
       label: 'text-13 text-neutral-700 select-none',
+      hint: 'text-11 text-neutral-500 select-none',
    },
    qr_box: {
       wrapper: `mx-primary sm:mx-secondary mb-primary sm:mb-secondary flex items-center justify-between gap-primary px-primary py-[calc(var(--spacing-primary)*5/8)] bg-neutral-100 border border-utility-200 rounded-primary`,

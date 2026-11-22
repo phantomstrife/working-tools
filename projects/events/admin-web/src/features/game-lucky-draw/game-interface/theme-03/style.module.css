@@ -67,10 +67,6 @@
    text-transform: uppercase;
    max-width: 100%;
    word-break: break-word;
-   display: -webkit-box;
-   -webkit-line-clamp: 2;
-   -webkit-box-orient: vertical;
-   overflow: hidden;
    filter: drop-shadow(0 0.14cqw 0.3cqw rgba(6, 11, 61, 0.9)) drop-shadow(0 0 1.2cqw var(--theme03-prize-glow));
 }
 
@@ -88,8 +84,9 @@
 
 .right_box {
    position: absolute;
-   left: 54.72%;
-   top: 55.7%;
+   left: 50%;
+   top: 60%;
+   display: flex;
    transform: translateY(-50%);
    width: 33.52%;
    height: auto;
@@ -109,7 +106,7 @@
    display: flex;
    align-items: center;
    justify-content: center;
-   padding: 1.35cqw;
+   padding: 3cqw 1.35cqw;
 }
 
 .reel_row {
@@ -229,15 +226,10 @@
    margin: 0;
    max-width: 96%;
    color: var(--theme03-company-ink);
-   font-size: 1.1cqw;
-   line-height: 1.22;
+   font-size: 1cqw;
    font-weight: 700;
    letter-spacing: 0.04em;
    text-transform: uppercase;
-   display: -webkit-box;
-   -webkit-line-clamp: 2;
-   -webkit-box-orient: vertical;
-   overflow: hidden;
    word-break: break-word;
 }
 
@@ -245,16 +237,10 @@
    margin: 0;
    max-width: 98%;
    color: var(--theme03-royal-deep);
-   font-size: 2.3cqw;
-   line-height: 1.12;
+   font-size: 1.8cqw;
    font-weight: 900;
    letter-spacing: 0.02em;
    text-transform: uppercase;
-   display: -webkit-box;
-   -webkit-line-clamp: 2;
-   -webkit-box-orient: vertical;
-   overflow: hidden;
-   word-break: break-word;
 }
 
 .winner_name_compact {

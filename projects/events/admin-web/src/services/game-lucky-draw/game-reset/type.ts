@@ -1,5 +1,8 @@
+export type Reset_Mode = 'GAME_DATA_ONLY' | 'CUSTOM';
+
 export interface Request {
    gameId: string;
+   mode?: Reset_Mode;
    resetCheckIns?: boolean;
    deleteAttendants?: boolean;
 }

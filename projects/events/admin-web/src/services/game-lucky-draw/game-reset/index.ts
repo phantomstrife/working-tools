@@ -2,6 +2,7 @@
 
 import { getAdminClient } from '@admin-web/adapters/supabase/admin';
 import { getServerClient } from '@admin-web/adapters/supabase/server';
+import { verifyGameAccess } from '@admin-web/services/game-lucky-draw/verify-game-access';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
 import type * as Types from './type';
@@ -28,7 +29,7 @@ const getMetadataObject = (
 
 export const useServicesGameLuckyDrawGameReset: Types.Service = async (request) => {
    return trycatchAsync(async () => {
-      const { gameId, resetCheckIns = false, deleteAttendants = false } = request;
+      const { gameId, mode, resetCheckIns = false, deleteAttendants = false } = request;
 
       if (!gameId) {
          throw new Error('services.game_lucky_draw.game_not_found');
@@ -44,7 +45,7 @@ export const useServicesGameLuckyDrawGameReset: Types.Service = async (request) 
 
       const account = await supabase
          .from('accounts')
-         .select('id, role, is_active')
+         .select('id, role, company_id, is_active')
          .eq('id', user.id)
          .single();
 
@@ -56,21 +57,33 @@ export const useServicesGameLuckyDrawGameReset: Types.Service = async (request) 
          throw new Error('services.account.deactivated');
       }
 
-      if (account.data.role !== 'SUPER_ADMIN') {
+      const callerRole = account.data.role;
+
+      if (callerRole !== 'SUPER_ADMIN' && callerRole !== 'ADMIN') {
          throw new Error('services.game_lucky_draw.game_reset.forbidden');
       }
 
-      const admin = getAdminClient();
+      const isAdmin = callerRole === 'ADMIN';
 
-      const gameQuery = await admin
-         .from('games')
-         .select('id, event_id')
-         .eq('id', gameId)
-         .maybeSingle();
-
-      if (gameQuery.error || !gameQuery.data) {
-         throw new Error('services.game_lucky_draw.game_not_found');
+      if (isAdmin && (request.resetCheckIns === true || request.deleteAttendants === true)) {
+         throw new Error('services.game_lucky_draw.game_reset.admin_option_forbidden');
       }
+
+      const access = await verifyGameAccess({ gameId });
+
+      if (access.error) {
+         throw new Error(access.message);
+      }
+
+      if (isAdmin && (!account.data.company_id || access.data.event.company_id !== account.data.company_id)) {
+         throw new Error('services.user.access_denied');
+      }
+
+      const isGameDataOnly = isAdmin || mode === 'GAME_DATA_ONLY';
+      const effectiveDeleteAttendants = !isGameDataOnly && Boolean(deleteAttendants);
+      const effectiveResetCheckIns = !isGameDataOnly && !effectiveDeleteAttendants && Boolean(resetCheckIns);
+
+      const admin = getAdminClient();
 
       const nowIso = new Date().toISOString();
 
@@ -121,7 +134,7 @@ export const useServicesGameLuckyDrawGameReset: Types.Service = async (request) 
       let deletedAttendants = 0;
 
       // 3. Delete or reset attendants for this game.
-      if (deleteAttendants) {
+      if (effectiveDeleteAttendants) {
          const attendantsDelete = await admin
             .from('lucky_draw_attendants')
             .delete()
@@ -156,7 +169,7 @@ export const useServicesGameLuckyDrawGameReset: Types.Service = async (request) 
                const metadata = getMetadataObject(row.custom_metadata);
                const hasForfeitedFlag = Boolean(metadata && 'is_absent_forfeited' in metadata);
 
-               if (row.has_won || (resetCheckIns && row.is_checked_in) || hasForfeitedFlag) {
+               if (row.has_won || (effectiveResetCheckIns && row.is_checked_in) || hasForfeitedFlag) {
                   affectedIds.add(row.id);
                }
 
@@ -177,7 +190,7 @@ export const useServicesGameLuckyDrawGameReset: Types.Service = async (request) 
             offset += FETCH_PAGE_SIZE;
          }
 
-         if (resetCheckIns) {
+         if (effectiveResetCheckIns) {
             const bulkUpdate = await admin
                .from('lucky_draw_attendants')
                .update({

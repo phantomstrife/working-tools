@@ -1,4 +1,5 @@
 import { Inter } from 'next/font/google';
+
 import { I18nProvider } from '@admin-web/locale';
 
 import '@admin-web/styles/theme.css';

@@ -1,0 +1,27 @@
+.corner_grip {
+   position: absolute;
+   right: 4px;
+   bottom: 4px;
+   width: 10px;
+   height: 10px;
+   pointer-events: none;
+   opacity: 0.55;
+   background: linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 42%,
+      rgba(161, 161, 161, 0.7) 42%,
+      rgba(161, 161, 161, 0.7) 52%,
+      transparent 52%,
+      transparent 70%,
+      rgba(161, 161, 161, 0.7) 70%,
+      rgba(161, 161, 161, 0.7) 80%,
+      transparent 80%
+   );
+}
+
+.wide_body_grid {
+   display: grid;
+   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.15fr);
+   align-items: end;
+}

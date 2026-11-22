@@ -24,7 +24,7 @@ import {
 import { FormField } from '@admin-web/components/form-field';
 import { Modal } from '@admin-web/components/modal';
 
-import { MODAL_ID } from './constants';
+import { MODAL_ID, SHOW_QR_SCANNER_BLOCK } from './constants';
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
@@ -64,257 +64,363 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
       return [attendant.representative_salutation?.trim(), attendant.representative.trim()].filter(Boolean).join(' ');
    };
 
+   const isSingleColumn = !SHOW_QR_SCANNER_BLOCK;
+
    return (
       <div className={root.wrapper}>
-         <div className="flex items-center justify-end">
-            <button
-               type="button"
-               disabled={state.isStatsLoading}
-               onClick={func.fetchStats}
-               className={stats.refresh_btn}
-            >
-               <RefreshCw className={stats.refresh_icon({ loading: state.isStatsLoading })} />
-               {func.translate('stats.refresh')}
-            </button>
-         </div>
-         <div className={stats.wrapper}>
-            <div className={stats.card}>
-               <div className={stats.header}>
-                  <span>{func.translate('stats.checked_in')}</span>
-                  <UserCheck size={16} />
-               </div>
-               <div className={stats.value_row}>
-                  <span className={stats.value_success}>{state.checkedInCount}</span>
-               </div>
+         {/* Section 1 (Top): Manual Search & Check-in */}
+         <div className={card.wrapper}>
+            <div className={card.header}>
+               <h3 className={card.title}>
+                  <Search size={18} />
+                  {func.translate('manual.title')}
+               </h3>
+               <p className={card.subtitle}>{func.translate('manual.subtitle')}</p>
             </div>
 
-            <div className={stats.card}>
-               <div className={stats.header}>
-                  <span>{func.translate('stats.remaining')}</span>
-                  <Clock size={16} />
-               </div>
-               <div className={stats.value_row}>
-                  <span className={stats.value}>{param.remainingCount}</span>
-               </div>
+            <div className={manual.search_bar}>
+               <Search size={16} />
+               <input
+                  type="text"
+                  value={state.searchKeyword}
+                  placeholder={func.translate('manual.search_placeholder')}
+                  onChange={(event) => func.setState(event.target.value, 'searchKeyword')}
+                  className={manual.search_input}
+               />
+               {state.searchKeyword && (
+                  <button
+                     type="button"
+                     onClick={() => func.setState('', 'searchKeyword')}
+                     className={manual.clear_btn}
+                  >
+                     <X size={15} />
+                  </button>
+               )}
             </div>
 
-            <div className={stats.card}>
-               <div className={stats.header}>
-                  <span>{func.translate('stats.total')}</span>
-                  <Users size={16} />
-               </div>
-               <div className={stats.value_row}>
-                  <span className={stats.value}>{state.totalCount}</span>
-               </div>
-            </div>
+            {!state.searchKeyword.trim() ? (
+               <div className={manual.empty_box}>{func.translate('manual.empty_prompt')}</div>
+            ) : state.isSearching ? (
+               <div className={manual.empty_box}>{func.translate('manual.searching')}</div>
+            ) : state.searchResults.length === 0 ? (
+               <div className={manual.empty_box}>{func.translate('manual.no_results')}</div>
+            ) : (
+               <div className={manual.results_scroll}>
+                  {state.searchResults.map((row) => {
+                     const isRowLoading = state.checkingInAttendantId === row.id;
+                     const isCheckInDisabled = Boolean(state.checkingInAttendantId) || Boolean(row.is_checked_in);
+                     const formattedRep = formatRepresentativeName(row);
+                     const hasRepresentative = Boolean(formattedRep || row.representative_phone);
 
-            <div className={stats.card}>
-               <div className={stats.header}>
-                  <span>{func.translate('stats.rate')}</span>
-                  <span>{param.attendanceRate}%</span>
-               </div>
-               <div className={stats.value_row}>
-                  <span className={stats.value}>{param.attendanceRate}%</span>
-               </div>
-               <div className={stats.progress_track}>
-                  <div
-                     className={stats.progress_fill}
-                     style={{ width: `${param.attendanceRate}%` }}
-                  />
-               </div>
-            </div>
-         </div>
-
-         <div className={root.grid}>
-            <div className={root.left_col}>
-               <div className={card.wrapper}>
-                  <div className={card.header}>
-                     <div className={card.title_row}>
-                        <h3 className={card.title}>
-                           <QrCode size={18} />
-                           {func.translate('qr.title')}
-                        </h3>
-                     </div>
-                     <p className={card.subtitle}>{func.translate('qr.subtitle')}</p>
-                  </div>
-
-                  <div className={qr.tabs}>
-                     <button
-                        type="button"
-                        className={qr.tab({ active: state.qrMode === 'SCANNER' })}
-                        onClick={() => func.handleSelectQrMode('SCANNER')}
-                     >
-                        <Keyboard size={15} />
-                        {func.translate('qr.modes.scanner')}
-                     </button>
-                     <button
-                        type="button"
-                        className={qr.tab({ active: state.qrMode === 'CAMERA' })}
-                        onClick={() => func.handleSelectQrMode('CAMERA')}
-                     >
-                        <Camera size={15} />
-                        {func.translate('qr.modes.camera')}
-                     </button>
-                  </div>
-
-                  {state.qrMode === 'SCANNER' ? (
-                     <form
-                        className={qr.form}
-                        onSubmit={func.handleQrFormSubmit}
-                     >
-                        <span className={qr.label}>{func.translate('qr.scanner_input_label')}</span>
-                        <div className={qr.input_row}>
-                           <div className={qr.input_wrapper}>
-                              <QrCode size={16} />
-                              <input
-                                 ref={scannerInputRef}
-                                 type="text"
-                                 autoFocus
-                                 value={state.qrInput}
-                                 readOnly={state.isQrSubmitting}
-                                 placeholder={func.translate('qr.scanner_placeholder')}
-                                 onChange={(event) => func.setState(event.target.value, 'qrInput')}
-                                 className={qr.input}
-                              />
-                              {state.qrInput && (
-                                 <button
-                                    type="button"
-                                    onClick={() => func.setState('', 'qrInput')}
-                                    className={manual.clear_btn}
-                                 >
-                                    <X size={15} />
-                                 </button>
-                              )}
-                           </div>
-                           <button
-                              type="submit"
-                              disabled={param.isQrSubmitDisabled}
-                              className={qr.submit({ disabled: param.isQrSubmitDisabled })}
-                           >
-                              {state.isQrSubmitting && <RefreshCw className={stats.refresh_icon({ loading: true })} />}
-                              {func.translate(`qr.submit_scanning_${state.isQrSubmitting}`)}
-                           </button>
-                        </div>
-                        <span className={qr.hint}>{func.translate('qr.scanner_hint')}</span>
-                     </form>
-                  ) : (
-                     <div className={qr.camera.wrapper}>
-                        <div className={qr.camera.viewport({ status: param.cameraStatus })}>
-                           <video
-                              ref={videoRef}
-                              playsInline
-                              muted
-                              className={qr.camera.video}
-                           />
-                           <canvas
-                              ref={canvasRef}
-                              className={qr.camera.hidden_canvas}
-                           />
-                           {state.isCameraActive ? (
-                              <>
-                                 <div className={qr.camera.overlay({ status: param.cameraStatus })} />
-                                 <div className={qr.camera.hud({ status: param.cameraStatus })}>
-                                    {param.cameraStatus === 'VERIFYING' ? (
-                                       <div className={qr.camera.hud_left}>
-                                          <RefreshCw className={stats.refresh_icon({ loading: true })} />
-                                          <span className={qr.camera.hud_text}>
-                                             {func.translate('qr.status_verifying')}
-                                          </span>
-                                       </div>
-                                    ) : param.cameraStatus === 'PREVIEW' && state.lastResult?.kind === 'PREVIEW' ? (
-                                       <>
-                                          <div className={qr.camera.hud_left}>
-                                             <UserCheck className={qr.camera.hud_icon} />
-                                             <span className={qr.camera.hud_text}>
-                                                {formatAttendantName(state.lastResult.attendant)}
-                                             </span>
-                                          </div>
-                                          <span className={qr.camera.hud_ticket}>
-                                             {state.lastResult.attendant.ticket_code}
-                                          </span>
-                                       </>
-                                    ) : param.cameraStatus === 'SUCCESS' && state.lastResult?.kind === 'SUCCESS' ? (
-                                       <>
-                                          <div className={qr.camera.hud_left}>
-                                             <CheckCircle2 className={qr.camera.hud_icon} />
-                                             <span className={qr.camera.hud_text}>
-                                                {formatAttendantName(state.lastResult.attendant)}
-                                             </span>
-                                          </div>
-                                          <span className={qr.camera.hud_ticket}>
-                                             {state.lastResult.attendant.ticket_code}
-                                          </span>
-                                       </>
-                                    ) : param.cameraStatus === 'ALREADY' && state.lastResult?.kind === 'ALREADY' ? (
-                                       <>
-                                          <div className={qr.camera.hud_left}>
-                                             <AlertTriangle className={qr.camera.hud_icon} />
-                                             <span className={qr.camera.hud_text}>
-                                                {formatAttendantName(state.lastResult.attendant)}
-                                             </span>
-                                          </div>
-                                          <span className={qr.camera.hud_ticket}>
-                                             {state.lastResult.attendant.ticket_code}
-                                          </span>
-                                       </>
-                                    ) : param.cameraStatus === 'ERROR' && state.lastResult?.kind === 'ERROR' ? (
-                                       <div className={qr.camera.hud_left}>
-                                          <XCircle className={qr.camera.hud_icon} />
-                                          <span className={qr.camera.hud_text}>{state.lastResult.message}</span>
-                                       </div>
-                                    ) : (
-                                       <div className={qr.camera.hud_left}>
-                                          <QrCode className={qr.camera.hud_icon} />
-                                          <span className={qr.camera.hud_text}>
-                                             {func.translate('qr.status_ready')}
-                                          </span>
-                                       </div>
-                                    )}
-                                 </div>
-                              </>
-                           ) : (
-                              <div className={qr.camera.placeholder}>
-                                 <Camera size={32} />
-                                 <span>
-                                    {state.isCameraStarting
-                                       ? func.translate('qr.camera_starting')
-                                       : func.translate('qr.camera_active_hint')}
-                                 </span>
+                     return (
+                        <div
+                           key={row.id}
+                           className={manual.card}
+                        >
+                           <div className={manual.card_header}>
+                              <div className={manual.card_title_group}>
+                                 <span className={manual.attendant_name}>{formatAttendantName(row)}</span>
+                                 <span className={manual.ticket_badge}>{row.ticket_code}</span>
                               </div>
-                           )}
-                        </div>
+                              <span className={manual.status_badge({ checkedIn: !!row.is_checked_in })}>
+                                 {row.is_checked_in
+                                    ? func.translate('manual.badges.checked_in')
+                                    : func.translate('manual.badges.pending')}
+                              </span>
+                           </div>
 
-                        {state.cameraError && <div className={qr.camera.error}>{state.cameraError}</div>}
+                           <div className={manual.info_grid}>
+                              <div className={manual.info_item}>
+                                 <span className={manual.info_label}>
+                                    {func.translate('manual.fields.contact')}
+                                 </span>
+                                 <span className={manual.info_value}>{row.phone || '—'}</span>
+                                 {row.email && (
+                                    <span
+                                       title={row.email}
+                                       className={manual.info_email}
+                                    >
+                                       {row.email}
+                                    </span>
+                                 )}
+                              </div>
 
-                        <div className={qr.camera.controls}>
-                           <span className={qr.hint}>{func.translate('qr.camera_active_hint')}</span>
-                           <div className={qr.camera.controls_actions}>
-                              {state.isCameraActive ? (
-                                 <button
-                                    type="button"
-                                    onClick={func.stopCamera}
-                                    className={qr.camera.button({ active: true })}
-                                 >
-                                    <CameraOff size={15} />
-                                    {func.translate('qr.camera_stop')}
-                                 </button>
-                              ) : (
-                                 <button
-                                    type="button"
-                                    disabled={state.isCameraStarting}
-                                    onClick={func.startCamera}
-                                    className={qr.camera.button({ active: false })}
-                                 >
-                                    <Camera size={15} />
-                                    {func.translate('qr.camera_start')}
-                                 </button>
+                              <div className={manual.info_item}>
+                                 <span className={manual.info_label}>
+                                    {func.translate('manual.columns.company')}
+                                 </span>
+                                 <span className={manual.info_value}>{row.company_name || '—'}</span>
+                                 {row.department && <span className={manual.info_sub}>{row.department}</span>}
+                              </div>
+
+                              <div className={manual.rep_box({ hasValue: hasRepresentative })}>
+                                 <span className={hasRepresentative ? manual.rep_label : manual.rep_label_empty}>
+                                    {func.translate('manual.columns.representative')}
+                                 </span>
+                                 {hasRepresentative ? (
+                                    <div className={manual.rep_row}>
+                                       <span className={manual.representative_text}>{formattedRep || '—'}</span>
+                                       {row.representative_phone && (
+                                          <span className={manual.representative_phone}>
+                                             • {row.representative_phone}
+                                          </span>
+                                       )}
+                                    </div>
+                                 ) : (
+                                    <span className={manual.representative_empty}>—</span>
+                                 )}
+                              </div>
+
+                              {row.is_checked_in && row.checked_in_at && (
+                                 <div className={manual.checked_in_meta}>
+                                    <Clock size={13} />
+                                    <span>
+                                       {func.translate('manual.fields.checked_in_at', {
+                                          time: formatDateTime(row.checked_in_at),
+                                       })}
+                                       {row.check_in_method
+                                          ? ` (${func.translate(`feedback.method_${row.check_in_method}`)})`
+                                          : ''}
+                                    </span>
+                                 </div>
                               )}
                            </div>
-                        </div>
-                     </div>
-                  )}
-               </div>
 
+                           <div className={manual.card_footer}>
+                              <button
+                                 type="button"
+                                 title={func.translate('manual.edit_representative_title')}
+                                 onClick={() => func.handleOpenEditRepresentative(row)}
+                                 className={manual.edit_btn}
+                              >
+                                 <Pencil size={13} />
+                                 {func.translate('manual.edit_representative_btn')}
+                              </button>
+                              <button
+                                 type="button"
+                                 disabled={isCheckInDisabled}
+                                 onClick={() => func.handleManualCheckIn(row)}
+                                 className={manual.action_btn({
+                                    checkedIn: !!row.is_checked_in,
+                                    disabled: isCheckInDisabled,
+                                 })}
+                              >
+                                 {isRowLoading ? (
+                                    <RefreshCw className={stats.refresh_icon({ loading: true })} />
+                                 ) : row.is_checked_in ? (
+                                    <CheckCircle2 size={14} />
+                                 ) : (
+                                    <UserCheck size={14} />
+                                 )}
+                                 {isRowLoading
+                                    ? func.translate('manual.checking_in_btn')
+                                    : row.is_checked_in
+                                      ? func.translate('manual.badges.checked_in')
+                                      : func.translate('manual.check_in_btn')}
+                              </button>
+                           </div>
+                        </div>
+                     );
+                  })}
+               </div>
+            )}
+         </div>
+
+         {/* Section 2 (Middle): Conditional QR/Camera Scanner & Feedback / Recent Check-in History */}
+         <div className={root.grid({ singleColumn: isSingleColumn })}>
+            {SHOW_QR_SCANNER_BLOCK && (
+               <div className={root.left_col({ singleColumn: isSingleColumn })}>
+                  <div className={card.wrapper}>
+                     <div className={card.header}>
+                        <div className={card.title_row}>
+                           <h3 className={card.title}>
+                              <QrCode size={18} />
+                              {func.translate('qr.title')}
+                           </h3>
+                        </div>
+                        <p className={card.subtitle}>{func.translate('qr.subtitle')}</p>
+                     </div>
+
+                     <div className={qr.tabs}>
+                        <button
+                           type="button"
+                           className={qr.tab({ active: state.qrMode === 'SCANNER' })}
+                           onClick={() => func.handleSelectQrMode('SCANNER')}
+                        >
+                           <Keyboard size={15} />
+                           {func.translate('qr.modes.scanner')}
+                        </button>
+                        <button
+                           type="button"
+                           className={qr.tab({ active: state.qrMode === 'CAMERA' })}
+                           onClick={() => func.handleSelectQrMode('CAMERA')}
+                        >
+                           <Camera size={15} />
+                           {func.translate('qr.modes.camera')}
+                        </button>
+                     </div>
+
+                     {state.qrMode === 'SCANNER' ? (
+                        <form
+                           className={qr.form}
+                           onSubmit={func.handleQrFormSubmit}
+                        >
+                           <span className={qr.label}>{func.translate('qr.scanner_input_label')}</span>
+                           <div className={qr.input_row}>
+                              <div className={qr.input_wrapper}>
+                                 <QrCode size={16} />
+                                 <input
+                                    ref={scannerInputRef}
+                                    type="text"
+                                    autoFocus
+                                    value={state.qrInput}
+                                    readOnly={state.isQrSubmitting}
+                                    placeholder={func.translate('qr.scanner_placeholder')}
+                                    onChange={(event) => func.setState(event.target.value, 'qrInput')}
+                                    className={qr.input}
+                                 />
+                                 {state.qrInput && (
+                                    <button
+                                       type="button"
+                                       onClick={() => func.setState('', 'qrInput')}
+                                       className={manual.clear_btn}
+                                    >
+                                       <X size={15} />
+                                    </button>
+                                 )}
+                              </div>
+                              <button
+                                 type="submit"
+                                 disabled={param.isQrSubmitDisabled}
+                                 className={qr.submit({ disabled: param.isQrSubmitDisabled })}
+                              >
+                                 {state.isQrSubmitting && <RefreshCw className={stats.refresh_icon({ loading: true })} />}
+                                 {func.translate(`qr.submit_scanning_${state.isQrSubmitting}`)}
+                              </button>
+                           </div>
+                           <span className={qr.hint}>{func.translate('qr.scanner_hint')}</span>
+                        </form>
+                     ) : (
+                        <div className={qr.camera.wrapper}>
+                           <div className={qr.camera.viewport({ status: param.cameraStatus })}>
+                              <video
+                                 ref={videoRef}
+                                 playsInline
+                                 muted
+                                 className={qr.camera.video}
+                              />
+                              <canvas
+                                 ref={canvasRef}
+                                 className={qr.camera.hidden_canvas}
+                              />
+                              {state.isCameraActive ? (
+                                 <>
+                                    <div className={qr.camera.overlay({ status: param.cameraStatus })} />
+                                    <div className={qr.camera.hud({ status: param.cameraStatus })}>
+                                       {param.cameraStatus === 'VERIFYING' ? (
+                                          <div className={qr.camera.hud_left}>
+                                             <RefreshCw className={stats.refresh_icon({ loading: true })} />
+                                             <span className={qr.camera.hud_text}>
+                                                {func.translate('qr.status_verifying')}
+                                             </span>
+                                          </div>
+                                       ) : param.cameraStatus === 'PREVIEW' && state.lastResult?.kind === 'PREVIEW' ? (
+                                          <>
+                                             <div className={qr.camera.hud_left}>
+                                                <UserCheck className={qr.camera.hud_icon} />
+                                                <span className={qr.camera.hud_text}>
+                                                   {formatAttendantName(state.lastResult.attendant)}
+                                                </span>
+                                             </div>
+                                             <span className={qr.camera.hud_ticket}>
+                                                {state.lastResult.attendant.ticket_code}
+                                             </span>
+                                          </>
+                                       ) : param.cameraStatus === 'SUCCESS' && state.lastResult?.kind === 'SUCCESS' ? (
+                                          <>
+                                             <div className={qr.camera.hud_left}>
+                                                <CheckCircle2 className={qr.camera.hud_icon} />
+                                                <span className={qr.camera.hud_text}>
+                                                   {formatAttendantName(state.lastResult.attendant)}
+                                                </span>
+                                             </div>
+                                             <span className={qr.camera.hud_ticket}>
+                                                {state.lastResult.attendant.ticket_code}
+                                             </span>
+                                          </>
+                                       ) : param.cameraStatus === 'ALREADY' && state.lastResult?.kind === 'ALREADY' ? (
+                                          <>
+                                             <div className={qr.camera.hud_left}>
+                                                <AlertTriangle className={qr.camera.hud_icon} />
+                                                <span className={qr.camera.hud_text}>
+                                                   {formatAttendantName(state.lastResult.attendant)}
+                                                </span>
+                                             </div>
+                                             <span className={qr.camera.hud_ticket}>
+                                                {state.lastResult.attendant.ticket_code}
+                                             </span>
+                                          </>
+                                       ) : param.cameraStatus === 'ERROR' && state.lastResult?.kind === 'ERROR' ? (
+                                          <div className={qr.camera.hud_left}>
+                                             <XCircle className={qr.camera.hud_icon} />
+                                             <span className={qr.camera.hud_text}>{state.lastResult.message}</span>
+                                          </div>
+                                       ) : (
+                                          <div className={qr.camera.hud_left}>
+                                             <QrCode className={qr.camera.hud_icon} />
+                                             <span className={qr.camera.hud_text}>
+                                                {func.translate('qr.status_ready')}
+                                             </span>
+                                          </div>
+                                       )}
+                                    </div>
+                                 </>
+                              ) : (
+                                 <div className={qr.camera.placeholder}>
+                                    <Camera size={32} />
+                                    <span>
+                                       {state.isCameraStarting
+                                          ? func.translate('qr.camera_starting')
+                                          : func.translate('qr.camera_active_hint')}
+                                    </span>
+                                 </div>
+                              )}
+                           </div>
+
+                           {state.cameraError && <div className={qr.camera.error}>{state.cameraError}</div>}
+
+                           <div className={qr.camera.controls}>
+                              <span className={qr.hint}>{func.translate('qr.camera_active_hint')}</span>
+                              <div className={qr.camera.controls_actions}>
+                                 {state.isCameraActive ? (
+                                    <button
+                                       type="button"
+                                       onClick={func.stopCamera}
+                                       className={qr.camera.button({ active: true })}
+                                    >
+                                       <CameraOff size={15} />
+                                       {func.translate('qr.camera_stop')}
+                                    </button>
+                                 ) : (
+                                    <button
+                                       type="button"
+                                       disabled={state.isCameraStarting}
+                                       onClick={func.startCamera}
+                                       className={qr.camera.button({ active: false })}
+                                    >
+                                       <Camera size={15} />
+                                       {func.translate('qr.camera_start')}
+                                    </button>
+                                 )}
+                              </div>
+                           </div>
+                        </div>
+                     )}
+                  </div>
+               </div>
+            )}
+
+            <div className={root.right_col({ singleColumn: isSingleColumn })}>
                <div className={card.wrapper}>
                   <div className={card.header}>
                      <div className={card.title_row}>
@@ -573,163 +679,66 @@ export const GuardCheckIn: AdminWeb.Component<Types.Properties> = (properties) =
                   )}
                </div>
             </div>
+         </div>
 
-            <div className={root.right_col}>
-               <div className={card.wrapper}>
-                  <div className={card.header}>
-                     <h3 className={card.title}>
-                        <Search size={18} />
-                        {func.translate('manual.title')}
-                     </h3>
-                     <p className={card.subtitle}>{func.translate('manual.subtitle')}</p>
+         {/* Section 3 (Bottom): Stats Overview (4 Blocks + Refresh Button) */}
+         <div className={stats.section}>
+            <div className={stats.toolbar}>
+               <button
+                  type="button"
+                  disabled={state.isStatsLoading}
+                  onClick={func.fetchStats}
+                  className={stats.refresh_btn}
+               >
+                  <RefreshCw className={stats.refresh_icon({ loading: state.isStatsLoading })} />
+                  {func.translate('stats.refresh')}
+               </button>
+            </div>
+            <div className={stats.wrapper}>
+               <div className={stats.card}>
+                  <div className={stats.header}>
+                     <span>{func.translate('stats.checked_in')}</span>
+                     <UserCheck size={16} />
                   </div>
+                  <div className={stats.value_row}>
+                     <span className={stats.value_success}>{state.checkedInCount}</span>
+                  </div>
+               </div>
 
-                  <div className={manual.search_bar}>
-                     <Search size={16} />
-                     <input
-                        type="text"
-                        value={state.searchKeyword}
-                        placeholder={func.translate('manual.search_placeholder')}
-                        onChange={(event) => func.setState(event.target.value, 'searchKeyword')}
-                        className={manual.search_input}
+               <div className={stats.card}>
+                  <div className={stats.header}>
+                     <span>{func.translate('stats.remaining')}</span>
+                     <Clock size={16} />
+                  </div>
+                  <div className={stats.value_row}>
+                     <span className={stats.value}>{param.remainingCount}</span>
+                  </div>
+               </div>
+
+               <div className={stats.card}>
+                  <div className={stats.header}>
+                     <span>{func.translate('stats.total')}</span>
+                     <Users size={16} />
+                  </div>
+                  <div className={stats.value_row}>
+                     <span className={stats.value}>{state.totalCount}</span>
+                  </div>
+               </div>
+
+               <div className={stats.card}>
+                  <div className={stats.header}>
+                     <span>{func.translate('stats.rate')}</span>
+                     <span>{param.attendanceRate}%</span>
+                  </div>
+                  <div className={stats.value_row}>
+                     <span className={stats.value}>{param.attendanceRate}%</span>
+                  </div>
+                  <div className={stats.progress_track}>
+                     <div
+                        className={stats.progress_fill}
+                        style={{ width: `${param.attendanceRate}%` }}
                      />
-                     {state.searchKeyword && (
-                        <button
-                           type="button"
-                           onClick={() => func.setState('', 'searchKeyword')}
-                           className={manual.clear_btn}
-                        >
-                           <X size={15} />
-                        </button>
-                     )}
                   </div>
-
-                  {!state.searchKeyword.trim() ? (
-                     <div className={manual.empty_box}>{func.translate('manual.empty_prompt')}</div>
-                  ) : state.isSearching ? (
-                     <div className={manual.empty_box}>{func.translate('manual.searching')}</div>
-                  ) : state.searchResults.length === 0 ? (
-                     <div className={manual.empty_box}>{func.translate('manual.no_results')}</div>
-                  ) : (
-                     <div className={manual.results_scroll}>
-                        {state.searchResults.map((row) => {
-                           const isRowLoading = state.checkingInAttendantId === row.id;
-                           const isCheckInDisabled = Boolean(state.checkingInAttendantId) || Boolean(row.is_checked_in);
-                           const formattedRep = formatRepresentativeName(row);
-                           const hasRepresentative = Boolean(formattedRep || row.representative_phone);
-
-                           return (
-                              <div
-                                 key={row.id}
-                                 className={manual.card}
-                              >
-                                 <div className={manual.card_header}>
-                                    <div className={manual.card_title_group}>
-                                       <span className={manual.attendant_name}>{formatAttendantName(row)}</span>
-                                       <span className={manual.ticket_badge}>{row.ticket_code}</span>
-                                    </div>
-                                    <span className={manual.status_badge({ checkedIn: !!row.is_checked_in })}>
-                                       {row.is_checked_in
-                                          ? func.translate('manual.badges.checked_in')
-                                          : func.translate('manual.badges.pending')}
-                                    </span>
-                                 </div>
-
-                                 <div className={manual.info_grid}>
-                                    <div className={manual.info_item}>
-                                       <span className={manual.info_label}>
-                                          {func.translate('manual.fields.contact')}
-                                       </span>
-                                       <span className={manual.info_value}>{row.phone || '—'}</span>
-                                       {row.email && (
-                                          <span
-                                             title={row.email}
-                                             className={manual.info_email}
-                                          >
-                                             {row.email}
-                                          </span>
-                                       )}
-                                    </div>
-
-                                    <div className={manual.info_item}>
-                                       <span className={manual.info_label}>
-                                          {func.translate('manual.columns.company')}
-                                       </span>
-                                       <span className={manual.info_value}>{row.company_name || '—'}</span>
-                                       {row.department && <span className={manual.info_sub}>{row.department}</span>}
-                                    </div>
-
-                                    <div className={manual.rep_box({ hasValue: hasRepresentative })}>
-                                       <span className={hasRepresentative ? manual.rep_label : manual.rep_label_empty}>
-                                          {func.translate('manual.columns.representative')}
-                                       </span>
-                                       {hasRepresentative ? (
-                                          <div className={manual.rep_row}>
-                                             <span className={manual.representative_text}>{formattedRep || '—'}</span>
-                                             {row.representative_phone && (
-                                                <span className={manual.representative_phone}>
-                                                   • {row.representative_phone}
-                                                </span>
-                                             )}
-                                          </div>
-                                       ) : (
-                                          <span className={manual.representative_empty}>—</span>
-                                       )}
-                                    </div>
-
-                                    {row.is_checked_in && row.checked_in_at && (
-                                       <div className={manual.checked_in_meta}>
-                                          <Clock size={13} />
-                                          <span>
-                                             {func.translate('manual.fields.checked_in_at', {
-                                                time: formatDateTime(row.checked_in_at),
-                                             })}
-                                             {row.check_in_method
-                                                ? ` (${func.translate(`feedback.method_${row.check_in_method}`)})`
-                                                : ''}
-                                          </span>
-                                       </div>
-                                    )}
-                                 </div>
-
-                                 <div className={manual.card_footer}>
-                                    <button
-                                       type="button"
-                                       title={func.translate('manual.edit_representative_title')}
-                                       onClick={() => func.handleOpenEditRepresentative(row)}
-                                       className={manual.edit_btn}
-                                    >
-                                       <Pencil size={13} />
-                                       {func.translate('manual.edit_representative_btn')}
-                                    </button>
-                                    <button
-                                       type="button"
-                                       disabled={isCheckInDisabled}
-                                       onClick={() => func.handleManualCheckIn(row)}
-                                       className={manual.action_btn({
-                                          checkedIn: !!row.is_checked_in,
-                                          disabled: isCheckInDisabled,
-                                       })}
-                                    >
-                                       {isRowLoading ? (
-                                          <RefreshCw className={stats.refresh_icon({ loading: true })} />
-                                       ) : row.is_checked_in ? (
-                                          <CheckCircle2 size={14} />
-                                       ) : (
-                                          <UserCheck size={14} />
-                                       )}
-                                       {isRowLoading
-                                          ? func.translate('manual.checking_in_btn')
-                                          : row.is_checked_in
-                                            ? func.translate('manual.badges.checked_in')
-                                            : func.translate('manual.check_in_btn')}
-                                    </button>
-                                 </div>
-                              </div>
-                           );
-                        })}
-                     </div>
-                  )}
                </div>
             </div>
          </div>

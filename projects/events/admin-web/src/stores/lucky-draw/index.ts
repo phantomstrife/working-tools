@@ -6,17 +6,31 @@ import { supabase } from '@admin-web/adapters/supabase/browser';
 import { useServicesGameLuckyDrawStateRead } from '@admin-web/services/game-lucky-draw/state-read';
 import { useServicesGameLuckyDrawWinnerDrawBrowser } from '@admin-web/services/game-lucky-draw/winner-draw/browser';
 
-import { AUTO_INITIAL_DELAY_MS, AUTO_REEL_STEP_MS, DEFAULT_PLACEHOLDER_CODE } from './constants';
+import {
+   AUTO_INITIAL_DELAY_MS,
+   AUTO_REEL_STEP_MS,
+   DEFAULT_PLACEHOLDER_CODE,
+   WINNER_REVEAL_DELAY_MS,
+} from './constants';
 
 import type * as Types from './type';
 
 let realtimeChannel: RealtimeChannel | null = null;
 let autoStopTimeouts: number[] = [];
+let revealTimeoutId: number | null = null;
 let drawSequenceId = 0;
+
+const clearRevealTimer = () => {
+   if (revealTimeoutId !== null) {
+      window.clearTimeout(revealTimeoutId);
+      revealTimeoutId = null;
+   }
+};
 
 const clearAutoStopTimers = () => {
    autoStopTimeouts.forEach((timerId) => window.clearTimeout(timerId));
    autoStopTimeouts = [];
+   clearRevealTimer();
 };
 
 const buildPlaceholderCode = (participants: Types.Participant[]): string => {
@@ -58,6 +72,24 @@ function triggerFireworks(): void {
 }
 
 export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
+   const scheduleWinnerReveal = (expectedSeq: number) => {
+      clearRevealTimer();
+
+      revealTimeoutId = window.setTimeout(() => {
+         revealTimeoutId = null;
+
+         if (expectedSeq !== drawSequenceId) {
+            return;
+         }
+
+         set({
+            isSpinning: false,
+         });
+
+         triggerFireworks();
+      }, WINNER_REVEAL_DELAY_MS);
+   };
+
    const scheduleAutoReelStops = (totalReels: number, initialDelayMs: number, expectedSeq: number) => {
       clearAutoStopTimers();
 
@@ -72,11 +104,11 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
 
             set({
                stoppedReels: step,
-               isSpinning: !isFinal,
+               isSpinning: true,
             });
 
             if (isFinal) {
-               triggerFireworks();
+               scheduleWinnerReveal(expectedSeq);
             }
          }, delay);
 
@@ -265,11 +297,11 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
             activeWinnerId: ticketCode,
             activeWinnerRecordId: winner.id,
             isDrawingRequest: false,
-            isSpinning: false,
+            isSpinning: true,
             stoppedReels: ticketCode.length,
             queuedManualStops: 0,
          });
-         triggerFireworks();
+         scheduleWinnerReveal(currentSeq);
          return;
       }
 
@@ -286,13 +318,13 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
             activeWinnerId: ticketCode,
             activeWinnerRecordId: winner.id,
             isDrawingRequest: false,
-            isSpinning: !isFinal,
+            isSpinning: true,
             stoppedReels: initialStopped,
             queuedManualStops: 0,
          });
 
          if (isFinal) {
-            triggerFireworks();
+            scheduleWinnerReveal(currentSeq);
          }
          return;
       }
@@ -516,21 +548,27 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
             return;
          }
 
+         const totalReels = state.winnerId.length;
+
+         // Ignore presses during the 2-second reveal pause once all reels have already stopped.
+         if (state.stoppedReels >= totalReels) {
+            return;
+         }
+
          if (state.drawMode === 'auto') {
             clearAutoStopTimers();
          }
 
-         const totalReels = state.winnerId.length;
          const nextStopped = Math.min(totalReels, state.stoppedReels + 1);
          const isFinal = nextStopped >= totalReels;
 
          set({
             stoppedReels: nextStopped,
-            isSpinning: !isFinal,
+            isSpinning: true,
          });
 
          if (isFinal) {
-            triggerFireworks();
+            scheduleWinnerReveal(drawSequenceId);
          }
       },
 

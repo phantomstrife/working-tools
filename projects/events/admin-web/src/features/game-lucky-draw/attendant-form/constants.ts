@@ -30,4 +30,5 @@ export const schema = z.object({
    representative_phone: z.string().trim().optional().or(z.literal('')).nullable(),
    sale_in_charge: z.string().trim().optional().or(z.literal('')).nullable(),
    accommodation: z.boolean(),
+   is_checked_in: z.boolean(),
 });

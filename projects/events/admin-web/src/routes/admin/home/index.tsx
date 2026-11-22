@@ -30,6 +30,7 @@ export const PageAdminHome: AdminWeb.Router.Page<Types.Params> = async ({ params
          {!param.serviceEventGetGames.error && (
             <EventGameOverview
                events={param.serviceEventGetGames.data.event}
+               role={param.role}
                isSuperAdmin={param.isSuperAdmin}
             />
          )}

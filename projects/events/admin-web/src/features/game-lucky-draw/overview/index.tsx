@@ -53,7 +53,7 @@ export const GameLuckyDrawOverview: AdminWeb.Component<Types.Properties> = (prop
                {func.translate('staff')}: <strong>{state.staffCount}</strong>
             </div>
             <div className={statistic.tools_group}>
-               {param.isSuperAdmin && (
+               {param.canResetGame && (
                   <button
                      type="button"
                      disabled={state.loading}
@@ -103,9 +103,10 @@ export const GameLuckyDrawOverview: AdminWeb.Component<Types.Properties> = (prop
             />
          </div>
 
-         {param.isSuperAdmin && (
+         {param.canResetGame && (
             <GameResetModal
                game={param.game}
+               role={param.role}
                onSuccess={func.synchronizeData}
             />
          )}

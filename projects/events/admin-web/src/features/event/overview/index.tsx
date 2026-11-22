@@ -11,7 +11,7 @@ import { useStyle } from './use-style';
 import type * as Types from './type';
 
 export const EventGameOverview: AdminWeb.Component<Types.Properties> = (properties) => {
-   const { events, isSuperAdmin = false } = properties;
+   const { events, role, isSuperAdmin = false } = properties;
 
    const { state, func } = useLogic();
    const { root, notify } = useStyle;
@@ -36,6 +36,7 @@ export const EventGameOverview: AdminWeb.Component<Types.Properties> = (properti
          {state.game && state.game.game_type === 'LUCKY_DRAW' && (
             <GameLuckyDrawOverview
                game={state.game}
+               role={role}
                isSuperAdmin={isSuperAdmin}
             />
          )}

@@ -11,7 +11,8 @@ import { GAME_RESET_MODAL_ID } from './constants';
 import type * as Types from './type';
 
 export function useLogic(properties: Types.Properties) {
-   const { game, onSuccess } = properties;
+   const { game, role, onSuccess } = properties;
+   const isSuperAdmin = role === 'SUPER_ADMIN';
 
    const modalActions = useStoreModal((store) => store.actions);
    const [isPending, startTransition] = useTransition();
@@ -29,8 +30,17 @@ export function useLogic(properties: Types.Properties) {
       deleteAttendants: false,
    });
 
+   const isGameDataOnly = !isSuperAdmin || (!state.resetCheckIns && !state.deleteAttendants);
+
+   const handleSelectGameDataOnly = () => {
+      setState({
+         resetCheckIns: false,
+         deleteAttendants: false,
+      });
+   };
+
    const handleToggleResetCheckIns = (checked: boolean) => {
-      if (state.deleteAttendants) {
+      if (!isSuperAdmin || state.deleteAttendants) {
          return;
       }
 
@@ -38,6 +48,10 @@ export function useLogic(properties: Types.Properties) {
    };
 
    const handleToggleDeleteAttendants = (checked: boolean) => {
+      if (!isSuperAdmin) {
+         return;
+      }
+
       setState({
          deleteAttendants: checked,
          ...(checked ? { resetCheckIns: false } : {}),
@@ -60,11 +74,16 @@ export function useLogic(properties: Types.Properties) {
          return;
       }
 
+      const effectiveDeleteAttendants = isSuperAdmin && state.deleteAttendants;
+      const effectiveResetCheckIns = isSuperAdmin && !effectiveDeleteAttendants && state.resetCheckIns;
+      const mode = !effectiveResetCheckIns && !effectiveDeleteAttendants ? 'GAME_DATA_ONLY' : 'CUSTOM';
+
       startTransition(async () => {
          const resetResult = await useServicesGameLuckyDrawGameReset({
             gameId: game.id,
-            resetCheckIns: state.deleteAttendants ? false : state.resetCheckIns,
-            deleteAttendants: state.deleteAttendants,
+            mode,
+            resetCheckIns: effectiveResetCheckIns,
+            deleteAttendants: effectiveDeleteAttendants,
          });
 
          if (resetResult.error) {
@@ -79,7 +98,7 @@ export function useLogic(properties: Types.Properties) {
          const { deletedWinners, resetPrizes, resetAttendants, deletedAttendants } = resetResult.data;
 
          toast.success(
-            state.deleteAttendants
+            effectiveDeleteAttendants
                ? translate('toast.success_deleted', {
                     winners: deletedWinners,
                     prizes: resetPrizes,
@@ -102,10 +121,13 @@ export function useLogic(properties: Types.Properties) {
       state,
       param: {
          game,
+         isSuperAdmin,
+         isGameDataOnly,
          isPending,
       },
       func: {
          translate,
+         handleSelectGameDataOnly,
          handleToggleResetCheckIns,
          handleToggleDeleteAttendants,
          handleClose,

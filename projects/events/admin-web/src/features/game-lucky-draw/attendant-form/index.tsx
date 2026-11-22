@@ -14,6 +14,7 @@ import {
    Phone,
    RefreshCw,
    User,
+   UserCheck,
    Users,
 } from 'lucide-react';
 
@@ -297,6 +298,41 @@ export const AttendantForm: AdminWeb.Component<Types.Properties> = (properties) 
                         />
                         <span className={checkbox_field.label}>
                            {func.translate('fields.accommodation.checkbox_label')}
+                        </span>
+                     </label>
+                  </div>
+
+                  <div className={checkbox_field.wrapper}>
+                     <div className={checkbox_field.title_row}>
+                        <UserCheck
+                           size={15}
+                           className={checkbox_field.title_icon}
+                        />
+                        <span>{func.translate('fields.is_checked_in.label')}</span>
+                     </div>
+                     <label
+                        htmlFor="attendant-is-checked-in"
+                        className={checkbox_field.control}
+                     >
+                        <input
+                           id="attendant-is-checked-in"
+                           type="checkbox"
+                           className={checkbox_field.input}
+                           {...func.register('is_checked_in')}
+                        />
+                        <span className={checkbox_field.label_group}>
+                           <span className={checkbox_field.label}>
+                              {func.translate('fields.is_checked_in.checkbox_label')}
+                           </span>
+                           {param.mode === 'edit' &&
+                              param.attendant?.is_checked_in &&
+                              param.attendant.checked_in_at && (
+                                 <span className={checkbox_field.hint}>
+                                    {func.translate('fields.is_checked_in.checked_in_at_hint', {
+                                       time: formatDateTime(param.attendant.checked_in_at),
+                                    })}
+                                 </span>
+                              )}
                         </span>
                      </label>
                   </div>
