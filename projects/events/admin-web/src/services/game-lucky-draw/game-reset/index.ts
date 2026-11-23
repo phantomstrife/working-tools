@@ -118,6 +118,7 @@ export const useServicesGameLuckyDrawGameReset: Types.Service = async (request) 
                .from('lucky_draw_prizes')
                .update({
                   remaining_quantity: prize.total_quantity,
+                  ...(effectiveDeleteAttendants ? { designated_attendant_ids: [] } : {}),
                   updated_at: nowIso,
                })
                .eq('id', prize.id)

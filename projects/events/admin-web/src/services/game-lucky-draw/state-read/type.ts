@@ -24,6 +24,7 @@ export interface Participant_Row {
    company_name: string | null;
    department: string | null;
    has_won: boolean | null;
+   is_draw_eligible: boolean;
    custom_metadata: unknown;
 }
 

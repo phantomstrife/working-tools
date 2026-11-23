@@ -289,6 +289,9 @@ export const vi = {
                   email_group: 'Trạng thái Email',
                   email_sent: 'Đã gửi Email',
                   email_pending: 'Chưa gửi / Lỗi',
+                  eligibility_group: 'Quyền quay thưởng',
+                  draw_eligible: 'Được quay thưởng',
+                  draw_ineligible: 'Không được quay thưởng',
                },
             },
             table: {
@@ -305,8 +308,15 @@ export const vi = {
                   ticket_code: 'Mã vé',
                   email_status: 'Email',
                   checked_in: 'Check-In',
+                  draw_eligible: 'Quay thưởng',
                   has_won: 'Trúng thưởng',
                   actions: 'Thao tác',
+               },
+               toggle: {
+                  enabled_title: 'Đang cho phép tham gia quay thưởng — Nhấn để tắt',
+                  disabled_title: 'Đang loại khỏi lượt quay thưởng — Nhấn để bật',
+                  enable_aria: 'Bật quyền quay thưởng cho {{name}}',
+                  disable_aria: 'Tắt quyền quay thưởng cho {{name}}',
                },
                badges: {
                   accommodation_true: 'true',
@@ -347,6 +357,8 @@ export const vi = {
                email_batch_success: 'Đã gửi thành công {{sent}}/{{total}} email qua {{provider}}.',
                email_batch_partial: 'Đã gửi {{sent}}/{{total}} email ({{failed}} thất bại) qua {{provider}}.',
                select_attendants_first: 'Vui lòng chọn ít nhất một người tham dự trong bảng để gửi email.',
+               eligibility_enabled: 'Đã bật quyền quay thưởng cho {{name}} ({{ticket}}).',
+               eligibility_disabled: 'Đã tắt quyền quay thưởng cho {{name}} ({{ticket}}).',
             },
          },
          attendant_form: {
@@ -411,6 +423,11 @@ export const vi = {
                   label: 'Trạng thái check-in',
                   checkbox_label: 'Đã check-in tham dự sự kiện',
                   checked_in_at_hint: 'Đã check-in lúc {{time}}',
+               },
+               is_draw_eligible: {
+                  label: 'Quyền quay thưởng',
+                  checkbox_label: 'Cho phép tham gia quay thưởng',
+                  hint: 'Tắt để loại khách này khỏi tất cả lượt quay, kể cả danh sách ưu tiên.',
                },
                qr_code_payload: {
                   label: 'Mã định danh QR (Tự động tạo)',
@@ -575,6 +592,7 @@ export const vi = {
             },
             table: {
                tier_label: 'Hạng #{{tier}}',
+               designated_badge: 'Chỉ định: {{count}} người',
                headers: {
                   tier: 'Hạng giải',
                   prize: 'Giải thưởng',
@@ -626,6 +644,36 @@ export const vi = {
                description: {
                   label: 'Mô tả giải thưởng',
                   placeholder: 'Thông tin chi tiết về phần thưởng...',
+               },
+               designated_attendants: {
+                  label: 'Chỉ định người trúng giải (theo thứ hạng ưu tiên)',
+                  helper:
+                     'Hệ thống ưu tiên trao giải theo thứ tự #1 → #2 → #3 nếu khách đã check-in, chưa trúng giải và đang bật quyền quay thưởng. Nếu không ai đủ điều kiện, giải sẽ quay ngẫu nhiên.',
+                  selected_count: '{{count}} người',
+                  clear_all: 'Xóa tất cả',
+                  empty: 'Chưa chỉ định — giải thưởng này sẽ quay ngẫu nhiên trong danh sách khách đủ điều kiện.',
+                  search_placeholder: 'Tìm khách theo mã vé, họ tên, công ty...',
+                  search_prompt: 'Nhập mã vé, họ tên, công ty hoặc số điện thoại để tìm và thêm khách tham dự.',
+                  clear_search: 'Xóa từ khóa tìm kiếm',
+                  loading: 'Đang tải danh sách khách tham dự...',
+                  no_candidates: 'Chưa có khách tham dự nào trong trò chơi này.',
+                  no_search_results: 'Không tìm thấy khách tham dự phù hợp.',
+                  all_selected: 'Tất cả khách tham dự đã được thêm vào danh sách ưu tiên.',
+                  representative_prefix: 'Đại diện: {{name}}',
+                  missing_attendant: 'Khách không còn tồn tại',
+                  status: {
+                     ELIGIBLE: 'Đủ điều kiện',
+                     NOT_CHECKED_IN: 'Chưa check-in',
+                     HAS_WON: 'Đã trúng giải',
+                     INELIGIBLE: 'Đã tắt quay thưởng',
+                     MISSING: 'Không tìm thấy',
+                  },
+                  actions: {
+                     move_up: 'Tăng thứ hạng ưu tiên',
+                     move_down: 'Giảm thứ hạng ưu tiên',
+                     remove: 'Gỡ khỏi danh sách ưu tiên',
+                     add: 'Thêm vào danh sách ưu tiên',
+                  },
                },
             },
             actions: {

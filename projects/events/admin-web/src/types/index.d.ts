@@ -95,6 +95,7 @@ declare global {
          department: string | null;
          hasWon: boolean;
          isAbsentForfeited: boolean;
+         isDrawEligible: boolean;
       }
 
       interface WinnerEntry {
@@ -157,7 +158,9 @@ declare global {
          | 'WINNER'
          | 'NOT_WINNER'
          | 'EMAIL_SENT'
-         | 'EMAIL_PENDING';
+         | 'EMAIL_PENDING'
+         | 'DRAW_ELIGIBLE'
+         | 'DRAW_INELIGIBLE';
    }
 
    declare namespace AdminWeb.Features.GameLuckyDraw.Prize {

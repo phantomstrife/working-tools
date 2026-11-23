@@ -109,6 +109,9 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
          const updatePayload: AdminWeb.Database.GameLuckyDrawAttendantUpdate = {
             ...normalizedPayload,
             ...checkInPayload,
+            ...(request.is_draw_eligible !== undefined && request.is_draw_eligible !== null
+               ? { is_draw_eligible: Boolean(request.is_draw_eligible) }
+               : {}),
             updated_at: nowIso,
             ...(ticketChanged ? { qr_code_payload: generateQrCodePayload(request.gameId, trimmedTicketCode) } : {}),
             ...(emailChanged ? { email_status: 'NOT_SENT', email_sent_at: null } : {}),
@@ -159,6 +162,7 @@ export const useServicesGameLuckyDrawAttendantSave: Types.Service = async (reque
          checked_in_by: shouldCheckIn ? userId : null,
          check_in_method: shouldCheckIn ? 'MANUAL_SEARCH' : null,
          has_won: false,
+         is_draw_eligible: request.is_draw_eligible ?? true,
       };
 
       const created = await supabase.from('lucky_draw_attendants').insert(insertPayload).select('*').single();

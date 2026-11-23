@@ -4,6 +4,8 @@ export const ALLOWED_ROLES: AdminWeb.Database.Account_Role[] = [
    'SUPER_ADMIN',
 ];
 
+export const ELIGIBLE_POOL_PAGE_SIZE = 1000;
+
 export const PRIZE_COLUMNS = [
    'id',
    'game_id',
@@ -13,6 +15,7 @@ export const PRIZE_COLUMNS = [
    'tier_order',
    'total_quantity',
    'remaining_quantity',
+   'designated_attendant_ids',
    //
 ].join(', ');
 
@@ -29,6 +32,7 @@ export const ATTENDANT_COLUMNS = [
    'company_name',
    'department',
    'has_won',
+   'is_draw_eligible',
    'custom_metadata',
    //
 ].join(', ');

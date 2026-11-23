@@ -36,6 +36,7 @@ export function useLogic(properties: Types.Properties) {
       filter: '',
       isLoading: true,
       targetPrize: null,
+      formSessionKey: 0,
       isDeleting: false,
    });
 
@@ -136,6 +137,7 @@ export function useLogic(properties: Types.Properties) {
    const handleCreate = () => {
       setState({
          targetPrize: null,
+         formSessionKey: state.formSessionKey + 1,
       });
       modalActions.openModal(MODAL_ID.PRIZE_FORM);
    };
@@ -143,6 +145,7 @@ export function useLogic(properties: Types.Properties) {
    const handleEdit = (prize: Types.Prize) => {
       setState({
          targetPrize: prize,
+         formSessionKey: state.formSessionKey + 1,
       });
       modalActions.openModal(MODAL_ID.PRIZE_FORM);
    };
@@ -207,6 +210,7 @@ export function useLogic(properties: Types.Properties) {
          pageSize: state.pageSize,
          isLoading: state.isLoading || externalLoading,
          targetPrize: state.targetPrize,
+         formSessionKey: state.formSessionKey,
          isDeleting: state.isDeleting,
       },
       func: {

@@ -17,6 +17,7 @@ export const schema = z
          .min(0, 'Số lượng còn lại không được âm.'),
       image_url: z.url('Vui lòng nhập đường dẫn hình ảnh hợp lệ.').trim().optional().or(z.literal('')).nullable(),
       description: z.string().trim().optional().or(z.literal('')).nullable(),
+      designated_attendant_ids: z.array(z.string()),
    })
    .refine((values) => values.remaining_quantity <= values.total_quantity, {
       message: 'Số lượng còn lại không được vượt quá tổng số lượng.',

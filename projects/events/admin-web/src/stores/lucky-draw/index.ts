@@ -136,7 +136,11 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
          ...(revokedAttendantFromRecord ? [revokedAttendantFromRecord] : []),
       ]);
       const hasEligibleParticipant = state.participants.some(
-         (participant) => !participant.hasWon && !participant.isAbsentForfeited && !excludedSet.has(participant.id),
+         (participant) =>
+            participant.isDrawEligible &&
+            !participant.hasWon &&
+            !participant.isAbsentForfeited &&
+            !excludedSet.has(participant.id),
       );
 
       if (!hasEligibleParticipant) {
@@ -241,6 +245,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
                     department: attendant.department,
                     hasWon: true,
                     isAbsentForfeited: false,
+                    isDrawEligible: Boolean(attendant.is_draw_eligible),
                  },
               ]
       ).map((item) => {
@@ -253,6 +258,7 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
                representative,
                representativePhone,
                hasWon: true,
+               isDrawEligible: Boolean(attendant.is_draw_eligible),
             };
          }
 

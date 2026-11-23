@@ -21,6 +21,7 @@ export const PARTICIPANT_COLUMNS = [
    'company_name',
    'department',
    'has_won',
+   'is_draw_eligible',
    'custom_metadata',
    //
 ].join(', ');

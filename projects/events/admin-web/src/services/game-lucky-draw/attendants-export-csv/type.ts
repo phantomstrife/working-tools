@@ -28,6 +28,7 @@ export interface AttendantExportRow {
    is_checked_in: boolean | null;
    checked_in_at: string | null;
    check_in_method: AdminWeb.Database.Check_In_Method | null;
+   is_draw_eligible: boolean;
    has_won: boolean | null;
    created_at: string | null;
 }

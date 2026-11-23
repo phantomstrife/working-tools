@@ -33,6 +33,7 @@ CREATE TABLE public.lucky_draw_attendants (
     checked_in_by UUID REFERENCES public.accounts(id) ON DELETE SET NULL,
     check_in_method check_in_method_type,
     has_won BOOLEAN DEFAULT false,
+    is_draw_eligible BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now(),
 

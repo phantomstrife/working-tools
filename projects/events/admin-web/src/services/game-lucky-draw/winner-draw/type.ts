@@ -1,7 +1,15 @@
 export type Account_Role = AdminWeb.Database.Account_Role;
 export type Prize = Pick<
    AdminWeb.Database.GameLuckyDrawPrize,
-   'id' | 'game_id' | 'name' | 'description' | 'image_url' | 'tier_order' | 'total_quantity' | 'remaining_quantity'
+   | 'id'
+   | 'game_id'
+   | 'name'
+   | 'description'
+   | 'image_url'
+   | 'tier_order'
+   | 'total_quantity'
+   | 'remaining_quantity'
+   | 'designated_attendant_ids'
 >;
 export type Attendant = Pick<
    AdminWeb.Database.GameLuckyDrawAttendant,
@@ -17,6 +25,7 @@ export type Attendant = Pick<
    | 'company_name'
    | 'department'
    | 'has_won'
+   | 'is_draw_eligible'
    | 'custom_metadata'
 >;
 

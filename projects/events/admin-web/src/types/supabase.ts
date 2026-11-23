@@ -342,6 +342,7 @@ export type Database = {
                has_won: boolean | null;
                id: string;
                is_checked_in: boolean | null;
+               is_draw_eligible: boolean;
                phone: string | null;
                qr_code_payload: string;
                representative: string | null;
@@ -370,6 +371,7 @@ export type Database = {
                has_won?: boolean | null;
                id?: string;
                is_checked_in?: boolean | null;
+               is_draw_eligible?: boolean;
                phone?: string | null;
                qr_code_payload: string;
                representative?: string | null;
@@ -398,6 +400,7 @@ export type Database = {
                has_won?: boolean | null;
                id?: string;
                is_checked_in?: boolean | null;
+               is_draw_eligible?: boolean;
                phone?: string | null;
                qr_code_payload?: string;
                representative?: string | null;
@@ -429,6 +432,7 @@ export type Database = {
             Row: {
                created_at: string | null;
                description: string | null;
+               designated_attendant_ids: string[];
                game_id: string;
                id: string;
                image_url: string | null;
@@ -441,6 +445,7 @@ export type Database = {
             Insert: {
                created_at?: string | null;
                description?: string | null;
+               designated_attendant_ids?: string[];
                game_id: string;
                id?: string;
                image_url?: string | null;
@@ -453,6 +458,7 @@ export type Database = {
             Update: {
                created_at?: string | null;
                description?: string | null;
+               designated_attendant_ids?: string[];
                game_id?: string;
                id?: string;
                image_url?: string | null;

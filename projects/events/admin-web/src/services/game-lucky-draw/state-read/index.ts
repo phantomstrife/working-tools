@@ -77,6 +77,7 @@ export const useServicesGameLuckyDrawStateRead: Types.Service = async (request) 
          department: row.department,
          hasWon: Boolean(row.has_won),
          isAbsentForfeited: isAbsentForfeited(row.custom_metadata),
+         isDrawEligible: Boolean(row.is_draw_eligible),
       }));
 
       const winners: Types.Winner_Entry[] = (winnersQuery.data ?? []).flatMap((row) => {

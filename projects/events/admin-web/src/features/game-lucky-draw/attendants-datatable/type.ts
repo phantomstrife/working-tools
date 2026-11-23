@@ -32,6 +32,7 @@ export interface State {
    isExportingAttendants: boolean;
    isSendingEmails: boolean;
    isSendingAllEmails: boolean;
+   togglingEligibilityIds: Record<string, boolean>;
 }
 
 export type Attendant = AdminWeb.Database.GameLuckyDrawAttendant;
@@ -43,3 +44,4 @@ export type HandleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) =
 export type HandlePageChange = (nextPage: number) => void;
 export type HandlePageSizeChange = (nextPageSize: number) => void;
 export type HandleSendEmails = (selectedAttendants: Attendant[], clearSelection: () => void) => Promise<void>;
+export type HandleToggleEligibility = (attendant: Attendant) => Promise<void>;

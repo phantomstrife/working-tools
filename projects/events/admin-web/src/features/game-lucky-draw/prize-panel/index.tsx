@@ -1,6 +1,6 @@
 'use client';
 
-import { Gift, Plus } from 'lucide-react';
+import { Gift, Plus, UserCheck } from 'lucide-react';
 
 import { ConfirmModal } from '@admin-web/components/confirm-modal';
 import { DataTable } from '@admin-web/components/datatable';
@@ -90,6 +90,16 @@ export const PrizePanel: AdminWeb.Component<Types.Properties> = (properties) => 
                         <div className={prize.info}>
                            <p className={prize.name}>{row.name}</p>
                            {row.description && <p className={prize.description}>{row.description}</p>}
+                           {(row.designated_attendant_ids?.length ?? 0) > 0 && (
+                              <span className={prize.designated_badge}>
+                                 <UserCheck size={12} />
+                                 <span>
+                                    {func.translate('table.designated_badge', {
+                                       count: row.designated_attendant_ids.length,
+                                    })}
+                                 </span>
+                              </span>
+                           )}
                         </div>
                      </div>
                   ),
@@ -161,10 +171,11 @@ export const PrizePanel: AdminWeb.Component<Types.Properties> = (properties) => 
                   ? func.translate('modals.edit_description')
                   : func.translate('modals.create_description')
             }
-            style={{ width: '40rem', bodyClass: 'p-0' }}
+            style={{ width: '46rem', bodyClass: 'p-0' }}
          >
             {(close) => (
                <PrizeForm
+                  key={param.formSessionKey}
                   gameId={param.gameId}
                   prize={param.targetPrize}
                   onCancel={close}

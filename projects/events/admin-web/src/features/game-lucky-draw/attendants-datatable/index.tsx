@@ -125,6 +125,19 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                            },
                         ],
                      },
+                     {
+                        label: func.translate('toolbar.filters.eligibility_group'),
+                        options: [
+                           {
+                              label: func.translate('toolbar.filters.draw_eligible'),
+                              value: 'DRAW_ELIGIBLE',
+                           },
+                           {
+                              label: func.translate('toolbar.filters.draw_ineligible'),
+                              value: 'DRAW_INELIGIBLE',
+                           },
+                        ],
+                     },
                   ],
                   onChange: func.handleFilterChange,
                },
@@ -222,6 +235,35 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                            : func.translate('table.badges.pending')}
                      </span>
                   ),
+               },
+               {
+                  key: 'is_draw_eligible',
+                  header: func.translate('table.headers.draw_eligible'),
+                  align: 'center',
+                  render: (row) => {
+                     const isEligible = Boolean(row.is_draw_eligible);
+                     const isRowPending = Boolean(param.togglingEligibilityIds[row.id]);
+
+                     return (
+                        <button
+                           type="button"
+                           role="switch"
+                           aria-checked={isEligible}
+                           aria-label={func.translate(
+                              isEligible ? 'table.toggle.disable_aria' : 'table.toggle.enable_aria',
+                              { name: row.full_name },
+                           )}
+                           title={func.translate(
+                              isEligible ? 'table.toggle.enabled_title' : 'table.toggle.disabled_title',
+                           )}
+                           disabled={isRowPending}
+                           onClick={() => void func.handleToggleEligibility(row)}
+                           className={cell.eligibility_switch({ checked: isEligible, pending: isRowPending })}
+                        >
+                           <span className={cell.eligibility_thumb({ checked: isEligible })} />
+                        </button>
+                     );
+                  },
                },
                {
                   key: 'has_won',

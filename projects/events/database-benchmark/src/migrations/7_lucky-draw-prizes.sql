@@ -10,6 +10,7 @@ CREATE TABLE public.lucky_draw_prizes (
     tier_order INT NOT NULL,
     total_quantity INT NOT NULL CHECK (total_quantity >= 1),
     remaining_quantity INT NOT NULL CHECK (remaining_quantity >= 0 AND remaining_quantity <= total_quantity),
+    designated_attendant_ids UUID[] NOT NULL DEFAULT '{}'::uuid[],
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now(),
 

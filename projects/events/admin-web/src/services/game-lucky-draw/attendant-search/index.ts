@@ -33,6 +33,10 @@ export const useServicesGameLuckyDrawAttendantSearch: Types.Service = async (req
          query = query.eq('email_status', 'SENT');
       } else if (filter === 'EMAIL_PENDING') {
          query = query.or('email_status.is.null,email_status.eq.NOT_SENT,email_status.eq.FAILED');
+      } else if (filter === 'DRAW_ELIGIBLE') {
+         query = query.eq('is_draw_eligible', true);
+      } else if (filter === 'DRAW_INELIGIBLE') {
+         query = query.eq('is_draw_eligible', false);
       }
 
       const attendants = await query.order('ticket_code', { ascending: false }).range(from, to);

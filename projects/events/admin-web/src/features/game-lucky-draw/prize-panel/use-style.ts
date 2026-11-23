@@ -50,6 +50,8 @@ export const useStyle = {
       info: 'min-w-0',
       name: 'text-14 font-bold text-neutral-900 truncate max-w-36 sm:max-w-50',
       description: 'text-12 text-neutral-500 truncate max-w-36 sm:max-w-50',
+      designated_badge:
+         'inline-flex items-center gap-x-1 mt-1 px-2 py-0.5 rounded-primary text-11 font-semibold bg-info-50 text-info-700 border border-info-200',
    },
    stock: {
       wrapper: 'flex flex-col gap-1',

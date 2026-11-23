@@ -22,6 +22,7 @@ export interface State {
    filter: Filter;
    isLoading: boolean;
    targetPrize: Prize | null;
+   formSessionKey: number;
    isDeleting: boolean;
 }
 

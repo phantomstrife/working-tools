@@ -28,6 +28,7 @@ const ATTENDANT_EXPORT_COLUMNS = [
    'is_checked_in',
    'checked_in_at',
    'check_in_method',
+   'is_draw_eligible',
    'has_won',
    'created_at',
 ].join(', ');
@@ -201,6 +202,10 @@ export const useServicesGameLuckyDrawAttendantsExportCsv: Types.Service = async 
          {
             header: 'Phương thức check-in',
             getValue: (row) => formatCheckInMethod(row.check_in_method),
+         },
+         {
+            header: 'Được quay thưởng',
+            getValue: (row) => (row.is_draw_eligible ? 'Có' : 'Không'),
          },
          {
             header: 'Đã trúng giải',

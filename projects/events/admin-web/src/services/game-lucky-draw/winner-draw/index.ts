@@ -4,7 +4,7 @@ import { getAdminClient } from '@admin-web/adapters/supabase/admin';
 import { getTokenClient } from '@admin-web/adapters/supabase/token';
 import { trycatchAsync } from '@admin-web/utilities/trycatch';
 
-import { ALLOWED_ROLES, ATTENDANT_COLUMNS, PRIZE_COLUMNS } from './constants';
+import { ALLOWED_ROLES, ATTENDANT_COLUMNS, ELIGIBLE_POOL_PAGE_SIZE, PRIZE_COLUMNS } from './constants';
 
 import type * as Types from './type';
 
@@ -185,16 +185,33 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
          throw new Error('services.game_lucky_draw.draw.prize_depleted');
       }
 
-      const poolQuery = await admin
-         .from('lucky_draw_attendants')
-         .select(ATTENDANT_COLUMNS)
-         .eq('game_id', gameId)
-         .eq('is_checked_in', true)
-         .eq('has_won', false)
-         .returns<Types.Attendant[]>();
+      const allCandidateRows: Types.Attendant[] = [];
+      let offset = 0;
 
-      if (poolQuery.error) {
-         throw new Error(poolQuery.error.message);
+      while (true) {
+         const poolQuery = await admin
+            .from('lucky_draw_attendants')
+            .select(ATTENDANT_COLUMNS)
+            .eq('game_id', gameId)
+            .eq('is_checked_in', true)
+            .eq('has_won', false)
+            .eq('is_draw_eligible', true)
+            .order('id', { ascending: true })
+            .range(offset, offset + ELIGIBLE_POOL_PAGE_SIZE - 1)
+            .returns<Types.Attendant[]>();
+
+         if (poolQuery.error) {
+            throw new Error(poolQuery.error.message);
+         }
+
+         const rows = poolQuery.data ?? [];
+         allCandidateRows.push(...rows);
+
+         if (rows.length < ELIGIBLE_POOL_PAGE_SIZE) {
+            break;
+         }
+
+         offset += ELIGIBLE_POOL_PAGE_SIZE;
       }
 
       const excludedSet = new Set<string>([
@@ -202,7 +219,7 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
          ...(revokedAttendantId ? [revokedAttendantId] : []),
       ]);
 
-      const eligiblePool = (poolQuery.data ?? []).filter(
+      const eligiblePool = allCandidateRows.filter(
          (attendant) => !excludedSet.has(attendant.id) && !isAbsentForfeited(attendant.custom_metadata),
       );
 
@@ -210,7 +227,44 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
          throw new Error('services.game_lucky_draw.draw.no_eligible_attendants');
       }
 
-      const picked = eligiblePool[randomInt(0, eligiblePool.length)];
+      const eligibleById = new Map(eligiblePool.map((item) => [item.id, item]));
+
+      // Step 1: Check `currentPrize.designated_attendant_ids` in priority rank order (#1, #2, #3...).
+      let picked: Types.Attendant | null = null;
+      const designatedIds = currentPrize.designated_attendant_ids ?? [];
+
+      for (const attendantId of designatedIds) {
+         const candidate = eligibleById.get(attendantId);
+         if (candidate) {
+            picked = candidate;
+            break;
+         }
+      }
+
+      // Step 2: Fallback to random draw with cross-prize reservation protection.
+      if (!picked) {
+         const otherActivePrizesQuery = await admin
+            .from('lucky_draw_prizes')
+            .select('id, designated_attendant_ids')
+            .eq('game_id', gameId)
+            .neq('id', currentPrize.id)
+            .gt('remaining_quantity', 0);
+
+         if (otherActivePrizesQuery.error) {
+            throw new Error(otherActivePrizesQuery.error.message);
+         }
+
+         const reservedForOtherPrizes = new Set<string>();
+         for (const otherPrize of otherActivePrizesQuery.data ?? []) {
+            for (const reservedId of otherPrize.designated_attendant_ids ?? []) {
+               reservedForOtherPrizes.add(reservedId);
+            }
+         }
+
+         const unreservedPool = eligiblePool.filter((attendant) => !reservedForOtherPrizes.has(attendant.id));
+         const randomPool = unreservedPool.length > 0 ? unreservedPool : eligiblePool;
+         picked = randomPool[randomInt(0, randomPool.length)];
+      }
 
       // 1. Atomically decrement remaining_quantity (guarded by remaining_quantity > 0).
       const prizeUpdate = await admin
@@ -235,6 +289,7 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
          .eq('id', picked.id)
          .eq('game_id', gameId)
          .eq('has_won', false)
+         .eq('is_draw_eligible', true)
          .select(ATTENDANT_COLUMNS)
          .maybeSingle<Types.Attendant>();
 

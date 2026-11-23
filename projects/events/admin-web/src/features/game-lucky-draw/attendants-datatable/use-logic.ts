@@ -9,6 +9,7 @@ import { useTranslate } from '@admin-web/locale';
 import { useServicesGameLuckyDrawAttendantDelete } from '@admin-web/services/game-lucky-draw/attendant-delete';
 import { useServicesGameLuckyDrawAttendantSearch } from '@admin-web/services/game-lucky-draw/attendant-search';
 import { useServicesGameLuckyDrawAttendantSendEmails } from '@admin-web/services/game-lucky-draw/attendant-send-emails';
+import { useServicesGameLuckyDrawAttendantToggleEligibility } from '@admin-web/services/game-lucky-draw/attendant-toggle-eligibility';
 import { useServicesGameLuckyDrawWinnersExportCsv } from '@admin-web/services/game-lucky-draw/winners-export-csv';
 import { downloadCsvFile } from '@admin-web/utilities/csv';
 
@@ -40,7 +41,7 @@ export function useLogic(properties: Types.Properties) {
       prefix: '',
    });
 
-   const [state, setState] = useDeepState<Types.State>({
+   const [state, setState, setStateRaw] = useDeepState<Types.State>({
       attendants: [],
       totalCount: 0,
       search: '',
@@ -55,6 +56,7 @@ export function useLogic(properties: Types.Properties) {
       isExportingAttendants: false,
       isSendingEmails: false,
       isSendingAllEmails: false,
+      togglingEligibilityIds: {},
    });
 
    const resolveErrorMessage = useCallback(
@@ -415,6 +417,93 @@ export function useLogic(properties: Types.Properties) {
       void handleSearch();
    };
 
+   const handleToggleEligibility: Types.HandleToggleEligibility = async (attendant) => {
+      if (!gameId || state.togglingEligibilityIds[attendant.id]) {
+         return;
+      }
+
+      const previousEligible = Boolean(attendant.is_draw_eligible);
+      const nextEligible = !previousEligible;
+
+      setStateRaw((previous) => ({
+         ...previous,
+         togglingEligibilityIds: {
+            ...previous.togglingEligibilityIds,
+            [attendant.id]: true,
+         },
+         attendants: previous.attendants.map((item) =>
+            item.id === attendant.id
+               ? {
+                    ...item,
+                    is_draw_eligible: nextEligible,
+                 }
+               : item,
+         ),
+      }));
+
+      const toggleResult = await useServicesGameLuckyDrawAttendantToggleEligibility({
+         gameId,
+         attendantId: attendant.id,
+         isDrawEligible: nextEligible,
+      });
+
+      if (toggleResult.error || !toggleResult.data) {
+         toast.error(
+            resolveErrorMessage(
+               toggleResult.error ? toggleResult.message : 'services.game_lucky_draw.attendant.save_failed',
+            ),
+         );
+
+         setStateRaw((previous) => {
+            const nextPending = { ...previous.togglingEligibilityIds };
+            delete nextPending[attendant.id];
+
+            return {
+               ...previous,
+               togglingEligibilityIds: nextPending,
+               attendants: previous.attendants.map((item) =>
+                  item.id === attendant.id
+                     ? {
+                          ...item,
+                          is_draw_eligible: previousEligible,
+                       }
+                     : item,
+               ),
+            };
+         });
+         return;
+      }
+
+      const updatedAttendant = toggleResult.data.attendant;
+      const attendantName = [updatedAttendant.salutation?.trim(), updatedAttendant.full_name].filter(Boolean).join(' ');
+
+      toast.success(
+         translate(nextEligible ? 'toast.eligibility_enabled' : 'toast.eligibility_disabled', {
+            name: attendantName,
+            ticket: updatedAttendant.ticket_code,
+         }),
+      );
+
+      setStateRaw((previous) => {
+         const nextPending = { ...previous.togglingEligibilityIds };
+         delete nextPending[attendant.id];
+
+         const matchesCurrentFilter = !(
+            (previous.filter === 'DRAW_ELIGIBLE' && !updatedAttendant.is_draw_eligible) ||
+            (previous.filter === 'DRAW_INELIGIBLE' && updatedAttendant.is_draw_eligible)
+         );
+
+         return {
+            ...previous,
+            togglingEligibilityIds: nextPending,
+            attendants: matchesCurrentFilter
+               ? previous.attendants.map((item) => (item.id === updatedAttendant.id ? updatedAttendant : item))
+               : previous.attendants.filter((item) => item.id !== updatedAttendant.id),
+            totalCount: matchesCurrentFilter ? previous.totalCount : Math.max(0, previous.totalCount - 1),
+         };
+      });
+   };
+
    return {
       param: {
          gameId,
@@ -429,6 +518,7 @@ export function useLogic(properties: Types.Properties) {
          isExportingAttendants: state.isExportingAttendants,
          isSendingEmails: state.isSendingEmails,
          isSendingAllEmails: state.isSendingAllEmails,
+         togglingEligibilityIds: state.togglingEligibilityIds,
       },
       func: {
          translate,
@@ -447,6 +537,7 @@ export function useLogic(properties: Types.Properties) {
          handleSendEmails,
          handleSendAllEmails,
          handleConfirmSendAllEmails,
+         handleToggleEligibility,
       },
    };
 }

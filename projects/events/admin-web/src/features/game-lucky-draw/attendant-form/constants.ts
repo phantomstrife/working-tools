@@ -31,4 +31,5 @@ export const schema = z.object({
    sale_in_charge: z.string().trim().optional().or(z.literal('')).nullable(),
    accommodation: z.boolean(),
    is_checked_in: z.boolean(),
+   is_draw_eligible: z.boolean(),
 });

@@ -13,6 +13,7 @@ import {
    Mail,
    Phone,
    RefreshCw,
+   Trophy,
    User,
    UserCheck,
    Users,
@@ -333,6 +334,35 @@ export const AttendantForm: AdminWeb.Component<Types.Properties> = (properties) 
                                     })}
                                  </span>
                               )}
+                        </span>
+                     </label>
+                  </div>
+
+                  <div className={checkbox_field.wrapper}>
+                     <div className={checkbox_field.title_row}>
+                        <Trophy
+                           size={15}
+                           className={checkbox_field.title_icon}
+                        />
+                        <span>{func.translate('fields.is_draw_eligible.label')}</span>
+                     </div>
+                     <label
+                        htmlFor="attendant-is-draw-eligible"
+                        className={checkbox_field.control}
+                     >
+                        <input
+                           id="attendant-is-draw-eligible"
+                           type="checkbox"
+                           className={checkbox_field.input}
+                           {...func.register('is_draw_eligible')}
+                        />
+                        <span className={checkbox_field.label_group}>
+                           <span className={checkbox_field.label}>
+                              {func.translate('fields.is_draw_eligible.checkbox_label')}
+                           </span>
+                           <span className={checkbox_field.hint}>
+                              {func.translate('fields.is_draw_eligible.hint')}
+                           </span>
                         </span>
                      </label>
                   </div>

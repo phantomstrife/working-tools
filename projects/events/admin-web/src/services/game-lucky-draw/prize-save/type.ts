@@ -7,6 +7,7 @@ export interface Request {
    remaining_quantity: number;
    description?: string | null;
    image_url?: string | null;
+   designated_attendant_ids?: string[];
 }
 
 export interface Response {
