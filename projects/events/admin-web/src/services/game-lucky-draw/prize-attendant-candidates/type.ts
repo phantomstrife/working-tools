@@ -10,6 +10,7 @@ export interface Candidate {
    is_checked_in: boolean | null;
    is_draw_eligible: boolean;
    has_won: boolean | null;
+   custom_metadata: AdminWeb.Database.GameLuckyDrawAttendant['custom_metadata'];
 }
 
 export interface Request {

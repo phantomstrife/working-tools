@@ -36,6 +36,14 @@ const formatRepresentativeName = (salutation: string | null, representative: str
    return [salutation?.trim(), trimmed].filter(Boolean).join(' ');
 };
 
+const isAbsentForfeited = (metadata: unknown): boolean => {
+   if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
+      return false;
+   }
+
+   return Boolean((metadata as Record<string, unknown>).is_absent_forfeited);
+};
+
 const resolveCandidateStatus = (candidate: Types.AttendantCandidate | null): Types.CandidateStatus => {
    if (!candidate) {
       return 'MISSING';
@@ -47,6 +55,10 @@ const resolveCandidateStatus = (candidate: Types.AttendantCandidate | null): Typ
 
    if (candidate.has_won) {
       return 'HAS_WON';
+   }
+
+   if (isAbsentForfeited(candidate.custom_metadata)) {
+      return 'ABSENT';
    }
 
    if (!candidate.is_checked_in) {

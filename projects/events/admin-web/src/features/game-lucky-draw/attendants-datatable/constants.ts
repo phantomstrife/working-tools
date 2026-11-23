@@ -5,3 +5,11 @@ export const MODAL_ID = {
    SEND_ALL_EMAILS: 'lucky-draw-attendant-send-all-emails-modal',
 } as const;
 
+export const isAbsentForfeited = (metadata: unknown): boolean => {
+   if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
+      return false;
+   }
+
+   return Boolean((metadata as Record<string, unknown>).is_absent_forfeited);
+};
+

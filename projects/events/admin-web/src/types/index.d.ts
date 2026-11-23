@@ -157,6 +157,7 @@ declare global {
          | 'NOT_CHECKED_IN'
          | 'WINNER'
          | 'NOT_WINNER'
+         | 'ABSENT_FORFEITED'
          | 'EMAIL_SENT'
          | 'EMAIL_PENDING'
          | 'DRAW_ELIGIBLE'

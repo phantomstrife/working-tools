@@ -481,10 +481,26 @@ export const useStoreLuckyDraw = create<Types.Store>((set, get) => {
                async () => {
                   const latestState = await useServicesGameLuckyDrawStateRead({ gameId });
                   if (!latestState.error && get().gameId === gameId) {
+                     const currentState = get();
+                     const nextForfeitedIds = latestState.data.participants
+                        .filter((participant) => participant.isAbsentForfeited)
+                        .map((participant) => participant.id);
+                     const stillHasActiveWinner = Boolean(
+                        currentState.activeWinnerRecordId &&
+                           latestState.data.winners.some((winner) => winner.id === currentState.activeWinnerRecordId),
+                     );
+
                      set({
                         participants: latestState.data.participants,
                         prizes: latestState.data.prizes,
                         winners: latestState.data.winners,
+                        forfeitedAttendantIds: nextForfeitedIds,
+                        ...(!stillHasActiveWinner && !currentState.isSpinning && !currentState.isDrawingRequest
+                           ? {
+                                activeWinnerId: null,
+                                activeWinnerRecordId: null,
+                             }
+                           : {}),
                      });
                   }
                },

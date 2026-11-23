@@ -29,6 +29,8 @@ export const useServicesGameLuckyDrawAttendantSearch: Types.Service = async (req
          query = query.eq('has_won', true);
       } else if (filter === 'NOT_WINNER') {
          query = query.eq('has_won', false);
+      } else if (filter === 'ABSENT_FORFEITED') {
+         query = query.contains('custom_metadata', { is_absent_forfeited: true });
       } else if (filter === 'EMAIL_SENT') {
          query = query.eq('email_status', 'SENT');
       } else if (filter === 'EMAIL_PENDING') {

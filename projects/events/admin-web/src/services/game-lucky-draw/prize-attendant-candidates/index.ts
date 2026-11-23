@@ -19,6 +19,7 @@ const CANDIDATE_COLUMNS = [
    'is_checked_in',
    'is_draw_eligible',
    'has_won',
+   'custom_metadata',
 ].join(', ');
 
 export const useServicesGameLuckyDrawPrizeAttendantCandidates: Types.Service = async (request) => {

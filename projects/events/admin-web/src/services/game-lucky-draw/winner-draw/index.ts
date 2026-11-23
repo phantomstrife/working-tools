@@ -16,6 +16,32 @@ const isAbsentForfeited = (metadata: unknown): boolean => {
    return Boolean((metadata as Record<string, unknown>).is_absent_forfeited);
 };
 
+const normalizeUuid = (id: string): string => {
+   return id.trim().toLowerCase();
+};
+
+const normalizeUuidList = (value: unknown): string[] => {
+   if (Array.isArray(value)) {
+      return value
+         .filter((item): item is string => typeof item === 'string')
+         .map(normalizeUuid)
+         .filter(Boolean);
+   }
+
+   if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+         return trimmed
+            .slice(1, -1)
+            .split(',')
+            .map((item) => normalizeUuid(item.replace(/^"|"$/g, '')))
+            .filter(Boolean);
+      }
+   }
+
+   return [];
+};
+
 export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request) => {
    const { accessToken, gameId, prizeId, revokeWinnerRecordId, excludeAttendantIds = [] } = request;
 
@@ -152,7 +178,7 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
 
          // Set `has_won = false` so the absent attendant does NOT appear as a winner in tables/exports,
          // while recording `is_absent_forfeited: true` in metadata so they are excluded from future draws.
-         await admin
+         const absentUpdate = await admin
             .from('lucky_draw_attendants')
             .update({
                has_won: false,
@@ -163,6 +189,10 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
             })
             .eq('id', absentAttendantId)
             .eq('game_id', gameId);
+
+         if (absentUpdate.error) {
+            throw new Error(absentUpdate.error.message);
+         }
 
          const restoredRemaining = Math.min(currentPrize.total_quantity, currentPrize.remaining_quantity + 1);
 
@@ -215,23 +245,24 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
       }
 
       const excludedSet = new Set<string>([
-         ...excludeAttendantIds,
-         ...(revokedAttendantId ? [revokedAttendantId] : []),
+         ...excludeAttendantIds.map(normalizeUuid),
+         ...(revokedAttendantId ? [normalizeUuid(revokedAttendantId)] : []),
       ]);
 
       const eligiblePool = allCandidateRows.filter(
-         (attendant) => !excludedSet.has(attendant.id) && !isAbsentForfeited(attendant.custom_metadata),
+         (attendant) =>
+            !excludedSet.has(normalizeUuid(attendant.id)) && !isAbsentForfeited(attendant.custom_metadata),
       );
 
       if (eligiblePool.length === 0) {
          throw new Error('services.game_lucky_draw.draw.no_eligible_attendants');
       }
 
-      const eligibleById = new Map(eligiblePool.map((item) => [item.id, item]));
+      const eligibleById = new Map(eligiblePool.map((item) => [normalizeUuid(item.id), item]));
 
       // Step 1: Check `currentPrize.designated_attendant_ids` in priority rank order (#1, #2, #3...).
       let picked: Types.Attendant | null = null;
-      const designatedIds = currentPrize.designated_attendant_ids ?? [];
+      const designatedIds = normalizeUuidList(currentPrize.designated_attendant_ids);
 
       for (const attendantId of designatedIds) {
          const candidate = eligibleById.get(attendantId);
@@ -241,28 +272,59 @@ export const useServicesGameLuckyDrawWinnerDraw: Types.Service = async (request)
          }
       }
 
-      // Step 2: Fallback to random draw with cross-prize reservation protection.
+      // Step 2: Fallback to random draw with strict cross-prize reservation protection.
       if (!picked) {
-         const otherActivePrizesQuery = await admin
+         const otherPrizesQuery = await admin
             .from('lucky_draw_prizes')
-            .select('id, designated_attendant_ids')
+            .select('id, remaining_quantity, designated_attendant_ids')
             .eq('game_id', gameId)
-            .neq('id', currentPrize.id)
-            .gt('remaining_quantity', 0);
+            .neq('id', currentPrize.id);
 
-         if (otherActivePrizesQuery.error) {
-            throw new Error(otherActivePrizesQuery.error.message);
+         if (otherPrizesQuery.error) {
+            throw new Error(otherPrizesQuery.error.message);
          }
 
-         const reservedForOtherPrizes = new Set<string>();
-         for (const otherPrize of otherActivePrizesQuery.data ?? []) {
-            for (const reservedId of otherPrize.designated_attendant_ids ?? []) {
-               reservedForOtherPrizes.add(reservedId);
+         const reservedForAnyOtherPrize = new Set<string>();
+         const reservedForActiveOtherPrizes = new Set<string>();
+         const strictlyReservedForActiveOtherPrizes = new Set<string>();
+
+         for (const otherPrize of otherPrizesQuery.data ?? []) {
+            const otherDesignatedIds = normalizeUuidList(otherPrize.designated_attendant_ids);
+            const isOtherPrizeActive = (otherPrize.remaining_quantity ?? 0) > 0;
+            let activeSlotsProtected = 0;
+
+            for (const reservedId of otherDesignatedIds) {
+               reservedForAnyOtherPrize.add(reservedId);
+
+               if (isOtherPrizeActive) {
+                  reservedForActiveOtherPrizes.add(reservedId);
+
+                  if (activeSlotsProtected < otherPrize.remaining_quantity && eligibleById.has(reservedId)) {
+                     strictlyReservedForActiveOtherPrizes.add(reservedId);
+                     activeSlotsProtected += 1;
+                  }
+               }
             }
          }
 
-         const unreservedPool = eligiblePool.filter((attendant) => !reservedForOtherPrizes.has(attendant.id));
-         const randomPool = unreservedPool.length > 0 ? unreservedPool : eligiblePool;
+         // Tier 1: Never pick anyone designated to ANY other prize while unreserved eligible guests exist.
+         const unreservedPool = eligiblePool.filter(
+            (attendant) => !reservedForAnyOtherPrize.has(normalizeUuid(attendant.id)),
+         );
+         // Tier 2: Protect all guests designated to other active prizes (remaining_quantity > 0).
+         const notActiveReservedPool =
+            unreservedPool.length > 0
+               ? unreservedPool
+               : eligiblePool.filter((attendant) => !reservedForActiveOtherPrizes.has(normalizeUuid(attendant.id)));
+         // Tier 3: Protect top `remaining_quantity` eligible slots of every other active prize before touching excess backups.
+         const notStrictlyReservedPool =
+            notActiveReservedPool.length > 0
+               ? notActiveReservedPool
+               : eligiblePool.filter(
+                    (attendant) => !strictlyReservedForActiveOtherPrizes.has(normalizeUuid(attendant.id)),
+                 );
+
+         const randomPool = notStrictlyReservedPool.length > 0 ? notStrictlyReservedPool : eligiblePool;
          picked = randomPool[randomInt(0, randomPool.length)];
       }
 

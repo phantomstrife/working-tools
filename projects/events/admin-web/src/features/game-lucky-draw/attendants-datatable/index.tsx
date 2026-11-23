@@ -9,7 +9,7 @@ import { RowActions } from '@admin-web/components/row-actions';
 import { AttendantForm } from '@admin-web/features/game-lucky-draw/attendant-form';
 import { AttendantImport } from '@admin-web/features/game-lucky-draw/attendant-import';
 
-import { MODAL_ID } from './constants';
+import { MODAL_ID, isAbsentForfeited } from './constants';
 import { useLogic } from './use-logic';
 import { useStyle } from './use-style';
 
@@ -109,6 +109,10 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                            {
                               label: func.translate('toolbar.filters.not_winner'),
                               value: 'NOT_WINNER',
+                           },
+                           {
+                              label: func.translate('toolbar.filters.absent'),
+                              value: 'ABSENT_FORFEITED',
                            },
                         ],
                      },
@@ -268,15 +272,17 @@ export const AttendantsDatatable: AdminWeb.Component<Types.Properties> = (proper
                {
                   key: 'has_won',
                   header: func.translate('table.headers.has_won'),
-                  render: (row) => (
-                     <span
-                        className={cell.status_badge({
-                           variant: row.has_won ? 'winner' : 'notWinner',
-                        })}
-                     >
-                        {row.has_won ? func.translate('table.badges.winner') : func.translate('table.badges.no')}
-                     </span>
-                  ),
+                  render: (row) => {
+                     const isAbsent = isAbsentForfeited(row.custom_metadata);
+                     const variant = row.has_won ? 'winner' : isAbsent ? 'absent' : 'notWinner';
+                     const labelKey = row.has_won
+                        ? 'table.badges.winner'
+                        : isAbsent
+                          ? 'table.badges.absent'
+                          : 'table.badges.no';
+
+                     return <span className={cell.status_badge({ variant })}>{func.translate(labelKey)}</span>;
+                  },
                },
                {
                   key: 'actions',

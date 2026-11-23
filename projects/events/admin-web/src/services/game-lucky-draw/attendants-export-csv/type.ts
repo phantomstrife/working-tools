@@ -30,6 +30,7 @@ export interface AttendantExportRow {
    check_in_method: AdminWeb.Database.Check_In_Method | null;
    is_draw_eligible: boolean;
    has_won: boolean | null;
+   custom_metadata: AdminWeb.Database.GameLuckyDrawAttendant['custom_metadata'];
    created_at: string | null;
 }
 

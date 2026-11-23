@@ -22,6 +22,7 @@ const themes = {
             ELIGIBLE: 'bg-success-50 text-success-700 border-success-200',
             NOT_CHECKED_IN: 'bg-warning-50 text-warning-700 border-warning-200',
             HAS_WON: 'bg-neutral-100 text-neutral-600 border-neutral-300',
+            ABSENT: 'bg-error-50 text-error-700 border-error-200',
             INELIGIBLE: 'bg-error-50 text-error-700 border-error-200',
             MISSING: 'bg-error-50 text-error-700 border-error-200',
          },

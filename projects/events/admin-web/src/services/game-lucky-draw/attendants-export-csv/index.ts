@@ -30,6 +30,7 @@ const ATTENDANT_EXPORT_COLUMNS = [
    'check_in_method',
    'is_draw_eligible',
    'has_won',
+   'custom_metadata',
    'created_at',
 ].join(', ');
 
@@ -92,6 +93,14 @@ const getEffectiveRepresentativeSalutation = (row: Types.AttendantExportRow): st
 const getEffectiveRepresentativePhone = (row: Types.AttendantExportRow): string => {
    const rawRepPhone = (row.representative_phone ?? '').trim();
    return rawRepPhone || (row.phone ?? '').trim();
+};
+
+const isAbsentForfeited = (metadata: unknown): boolean => {
+   if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
+      return false;
+   }
+
+   return Boolean((metadata as Record<string, unknown>).is_absent_forfeited);
 };
 
 export const useServicesGameLuckyDrawAttendantsExportCsv: Types.Service = async (request) => {
@@ -210,6 +219,10 @@ export const useServicesGameLuckyDrawAttendantsExportCsv: Types.Service = async 
          {
             header: 'Đã trúng giải',
             getValue: (row) => (row.has_won ? 'Có' : 'Không'),
+         },
+         {
+            header: 'Vắng mặt (hủy giải)',
+            getValue: (row) => (isAbsentForfeited(row.custom_metadata) ? 'Có' : 'Không'),
          },
          {
             header: 'Thời gian tạo',

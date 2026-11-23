@@ -8,6 +8,7 @@ const themes = {
             checkedIn: 'bg-success-50 text-success-700 border-success-200',
             notCheckedIn: 'bg-neutral-100 text-neutral-500 border-neutral-200',
             winner: 'bg-warning-50 text-warning-700 border-warning-200',
+            absent: 'bg-error-50 text-error-700 border-error-200',
             notWinner: 'bg-neutral-100 text-neutral-500 border-neutral-200',
             email_NOT_SENT: 'bg-neutral-100 text-neutral-500 border-neutral-200',
             email_SENDING: 'bg-info-50 text-info-700 border-info-200 animate-pulse',

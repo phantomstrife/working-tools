@@ -16,7 +16,7 @@ export type FormValues = z.infer<typeof schema>;
 export type Mode = 'create' | 'edit';
 export type MoveDirection = 'up' | 'down';
 export type AttendantCandidate = Candidate;
-export type CandidateStatus = 'ELIGIBLE' | 'NOT_CHECKED_IN' | 'HAS_WON' | 'INELIGIBLE' | 'MISSING';
+export type CandidateStatus = 'ELIGIBLE' | 'NOT_CHECKED_IN' | 'HAS_WON' | 'ABSENT' | 'INELIGIBLE' | 'MISSING';
 
 export interface RankedCandidateItem {
    id: string;
